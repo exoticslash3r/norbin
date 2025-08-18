@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N0rb1n</title>
+<style>
+body { margin:0; font-family: monospace; background-color:#0a0a0a; color:#fff; overflow-x:hidden; }
+header { display:flex; align-items:center; justify-content:space-between; background:#111; padding:10px 20px; flex-wrap: wrap; position:relative; z-index:2; }
+.logo { font-size:24px; font-weight:bold; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; color:transparent; animation: glow 2s infinite alternate; }
+@keyframes glow { 0% { text-shadow:0 0 5px #fff;} 100% { text-shadow:0 0 20px #fff;} }
+.menu-btn { font-size:24px; cursor:pointer; background:none; border:none; color:#fff; }
+.side-menu { position:fixed; top:0; right:-250px; width:250px; height:100%; background:#222; padding:20px; display:flex; flex-direction:column; gap:10px; transition:0.3s; z-index:5; }
+.side-menu button { background:#333; color:#fff; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; text-align:left; }
+.side-menu button:hover { background:#444; }
+.close-btn { align-self:flex-end; font-size:20px; cursor:pointer; background:none; border:none; color:#fff; margin-bottom:10px; }
+.device-info { font-size:12px; color:#aaa; margin-top:10px; }
+.activity { display:flex; align-items:center; margin-left:10px; color:#0f0; font-weight:bold; }
+.activity-dot { width:10px; height:10px; background:red; border-radius:50%; margin-right:5px; }
+.container { padding:20px; }
+.section { display:none; }
+input, textarea { width:100%; padding:10px; border-radius:5px; border:none; margin:5px 0; }
+button { cursor:pointer; }
+.chat-box { background:#111; padding:10px; border-radius:10px; max-height:400px; overflow-y:auto; }
+.message { display:flex; align-items:center; margin:5px 0; }
+.message img { width:30px; height:30px; border-radius:50%; margin-right:10px; }
+.message-content { background:#222; padding:5px 10px; border-radius:5px; }
+.input-area { display:flex; margin-top:10px; gap:5px; }
+.input-area input { flex:1; }
+.friend-btn { margin-left:5px; padding:2px 5px; font-size:12px; }
+.emoji-picker { display:flex; flex-wrap:wrap; gap:5px; margin-top:5px; max-height:100px; overflow-y:auto; }
+.emoji-picker span { cursor:pointer; }
+.search-result { background:#222; padding:5px; margin:5px 0; border-radius:5px; cursor:pointer; }
+.search-result:hover { background:#444; }
+.preview-box { background:#111; padding:10px; border-radius:10px; margin-top:10px; }
+.friend-request { background:#222; padding:5px; margin:5px 0; border-radius:5px; }
+.friend-request button { margin-left:5px; padding:2px 5px; }
+.ascii-art { white-space: pre; font-size:12px; margin-bottom:10px; color:#0ff; }
+@media (max-width:600px) { header { flex-direction: column; align-items:flex-start; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">N0rb1n</div>
+  <button class="menu-btn" onclick="openMenu()">☰</button>
+  <div class="activity" id="activityStatus"><div class="activity-dot"></div><span id="onlineCount">0</span></div>
+</header>
+
+<div class="side-menu" id="sideMenu">
+  <button class="close-btn" onclick="closeMenu()">✖</button>
+  <button onclick="showSection('home'); closeMenu()">Home</button>
+  <button onclick="showSection('paste'); closeMenu()">Paste</button>
+  <button onclick="showSection('recent'); closeMenu()">Recent Pastes</button>
+  <button onclick="showSection('hall'); closeMenu()">Hall of Autism</button>
+  <button onclick="showSection('chat'); closeMenu()">Chat</button>
+  <button onclick="showSection('friends'); closeMenu()">Friends</button>
+  <button onclick="showSection('messages'); closeMenu()">Messages</button>
+  <div class="device-info" id="deviceInfo">Device: Unknown</div>
+</div>
+
+<div class="container">
+  <div id="home" class="section">
+    <h3>Welcome to N0rb1n!</h3>
+    <div id="loginPrompt"><button onclick="showLogin()">Login / Create Account</button></div>
+    <div id="asciiArt" class="ascii-art" style="display:none;">#     #   ###                   #          
+##    #  #   #  #####  #####   ##   #    # 
+# #   # #     # #    # #    # # #   ##   # 
+#  #  # #     # #    # #####    #   # #  # 
+#   # # #     # #####  #    #   #   #  # # 
+#    ##  #   #  #   #  #    #   #   #   ## 
+#     #   ###   #    # #####  ##### #    #</div>
+    <h4>Search Pastes:</h4>
+    <input type="text" id="searchInput" placeholder="Search titles..." oninput="searchPastes()">
+    <div id="searchResults"></div>
+    <div id="previewBox" class="preview-box" style="display:none;"></div>
+  </div>
+
+  <div id="loginSection" class="section">
+    <h3>Login / Create Account</h3>
+    <input type="text" id="usernameInput" placeholder="Username">
+    <input type="text" id="profilePicInput" placeholder="Profile Picture URL">
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="createAccount()">Create Account</button>
+    <button onclick="loginAccount()">Login</button>
+    <p id="loginMsg"></p>
+  </div>
+
+  <div id="paste" class="section">
+    <h3>Create Paste</h3>
+    <input type="text" id="pasteTitle" placeholder="Title">
+    <textarea id="pasteContent" rows="5" placeholder="Content"></textarea>
+    <input type="text" id="pasteImage" placeholder="Optional Image URL">
+    <button onclick="createPaste()">Submit Paste</button>
+  </div>
+
+  <div id="recent" class="section"><h3>Recent Pastes</h3><div id="recentPastes"></div></div>
+  <div id="hall" class="section"><h3>Hall of Autism</h3><div id="hallPastes"></div></div>
+
+  <div id="chat" class="section">
+    <h3>Global Chat</h3>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="input-area">
+      <input type="text" id="chatInput" placeholder="Message">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <div class="emoji-picker" id="emojiPicker"></div>
+  </div>
+
+  <div id="friends" class="section">
+    <h3>Friends</h3>
+    <div id="friendRequests"></div>
+    <div id="friendsList"></div>
+  </div>
+  <div id="messages" class="section"><h3>Private Messages</h3><div id="messagesList"></div></div>
+</div>
+
+<script>
+let currentUser = null;
+
+function openMenu(){ document.getElementById('sideMenu').style.right='0'; }
+function closeMenu(){ document.getElementById('sideMenu').style.right='-250px'; }
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(sec=>sec.style.display='none');
+  const section = document.getElementById(id);
+  if(section) section.style.display='block';
+  if(id==='recent') loadRecentPastes();
+  if(id==='hall') loadHall();
+  if(id==='chat') loadChat();
+  if(id==='friends') loadFriends();
+  if(id==='messages') loadMessages();
+}
+
+function showLogin(){ showSection('loginSection'); }
+
+function createAccount(){
+  let user = document.getElementById('usernameInput').value;
+  let pass = document.getElementById('passwordInput').value;
+  let pic = document.getElementById('profilePicInput').value || 'https://via.placeholder.com/30';
+  let users = JSON.parse(localStorage.getItem('users')||'{}');
+  if(users[user]){ document.getElementById('loginMsg').innerText='Account already exists'; return; }
+  users[user]={password:pass, pic:pic, friends:[], friendRequests:[], messages:{}};
+  localStorage.setItem('users', JSON.stringify(users));
+  currentUser = user;
+  document.getElementById('loginMsg').innerText='Account created successfully!';
+  const prompt = document.getElementById('loginPrompt');
+  if(prompt) prompt.style.display='none';
+  document.getElementById('asciiArt').style.display='block';
+}
+
+function loginAccount(){
+  let user = document.getElementById('usernameInput').value;
+  let pass = document.getElementById('passwordInput').value;
+  let users = JSON.parse(localStorage.getItem('users')||'{}');
+  if(!users[user]){ document.getElementById('loginMsg').innerText='Account does not exist'; return; }
+  if(users[user].password!==pass){ document.getElementById('loginMsg').innerText='Password incorrect'; return; }
+  currentUser = user;
+  document.getElementById('loginMsg').innerText='Logged in!';
+  const prompt = document.getElementById('loginPrompt');
+  if(prompt) prompt.style.display='none';
+  document.getElementById('asciiArt').style.display='block';
+}
+
+function createPaste(){
+  if(!currentUser){ alert('Login first'); return; }
+  let title=document.getElementById('pasteTitle').value;
+  let content=document.getElementById('pasteContent').value;
+  let image=document.getElementById('pasteImage').value;
+  let pastes=JSON.parse(localStorage.getItem('pastes')||'[]');
+  pastes.unshift({title,content,image:image||'',author:currentUser,date:Date.now()});
+  localStorage.setItem('pastes', JSON.stringify(pastes));
+  alert('Paste created!');
+  document.getElementById('pasteTitle').value='';
+  document.getElementById('pasteContent').value='';
+  document.getElementById('pasteImage').value='';
+}
+
+function loadHall(){
+  let pastes=JSON.parse(localStorage.getItem('pastes')||'[]');
+  let counts={};
+  pastes.forEach(p=>{ counts[p.title]=(counts[p.title]||0)+1; });
+  let sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  let container=document.getElementById('hallPastes');
+  if(!container) return;
+  container.innerHTML='';
+  sorted.slice(0,10).forEach(([title,count])=>{
+    pastes.forEach(p=>{
+      if(p.title===title && p.image){
+        let div=document.createElement('div');
+        div.innerHTML=`<strong>${p.title}</strong> (${count} times)<br><img src='${p.image}' style='max-width:100%; margin-top:5px;'>`;
+        container.appendChild(div);
+      }
+    });
+  });
+}
+
+// Placeholder functions to prevent script errors
+function loadRecentPastes(){ console.log('loadRecentPastes called'); }
+function loadChat(){ console.log('loadChat called'); }
+function loadFriends(){ console.log('loadFriends called'); }
+function loadMessages(){ console.log('loadMessages called'); }
+function searchPastes(){ console.log('searchPastes called'); }
+function sendMessage(){ console.log('sendMessage called'); }
+
+function detectDevice(){
+  let ua = navigator.userAgent;
+  let device='Unknown';
+  if(/android/i.test(ua)) device='Android';
+  else if(/iPad|iPhone|iPod/.test(ua)) device='iOS';
+  else if(/Windows|Macintosh|Linux/.test(ua)) device='Desktop';
+  document.getElementById('deviceInfo').innerText='Device: '+device;
+}
+
+detectDevice();
+
+function updateActivity(){
+  document.getElementById('onlineCount').innerText=Math.floor(Math.random()*10+1);
+}
+setInterval(updateActivity,3000);
+
+showSection('home');
+</script>
+</body>
+</html>
