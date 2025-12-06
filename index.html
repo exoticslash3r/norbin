@@ -15,24 +15,75 @@ body {
   font-family: monospace;
 }
 
+/* ---------- TOP BAR ---------- */
+.topbar {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.menu-btn {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* ---------- SIDE MENU ---------- */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #111;
+  border-right: 2px solid #222;
+  padding: 15px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.side-menu h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.side-menu button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #333;
+  cursor: pointer;
+}
+
+.side-menu button:hover {
+  background: #222;
+}
+
+/* ---------- MAIN ---------- */
 .container {
   max-width: 900px;
   margin: auto;
-  padding: 20px;
+  padding: 10px 20px 20px;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
 }
 
+/* ---------- SEARCH ---------- */
 .search {
   width: 100%;
   padding: 14px;
   font-size: 16px;
   background: #111;
   color: #fff;
-  border: 3px solid #333;
+  border: 2px solid #333;
   outline: none;
 }
 
@@ -41,12 +92,10 @@ h1 {
 }
 
 .section h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
   border-bottom: 1px solid #222;
-  padding-bottom: 5px;
 }
 
+/* ---------- PASTES ---------- */
 .paste {
   padding: 12px;
   background: #111;
@@ -55,244 +104,237 @@ h1 {
   cursor: pointer;
 }
 
-.paste:hover {
-  background: #151515;
-}
-
-.paste-title {
-  font-weight: bold;
-}
-
-.paste-meta {
-  color: #777;
-  font-size: 12px;
-  margin-top: 4px;
-}
+.paste:hover { background: #151515 }
 
 .hidden { display: none }
 
-.result-count {
-  color: #999;
-  font-size: 14px;
-  margin-top: 10px;
+/* ---------- PASTE VIEW ---------- */
+.paste-box {
+  background: #111;
+  border: 2px solid #222;
+  padding: 15px;
+  max-height: 65vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
 }
 
-/* ----- PASTE VIEW ----- */
-
-.paste-view-box {
-  margin-top: 10px;
-}
-
-.paste-back {
-  display: inline-block;
+/* ---------- FORMS ---------- */
+.input, textarea {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 2px solid #333;
+  padding: 12px;
   margin-bottom: 10px;
-  color: #aaa;
-  text-decoration: none;
+}
+
+textarea {
+  min-height: 200px;
+  resize: vertical;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.form-buttons button {
+  flex: 1;
+  padding: 12px;
+  border: none;
   cursor: pointer;
 }
 
-.paste-view {
-  background: #111;
-  border: 3px solid #222;
-  padding: 15px;
-  max-height: 70vh;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-size: 14px;
-}
+.publish { background: #2a7 }
+.clear { background: #922 }
 
 @media (max-width: 600px) {
-  .paste-view {
-    font-size: 13px;
-    max-height: 65vh;
-  }
-
-  .search {
-    font-size: 14px;
-  }
+  textarea { min-height: 150px }
 }
 </style>
 </head>
 
 <body>
+
+<div class="topbar">
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+</div>
+
+<div class="side-menu" id="menu">
+  <h2>Menu</h2>
+  <button onclick="goHome()">Home</button>
+  <button onclick="openPaste()">Paste</button>
+  <button id="loginBtn" onclick="openLogin()">Login / Sign up</button>
+  <button id="accountBtn" class="hidden" onclick="openAccount()">My Account</button>
+</div>
+
 <div class="container">
 
-<h1 id="title">Pastebin</h1>
+<h1 id="pageTitle">Pastebin</h1>
 
-<input
-  type="text"
-  id="search"
-  class="search"
-  placeholder="Search pastes by title..."
-  autocomplete="off"
-/>
-
-<div id="resultCount" class="result-count hidden"></div>
-
-<div id="searchResults" class="section hidden">
-  <h2>Search Results</h2>
-  <div id="searchList"></div>
+<!-- HOME -->
+<div id="home">
+  <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
+  <div class="section">
+    <h2>Recent Pastes</h2>
+    <div id="recent"></div>
+  </div>
 </div>
 
-<div id="pinnedSection" class="section">
-  <h2>Pinned Pastes</h2>
-  <div id="pinnedList"></div>
+<!-- VIEW -->
+<div id="view" class="hidden">
+  <div class="paste-box" id="viewContent"></div>
 </div>
 
-<div id="recentSection" class="section">
-  <h2>Recent Pastes</h2>
-  <div id="recentList"></div>
+<!-- CREATE -->
+<div id="create" class="hidden">
+  <input class="input" id="pasteTitle" placeholder="Paste title">
+  <textarea id="pasteText" placeholder="Paste content"></textarea>
+  <div class="form-buttons">
+    <button class="publish" onclick="publishPaste()">Publish</button>
+    <button class="clear" onclick="clearPaste()">Clear</button>
+  </div>
 </div>
 
-<div id="pastePage" class="hidden paste-view-box">
-  <div class="paste-back" onclick="location.href='./'">← Back</div>
-  <div id="pasteContent" class="paste-view"></div>
+<!-- LOGIN -->
+<div id="login" class="hidden">
+  <input class="input" id="user" placeholder="Username">
+  <input class="input" id="pass" type="password" placeholder="Password">
+  <div class="form-buttons">
+    <button class="publish" onclick="signup()">Sign up</button>
+    <button class="clear" onclick="login()">Login</button>
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div id="account" class="hidden">
+  <h2>My Account</h2>
+  <p id="accName"></p>
+  <button class="clear" onclick="logout()">Log out</button>
 </div>
 
 </div>
 
 <script>
-/* -------------------------
-   FAKE DATA (REPLACE LATER)
--------------------------- */
+/* ---------- STATE ---------- */
+let pastes = JSON.parse(localStorage.getItem("pastes") || "[]");
+let users = JSON.parse(localStorage.getItem("users") || "{}");
+let currentUser = localStorage.getItem("currentUser");
 
-const pastes = [
-  {
-    id: "a1",
-    title: "Hello World",
-    pinned: true,
-    created: 170000100,
-    content: "Hello world!\nThis is a test paste.\n\nLine 4\nLine 5"
-  },
-  {
-    id: "b2",
-    title: "JavaScript Notes",
-    pinned: false,
-    created: 170000200,
-    content: "const x = 10;\nconsole.log(x);\n\n// more code..."
-  },
-  {
-    id: "c3",
-    title: "Linux Commands",
-    pinned: true,
-    created: 170000300,
-    content: "ls\ncd /\nrm -rf /\n\n(joke)"
-  },
-  {
-    id: "d4",
-    title: "Very Large Paste",
-    pinned: false,
-    created: 170000400,
-    content: "LINE\n".repeat(300)
-  }
-];
-
-/* -------------------------
-   ELEMENTS
--------------------------- */
-
-const searchInput = document.getElementById("search");
-const pinnedList = document.getElementById("pinnedList");
-const recentList = document.getElementById("recentList");
-const searchResults = document.getElementById("searchResults");
-const searchList = document.getElementById("searchList");
-const pinnedSection = document.getElementById("pinnedSection");
-const recentSection = document.getElementById("recentSection");
-const resultCount = document.getElementById("resultCount");
-const pastePage = document.getElementById("pastePage");
-const pasteContent = document.getElementById("pasteContent");
-const title = document.getElementById("title");
-
-/* -------------------------
-   RENDER
--------------------------- */
-
-function renderPaste(el, paste) {
-  const div = document.createElement("div");
-  div.className = "paste";
-  div.onclick = () => {
-    location.href = "?id=" + paste.id;
-  };
-  div.innerHTML = `
-    <div class="paste-title">${paste.title}</div>
-    <div class="paste-meta">ID: ${paste.id}</div>
-  `;
-  el.appendChild(div);
+/* ---------- MENU ---------- */
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("open");
 }
 
-function renderPinned() {
-  pinnedList.innerHTML = "";
-  pastes.filter(p => p.pinned).forEach(p => renderPaste(pinnedList, p));
+/* ---------- NAV ---------- */
+function hideAll() {
+  document.querySelectorAll(".container > div").forEach(d => d.classList.add("hidden"));
 }
 
-function renderRecent() {
-  recentList.innerHTML = "";
-  pastes
-    .slice()
-    .sort((a, b) => b.created - a.created)
-    .forEach(p => renderPaste(recentList, p));
+function goHome() {
+  hideAll();
+  home.classList.remove("hidden");
 }
 
-/* -------------------------
-   SEARCH
--------------------------- */
-
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.toLowerCase();
-
-  if (!q) {
-    searchResults.classList.add("hidden");
-    pinnedSection.classList.remove("hidden");
-    recentSection.classList.remove("hidden");
-    resultCount.classList.add("hidden");
-    return;
-  }
-
-  const matches = pastes.filter(p =>
-    p.title.toLowerCase().includes(q)
-  );
-
-  searchList.innerHTML = "";
-  matches.forEach(p => renderPaste(searchList, p));
-
-  resultCount.textContent = `${matches.length} result(s) found`;
-  resultCount.classList.remove("hidden");
-  searchResults.classList.remove("hidden");
-  pinnedSection.classList.add("hidden");
-  recentSection.classList.add("hidden");
-});
-
-/* -------------------------
-   PASTE PAGE
--------------------------- */
-
-function loadPastePage() {
-  const id = new URLSearchParams(location.search).get("id");
-  if (!id) return false;
-
-  const paste = pastes.find(p => p.id === id);
-  title.textContent = paste ? paste.title : "Paste not found";
-  pasteContent.textContent = paste ? paste.content : "Paste not found.";
-
-  searchInput.classList.add("hidden");
-  pinnedSection.classList.add("hidden");
-  recentSection.classList.add("hidden");
-  searchResults.classList.add("hidden");
-  resultCount.classList.add("hidden");
-  pastePage.classList.remove("hidden");
-
-  return true;
+function openPaste() {
+  hideAll();
+  create.classList.remove("hidden");
 }
 
-/* -------------------------
-   INIT
--------------------------- */
-
-if (!loadPastePage()) {
-  renderPinned();
-  renderRecent();
+function openLogin() {
+  hideAll();
+  login.classList.remove("hidden");
 }
+
+function openAccount() {
+  hideAll();
+  account.classList.remove("hidden");
+  accName.textContent = "Logged in as: " + currentUser;
+}
+
+/* ---------- PASTE ---------- */
+function publishPaste() {
+  const title = pasteTitle.value.trim();
+  const text = pasteText.value.trim();
+  if (!title || !text) return alert("Fill everything");
+
+  pastes.unshift({ title, text, time: Date.now() });
+  localStorage.setItem("pastes", JSON.stringify(pastes));
+  clearPaste();
+  goHome();
+  render();
+}
+
+function clearPaste() {
+  pasteTitle.value = "";
+  pasteText.value = "";
+}
+
+function render() {
+  recent.innerHTML = "";
+  pastes.forEach(p => {
+    const d = document.createElement("div");
+    d.className = "paste";
+    d.textContent = p.title;
+    d.onclick = () => {
+      hideAll();
+      view.classList.remove("hidden");
+      viewContent.textContent = p.text;
+    };
+    recent.appendChild(d);
+  });
+}
+
+function search(q) {
+  recent.innerHTML = "";
+  pastes.filter(p => p.title.toLowerCase().includes(q.toLowerCase()))
+    .forEach(p => {
+      const d = document.createElement("div");
+      d.className = "paste";
+      d.textContent = p.title;
+      d.onclick = () => {
+        hideAll();
+        view.classList.remove("hidden");
+        viewContent.textContent = p.text;
+      };
+      recent.appendChild(d);
+    });
+}
+
+/* ---------- AUTH ---------- */
+function signup() {
+  if (users[user.value]) return alert("User exists");
+  users[user.value] = pass.value;
+  localStorage.setItem("users", JSON.stringify(users));
+  currentUser = user.value;
+  localStorage.setItem("currentUser", currentUser);
+  updateAuth();
+  goHome();
+}
+
+function login() {
+  if (users[user.value] !== pass.value) return alert("Invalid");
+  currentUser = user.value;
+  localStorage.setItem("currentUser", currentUser);
+  updateAuth();
+  goHome();
+}
+
+function logout() {
+  localStorage.removeItem("currentUser");
+  currentUser = null;
+  updateAuth();
+  goHome();
+}
+
+function updateAuth() {
+  loginBtn.classList.toggle("hidden", !!currentUser);
+  accountBtn.classList.toggle("hidden", !currentUser);
+}
+
+/* ---------- INIT ---------- */
+updateAuth();
+render();
 </script>
 
 </body>
