@@ -7,7 +7,6 @@
 
 <style>
 * { box-sizing: border-box }
-
 body {
   margin: 0;
   background: #0b0b0b;
@@ -17,15 +16,22 @@ body {
 
 /* ---------- TOP BAR ---------- */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 50px;
+  z-index: 2000;
   display: flex;
   align-items: center;
-  padding: 0 15px;
+  padding-left: 15px;
+  background: #0b0b0b;
 }
 
 .menu-btn {
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
+  user-select: none;
 }
 
 /* ---------- SIDE MENU ---------- */
@@ -37,7 +43,7 @@ body {
   height: 100%;
   background: #111;
   border-right: 2px solid #222;
-  padding: 15px;
+  padding: 60px 15px 15px;
   transition: left 0.3s ease;
   z-index: 1000;
 }
@@ -61,20 +67,16 @@ body {
   cursor: pointer;
 }
 
-.side-menu button:hover {
-  background: #222;
-}
+.side-menu button:hover { background: #222 }
 
 /* ---------- MAIN ---------- */
 .container {
   max-width: 900px;
   margin: auto;
-  padding: 10px 20px 20px;
+  padding: 70px 20px 20px;
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center }
 
 /* ---------- SEARCH ---------- */
 .search {
@@ -87,13 +89,8 @@ h1 {
   outline: none;
 }
 
-.section {
-  margin-top: 25px;
-}
-
-.section h2 {
-  border-bottom: 1px solid #222;
-}
+.section { margin-top: 25px }
+.section h2 { border-bottom: 1px solid #222 }
 
 /* ---------- PASTES ---------- */
 .paste {
@@ -103,7 +100,6 @@ h1 {
   margin-bottom: 8px;
   cursor: pointer;
 }
-
 .paste:hover { background: #151515 }
 
 .hidden { display: none }
@@ -128,10 +124,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-textarea {
-  min-height: 200px;
-  resize: vertical;
-}
+textarea { min-height: 200px; resize: vertical }
 
 .form-buttons {
   display: flex;
@@ -231,21 +224,9 @@ function hideAll() {
   document.querySelectorAll(".container > div").forEach(d => d.classList.add("hidden"));
 }
 
-function goHome() {
-  hideAll();
-  home.classList.remove("hidden");
-}
-
-function openPaste() {
-  hideAll();
-  create.classList.remove("hidden");
-}
-
-function openLogin() {
-  hideAll();
-  login.classList.remove("hidden");
-}
-
+function goHome() { hideAll(); home.classList.remove("hidden") }
+function openPaste() { hideAll(); create.classList.remove("hidden") }
+function openLogin() { hideAll(); login.classList.remove("hidden") }
 function openAccount() {
   hideAll();
   account.classList.remove("hidden");
@@ -265,10 +246,7 @@ function publishPaste() {
   render();
 }
 
-function clearPaste() {
-  pasteTitle.value = "";
-  pasteText.value = "";
-}
+function clearPaste() { pasteTitle.value = ""; pasteText.value = "" }
 
 function render() {
   recent.innerHTML = "";
@@ -303,6 +281,7 @@ function search(q) {
 
 /* ---------- AUTH ---------- */
 function signup() {
+  if (!user.value || !pass.value) return alert("Fill username & password");
   if (users[user.value]) return alert("User exists");
   users[user.value] = pass.value;
   localStorage.setItem("users", JSON.stringify(users));
@@ -313,6 +292,7 @@ function signup() {
 }
 
 function login() {
+  if (!user.value || !pass.value) return alert("Fill username & password");
   if (users[user.value] !== pass.value) return alert("Invalid");
   currentUser = user.value;
   localStorage.setItem("currentUser", currentUser);
