@@ -48,14 +48,8 @@ body {
   z-index: 1000;
 }
 
-.side-menu.open {
-  left: 0;
-}
-
-.side-menu h2 {
-  margin-top: 0;
-  margin-bottom: 15px;
-}
+.side-menu.open { left: 0 }
+.side-menu h2 { margin-top:0; margin-bottom:15px }
 
 .side-menu button {
   width: 100%;
@@ -157,7 +151,8 @@ textarea { min-height: 200px; resize: vertical }
   <h2>Menu</h2>
   <button onclick="goHome()">Home</button>
   <button onclick="openPaste()">Paste</button>
-  <button id="loginBtn" onclick="openLogin()">Login / Sign up</button>
+  <button id="loginBtn" onclick="openLogin()">Login</button>
+  <button id="signupBtn" onclick="openSignup()">Sign up</button>
   <button id="accountBtn" class="hidden" onclick="openAccount()">My Account</button>
 </div>
 
@@ -174,12 +169,12 @@ textarea { min-height: 200px; resize: vertical }
   </div>
 </div>
 
-<!-- VIEW -->
+<!-- VIEW PASTE -->
 <div id="view" class="hidden">
   <div class="paste-box" id="viewContent"></div>
 </div>
 
-<!-- CREATE -->
+<!-- CREATE PASTE -->
 <div id="create" class="hidden">
   <input class="input" id="pasteTitle" placeholder="Paste title">
   <textarea id="pasteText" placeholder="Paste content"></textarea>
@@ -189,17 +184,27 @@ textarea { min-height: 200px; resize: vertical }
   </div>
 </div>
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE -->
 <div id="login" class="hidden">
-  <input class="input" id="user" placeholder="Username">
-  <input class="input" id="pass" type="password" placeholder="Password">
+  <input class="input" id="loginUser" placeholder="Username">
+  <input class="input" id="loginPass" type="password" placeholder="Password">
   <div class="form-buttons">
-    <button class="publish" onclick="signup()">Sign up</button>
-    <button class="clear" onclick="login()">Login</button>
+    <button class="publish" onclick="login()">Login</button>
+    <button class="clear" onclick="goHome()">Cancel</button>
   </div>
 </div>
 
-<!-- ACCOUNT -->
+<!-- SIGNUP PAGE -->
+<div id="signup" class="hidden">
+  <input class="input" id="signupUser" placeholder="Username">
+  <input class="input" id="signupPass" type="password" placeholder="Password">
+  <div class="form-buttons">
+    <button class="publish" onclick="signup()">Sign up</button>
+    <button class="clear" onclick="goHome()">Cancel</button>
+  </div>
+</div>
+
+<!-- ACCOUNT PAGE -->
 <div id="account" class="hidden">
   <h2>My Account</h2>
   <p id="accName"></p>
@@ -219,7 +224,7 @@ function toggleMenu() {
   document.getElementById("menu").classList.toggle("open");
 }
 
-/* ---------- NAV ---------- */
+/* ---------- NAVIGATION ---------- */
 function hideAll() {
   document.querySelectorAll(".container > div").forEach(d => d.classList.add("hidden"));
 }
@@ -227,6 +232,7 @@ function hideAll() {
 function goHome() { hideAll(); home.classList.remove("hidden") }
 function openPaste() { hideAll(); create.classList.remove("hidden") }
 function openLogin() { hideAll(); login.classList.remove("hidden") }
+function openSignup() { hideAll(); signup.classList.remove("hidden") }
 function openAccount() {
   hideAll();
   account.classList.remove("hidden");
@@ -281,20 +287,20 @@ function search(q) {
 
 /* ---------- AUTH ---------- */
 function signup() {
-  if (!user.value || !pass.value) return alert("Fill username & password");
-  if (users[user.value]) return alert("User exists");
-  users[user.value] = pass.value;
+  if (!signupUser.value || !signupPass.value) return alert("Fill username & password");
+  if (users[signupUser.value]) return alert("User exists");
+  users[signupUser.value] = signupPass.value;
   localStorage.setItem("users", JSON.stringify(users));
-  currentUser = user.value;
+  currentUser = signupUser.value;
   localStorage.setItem("currentUser", currentUser);
   updateAuth();
   goHome();
 }
 
 function login() {
-  if (!user.value || !pass.value) return alert("Fill username & password");
-  if (users[user.value] !== pass.value) return alert("Invalid");
-  currentUser = user.value;
+  if (!loginUser.value || !loginPass.value) return alert("Fill username & password");
+  if (users[loginUser.value] !== loginPass.value) return alert("Invalid");
+  currentUser = loginUser.value;
   localStorage.setItem("currentUser", currentUser);
   updateAuth();
   goHome();
@@ -309,6 +315,7 @@ function logout() {
 
 function updateAuth() {
   loginBtn.classList.toggle("hidden", !!currentUser);
+  signupBtn.classList.toggle("hidden", !!currentUser);
   accountBtn.classList.toggle("hidden", !currentUser);
 }
 
