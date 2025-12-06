@@ -21,6 +21,7 @@
 .user-tag{font-weight:bold;margin-left:5px;}.owner-tag{color:red;text-shadow:0 0 5px red,0 0 10px red,0 0 20px red;}.admin-tag{color:darkblue;text-shadow:0 0 5px darkblue,0 0 10px darkblue,0 0 20px darkblue;}
 .follow-btn{padding:5px 10px;background:#2a7;border:none;color:#fff;cursor:pointer;}
 .admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;cursor:pointer;margin-left:5px;}
+.pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;cursor:pointer;margin-left:5px;}
 </style>
 </head>
 <body>
@@ -155,11 +156,11 @@ function updateAuth(){
 }
 
 /* PASTE */
-function publishPaste(){if(!currentUser)return alert("Login");const t=pasteTitle.value.trim(),c=pasteText.value.trim();if(!t||!c)return alert("Fill");pastes.unshift({title:t,text:c,author:currentUser,time:Date.now()});localStorage.setItem("pastes",JSON.stringify(pastes));clearPaste();goHome();}
+function publishPaste(){if(!currentUser)return alert("Login");const t=pasteTitle.value.trim(),c=pasteText.value.trim();if(!t||!c)return alert("Fill");pastes.unshift({title:t,text:c,author:currentUser,time:Date.now(),pinned:false});localStorage.setItem("pastes",JSON.stringify(pastes));clearPaste();goHome();}
 function clearPaste(){pasteTitle.value="";pasteText.value="";}
-function render(){renderSection(pinned,pinnedPastes);renderSection(recent,pastes);}
-function renderSection(container,array){container.innerHTML="";array.forEach(p=>{const d=document.createElement("div");d.className="paste";d.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}${getTag(p.author)}</span>`;d.onclick=e=>{if(e.target.tagName!=="SPAN")viewPaste(p)};container.appendChild(d);});}
-function search(q){renderSection(pinned,pinnedPastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())));renderSection(recent,pastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())));}
+function render(){renderSection(pinned,pastes.filter(p=>p.pinned));renderSection(recent,pastes);}
+function renderSection(container,array){container.innerHTML="";array.forEach((p,i)=>{const d=document.createElement("div");d.className="paste";d.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}${getTag(p.author)}</span>`;d.onclick=e=>{if(e.target.tagName!=="SPAN")viewPaste(p)};container.appendChild(d);});}
+function search(q){renderSection(pinned,pastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())&&p.pinned));renderSection(recent,pastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())));}
 
 /* VIEW PASTE */
 function viewPaste(p){hideAll();view.classList.remove("hidden");viewContent.textContent=p.text;viewAuthor.textContent=p.author;viewAuthor.onclick=()=>viewUser(p.author);viewTime.textContent=new Date(p.time).toLocaleString();}
@@ -176,26 +177,18 @@ function loadUserAccount(u){
 function toggleFollow(u,btn){if(!currentUser)return alert("Login");if(!followers[u])followers[u]=[];if(followers[u].includes(currentUser)){followers[u]=followers[u].filter(x=>x!==currentUser);btn.textContent="Follow";}else{followers[u].push(currentUser);btn.textContent="Following";}localStorage.setItem("followers",JSON.stringify(followers));document.getElementById("fcount").textContent="Followers: "+followers[u].length;}
 
 /* ROLE CODE */
-function enterRoleCode(){
-  if(!currentUser)return alert("Login first");
-  const code=roleInput.value.trim();
-  if(code==="swaggyboiii50-owner"){admins[currentUser]="owner";alert("Owner activated");}
-  else if(code==="norbin-admin-svensixty"){admins[currentUser]="admin";alert("Admin activated");}
-  else return alert("Invalid code");
-  localStorage.setItem("admins",JSON.stringify(admins));
-  updateAuth();
-  goHome();
-}
+function enterRoleCode(){if(!currentUser)return alert("Login first");const code=roleInput.value.trim();if(code==="swaggyboiii50-owner"){admins[currentUser]="owner";alert("Owner activated");}else if(code==="norbin-admin-svensixty"){admins[currentUser]="admin";alert("Admin activated");}else return alert("Invalid code");localStorage.setItem("admins",JSON.stringify(admins));updateAuth();goHome();}
 
 /* ADMIN PANEL */
 function getTag(u){if(admins[u]==="owner")return' <span class="user-tag owner-tag">(Norbin Owner)</span>';if(admins[u]==="admin")return' <span class="user-tag admin-tag">(Norbin Admin)</span>';return'';}
 function loadAdminPanel(){
   userList.innerHTML="";pasteList.innerHTML="";
   Object.keys(users).forEach(u=>{const div=document.createElement("div");div.textContent=u+getTag(u);if(admins[currentUser]==="owner" && u!==currentUser){const b=document.createElement("button");b.className="admin-btn";b.textContent="Ban";b.onclick=()=>banUser(u);div.appendChild(b);}userList.appendChild(div);});
-  pastes.forEach((p,i)=>{const div=document.createElement("div");div.textContent=`${p.title} by ${p.author}`+getTag(p.author);if(admins[currentUser]){const b=document.createElement("button");b.className="admin-btn";b.textContent="Delete";b.onclick=()=>deletePaste(i);div.appendChild(b);}pasteList.appendChild(div);});
+  pastes.forEach((p,i)=>{const div=document.createElement("div");div.textContent=`${p.title} by ${p.author}`+getTag(p.author);if(admins[currentUser]){const b=document.createElement("button");b.className="admin-btn";b.textContent="Delete";b.onclick=()=>deletePaste(i);div.appendChild(b);const pinBtn=document.createElement("button");pinBtn.className="pin-btn";pinBtn.textContent=p.pinned?"Unpin":"Pin";pinBtn.onclick=()=>togglePin(i);div.appendChild(pinBtn);}pasteList.appendChild(div);});
 }
 function banUser(u){if(confirm("Ban "+u+"?")){delete users[u];delete followers[u];pastes=pastes.filter(p=>p.author!==u);localStorage.setItem("users",JSON.stringify(users));localStorage.setItem("followers",JSON.stringify(followers));localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}}
 function deletePaste(i){if(confirm("Delete paste?")){pastes.splice(i,1);localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}}
+function togglePin(i){pastes[i].pinned=!pastes[i].pinned;localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}
 
 /* INIT */
 updateAuth();render();
