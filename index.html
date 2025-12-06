@@ -345,4 +345,16 @@ function loadAdminPanel(){
   });
 }
 function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>{s.forEach(doc=>doc.ref.delete());}); loadAdminPanel();}}
-function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete();
+function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
+function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
+
+// INIT AUTH
+auth.onAuthStateChanged(u=>{
+  currentUser = u?u.email:null;
+  updateAuth();
+  goHome();
+});
+</script>
+
+</body>
+</html>
