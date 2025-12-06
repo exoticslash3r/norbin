@@ -5,23 +5,36 @@
 <title>Norbin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b0b0b;color:#f1f1f1;font-family:monospace;}
+*{box-sizing:border-box;}
+body{margin:0;background:#0b0b0b;color:#f1f1f1;font-family:monospace;}
 .topbar{position:fixed;top:0;left:0;width:100%;height:50px;z-index:2000;display:flex;align-items:center;padding:0 15px;background:#0b0b0b;border-bottom:2px solid #333;}
 .menu-btn{font-size:24px;cursor:pointer;user-select:none;margin-right:10px;}
 .brand{font-size:20px;font-weight:bold;color:#ff0000;text-shadow:0 0 5px #ff0000,0 0 10px #ff0000,0 0 20px #ff0000;}
 .side-menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#111;border-right:2px solid #222;padding:60px 15px 15px;transition:left 0.3s ease;z-index:1000;}
-.side-menu.open{left:0}.side-menu h2{margin-top:0;margin-bottom:15px}.side-menu button{width:100%;padding:12px;margin-bottom:10px;background:#1a1a1a;color:#fff;border:1px solid #333;cursor:pointer;}.side-menu button:hover{background:#222}
+.side-menu.open{left:0;}
+.side-menu h2{margin-top:0;margin-bottom:15px;}
+.side-menu button{width:100%;padding:12px;margin-bottom:10px;background:#1a1a1a;color:#fff;border:1px solid #333;cursor:pointer;}
+.side-menu button:hover{background:#222;}
 .container{max-width:900px;margin:auto;padding:70px 20px 20px;}
 .search{width:100%;padding:14px;font-size:16px;background:#111;color:#fff;border:2px solid #333;outline:none;}
-.section{margin-top:25px}.section h2{border-bottom:1px solid #222}
-.paste{padding:12px;background:#111;border:1px solid #222;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}.paste:hover{background:#151515}
-.hidden{display:none}.paste-box{background:#111;border:2px solid #222;padding:15px;max-height:65vh;overflow-y:auto;white-space:pre-wrap;}
-.input,textarea{width:100%;background:#111;color:#fff;border:2px solid #333;padding:12px;margin-bottom:10px;}textarea{min-height:200px;resize:vertical}
-.form-buttons{display:flex;gap:10px}.form-buttons button{flex:1;padding:12px;border:none;cursor:pointer;}.publish{background:#2a7}.clear{background:#922}
-.user-tag{font-weight:bold;margin-left:5px;}.owner-tag{color:red;text-shadow:0 0 5px red,0 0 10px red,0 0 20px red;}.admin-tag{color:darkblue;text-shadow:0 0 5px darkblue,0 0 10px darkblue,0 0 20px darkblue;}
+.section{margin-top:25px;}
+.section h2{border-bottom:1px solid #222;}
+.paste{padding:12px;background:#111;border:1px solid #222;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.paste:hover{background:#151515;}
+.hidden{display:none;}
+.paste-box{background:#111;border:2px solid #222;padding:15px;max-height:65vh;overflow-y:auto;white-space:pre-wrap;}
+.input,textarea{width:100%;background:#111;color:#fff;border:2px solid #333;padding:12px;margin-bottom:10px;}
+textarea{min-height:200px;resize:vertical;}
+.form-buttons{display:flex;gap:10px;}
+.form-buttons button{flex:1;padding:12px;border:none;cursor:pointer;}
+.publish{background:#2a7;}
+.clear{background:#922;}
+.user-tag{font-weight:bold;margin-left:5px;}
+.owner-tag{color:red;text-shadow:0 0 5px red,0 0 10px red,0 0 20px red;}
+.admin-tag{color:darkblue;text-shadow:0 0 5px darkblue,0 0 10px darkblue,0 0 20px darkblue;}
 .follow-btn{padding:5px 10px;background:#2a7;border:none;color:#fff;cursor:pointer;}
-.admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;cursor:pointer;margin-left:5px;}
-.pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;cursor:pointer;margin-left:5px;}
+.admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;margin-left:5px;}
+.pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;margin-left:5px;}
 </style>
 
 <!-- Firebase SDK -->
@@ -74,7 +87,7 @@
   <input class="input" id="loginUser" placeholder="Email">
   <input class="input" id="loginPass" type="password" placeholder="Password">
   <div class="form-buttons">
-    <button class="publish" onclick="login()">Login</button>
+    <button class="publish" onclick="loginUserFunc()">Login</button>
     <button class="clear" onclick="goHome()">Cancel</button>
   </div>
 </div>
@@ -84,7 +97,7 @@
   <input class="input" id="signupUser" placeholder="Email">
   <input class="input" id="signupPass" type="password" placeholder="Password">
   <div class="form-buttons">
-    <button class="publish" onclick="signup()">Sign up</button>
+    <button class="publish" onclick="signupUserFunc()">Sign up</button>
     <button class="clear" onclick="goHome()">Cancel</button>
   </div>
 </div>
@@ -135,28 +148,28 @@ let currentUser = null;
 let pastes = [];
 
 // DOM References
-const login = document.getElementById("login");
-const signup = document.getElementById("signup");
-const home = document.getElementById("home");
-const create = document.getElementById("create");
-const view = document.getElementById("view");
-const account = document.getElementById("account");
-const roleCode = document.getElementById("roleCode");
-const adminPanel = document.getElementById("adminPanel");
+const loginDiv = document.getElementById("login");
+const signupDiv = document.getElementById("signup");
+const homeDiv = document.getElementById("home");
+const createDiv = document.getElementById("create");
+const viewDiv = document.getElementById("view");
+const accountDiv = document.getElementById("account");
+const roleCodeDiv = document.getElementById("roleCode");
+const adminPanelDiv = document.getElementById("adminPanel");
 
 // MENU
 function toggleMenu(){document.getElementById("menu").classList.toggle("open");}
 function hideAll(){document.querySelectorAll(".container>div").forEach(d=>d.classList.add("hidden"));}
-function goHome(){hideAll();home.classList.remove("hidden");}
-function openPaste(){hideAll();create.classList.remove("hidden");}
-function openLogin(){hideAll();login.classList.remove("hidden");}
-function openSignup(){hideAll();signup.classList.remove("hidden");}
-function openAccount(){hideAll();account.classList.remove("hidden");loadUserAccount(currentUser);}
-function openRoleCode(){hideAll();roleCode.classList.remove("hidden");}
-function openAdminPanel(){hideAll();adminPanel.classList.remove("hidden");loadAdminPanel();}
+function goHome(){hideAll();homeDiv.classList.remove("hidden");}
+function openPaste(){hideAll();createDiv.classList.remove("hidden");}
+function openLogin(){hideAll();loginDiv.classList.remove("hidden");}
+function openSignup(){hideAll();signupDiv.classList.remove("hidden");}
+function openAccount(){hideAll();accountDiv.classList.remove("hidden");loadUserAccount(currentUser);}
+function openRoleCode(){hideAll();roleCodeDiv.classList.remove("hidden");}
+function openAdminPanel(){hideAll();adminPanelDiv.classList.remove("hidden");loadAdminPanel();}
 
 // AUTH
-function signup(){
+function signupUserFunc(){
   const email = signupUser.value.trim();
   const pass = signupPass.value.trim();
   if(!email||!pass) return alert("Fill email & password");
@@ -165,12 +178,14 @@ function signup(){
     currentUser = email; updateAuth(); goHome();
   }).catch(e=>alert(e.message));
 }
-function login(){
+
+function loginUserFunc(){
   const email = loginUser.value.trim();
   const pass = loginPass.value.trim();
   if(!email||!pass) return alert("Fill email & password");
   auth.signInWithEmailAndPassword(email,pass).then(()=>{currentUser=email;updateAuth();goHome();}).catch(e=>alert(e.message));
 }
+
 function logout(){auth.signOut();currentUser=null;updateAuth();goHome();}
 function updateAuth(){
   loginBtn.classList.toggle("hidden",!!currentUser);
@@ -217,7 +232,7 @@ function renderPastes(){
 }
 
 function viewPaste(p){
-  hideAll(); view.classList.remove("hidden");
+  hideAll(); viewDiv.classList.remove("hidden");
   viewContent.textContent=p.text;
   viewAuthor.textContent=p.author;
   viewAuthor.onclick=()=>viewUser(p.author);
@@ -226,7 +241,7 @@ function viewPaste(p){
 
 // USER PROFILE
 function viewUser(u){
-  hideAll(); account.classList.remove("hidden");
+  hideAll(); accountDiv.classList.remove("hidden");
   loadUserAccount(u);
 }
 function loadUserAccount(u){
