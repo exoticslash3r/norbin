@@ -147,7 +147,7 @@ textarea { min-height: 200px; resize: vertical }
 <h1 id="pageTitle">Pastebin</h1>
 
 <!-- HOME -->
-<div id="home">
+<div id="home" class="hidden">
   <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
   <div class="section">
     <h2>Recent Pastes</h2>
@@ -301,6 +301,13 @@ function updateAuth() {
 /* ---------- INIT ---------- */
 updateAuth();
 render();
+
+// Show Login page by default if not logged in
+if(!currentUser){
+  openLogin();
+}else{
+  goHome();
+}
 </script>
 
 </body>
