@@ -24,7 +24,7 @@ body{margin:0;background:#0b0b0b;color:#f1f1f1;font-family:monospace;}
 .paste-box{background:#111;border:2px solid #222;padding:15px;max-height:65vh;overflow-y:auto;white-space:pre-wrap;}
 .input,textarea{width:100%;background:#111;color:#fff;border:2px solid #333;padding:12px;margin-bottom:10px;}
 textarea{min-height:200px;resize:vertical;}
-.form-buttons{display:flex;gap:10px;}
+.form-buttons{display:flex;gap:10px;margin-bottom:10px;}
 .form-buttons button{flex:1;padding:12px;border:none;cursor:pointer;}
 .publish{background:#2a7;}
 .clear{background:#922;}
@@ -59,6 +59,7 @@ textarea{min-height:200px;resize:vertical;}
 </div>
 
 <div class="container">
+
 <div id="home">
   <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
   <div class="section"><h2>Pinned Pastes</h2><div id="pinned"></div></div>
@@ -117,7 +118,6 @@ textarea{min-height:200px;resize:vertical;}
     <h3>All Pastes</h3>
     <div id="pasteList"></div>
   </div>
-</div>
 </div>
 
 <script>
@@ -204,8 +204,8 @@ function renderPastes(){
   pinned.innerHTML=""; recent.innerHTML="";
   pastes.forEach(p=>{
     const div=document.createElement("div"); div.className="paste";
-    div.textContent=p.title + " by " + (p.username||p.author);
-    div.onclick=()=>alert(p.text);
+    div.innerHTML=`<span>${p.title}</span><span style="color:#2a7;cursor:pointer" onclick="viewUser('${p.author}')">${p.username||p.author}</span>`;
+    div.onclick=()=>viewPaste(p);
     if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
   });
 }
@@ -224,6 +224,101 @@ function publishPaste(){
   goHome();
 }
 
+// ACCOUNT & PROFILE IMAGE/BANNER
+function loadUserAccount(u){
+  db.collection("users").doc(u).onSnapshot(doc=>{
+    if(!doc.exists) return;
+    const data=doc.data();
+    document.getElementById("accName").textContent="Username: "+data.username;
+    document.getElementById("profilePhoto").src=data.photoURL||"";
+    document.getElementById("profileBanner").src=data.bannerURL||"";
+    loadUserPastes(u);
+  });
+}
+function loadUserPastes(u){
+  const container=document.getElementById("userPastes");
+  container.innerHTML="";
+  pastes.filter(p=>p.author===u).forEach(p=>{
+    const div=document.createElement("div"); div.className="paste"; div.textContent=p.title + (p.pinned?" (Pinned)":"");
+    div.onclick=()=>viewPaste(p); container.appendChild(div);
+  });
+}
+function updateUsernamePrompt(){
+  const name=prompt("Enter new username:");
+  if(!name) return;
+  db.collection("users").doc(currentUser).update({username:name});
+}
+function updateProfilePhoto(){
+  const input=document.createElement("input"); input.type="file"; input.accept="image/*";
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    const reader=new FileReader();
+    reader.onload=()=>{ db.collection("users").doc(currentUser).update({photoURL:reader.result}); };
+    reader.readAsDataURL(file);
+  }; input.click();
+}
+function updateBanner(){
+  const input=document.createElement("input"); input.type="file"; input.accept="image/*";
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    const reader=new FileReader();
+    reader.onload=()=>{ db.collection("users").doc(currentUser).update({bannerURL:reader.result}); };
+    reader.readAsDataURL(file);
+  }; input.click();
+}
+
+// VIEW PASTE & USERS
+function viewPaste(p){
+  alert(`${p.title}\nBy: ${p.username||p.author}\n\n${p.text}`);
+}
+function viewUser(u){openAccount();currentUser=u;loadUserAccount(u);}
+
+// SEARCH
+function search(q){
+  const qLower=q.toLowerCase();
+  pinned.innerHTML=""; recent.innerHTML="";
+  pastes.filter(p=>p.title.toLowerCase().includes(qLower)).forEach(p=>{
+    const div=document.createElement("div"); div.className="paste";
+    div.innerHTML=`<span>${p.title}</span><span style="color:#2a7;cursor:pointer" onclick="viewUser('${p.author}')">${p.username||p.author}</span>`;
+    div.onclick=()=>viewPaste(p);
+    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
+  });
+}
+
+// ADMIN PANEL
+function togglePermissions(){
+  const panel=document.getElementById("permissionsPanel");
+  panel.classList.toggle("hidden");
+}
+function loadAdminPanel(){
+  const userList=document.getElementById("userList");
+  const pasteList=document.getElementById("pasteList");
+  userList.innerHTML=""; pasteList.innerHTML="";
+  db.collection("users").get().then(usersSnap=>{
+    usersSnap.forEach(doc=>{
+      const u=doc.id; const role=doc.data()?.role;
+      const div=document.createElement("div"); div.textContent=u+(role?" ("+role+")":"");
+      if(role!=="owner"){
+        const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);
+      }
+      userList.appendChild(div);
+    });
+  });
+  db.collection("pastes").get().then(pasteSnap=>{
+    pasteSnap.forEach(doc=>{
+      const p=doc.data();
+      const div=document.createElement("div"); div.textContent=p.title+" by "+(p.username||p.author)+(p.pinned?" (Pinned)":"");
+      const delBtn=document.createElement("button"); delBtn.className="admin-btn"; delBtn.textContent="Delete"; delBtn.onclick=()=>deletePaste(doc.id); div.appendChild(delBtn);
+      const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);
+      pasteList.appendChild(div);
+    });
+  });
+}
+function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>s.forEach(doc=>doc.ref.delete())); loadAdminPanel();}}
+function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
+function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
+
+// INIT AUTH
 auth.onAuthStateChanged(u=>{currentUser=u?u.email:null;updateAuth();goHome();});
 </script>
 
