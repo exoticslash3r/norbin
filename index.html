@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pastebin</title>
+<title>Norbin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -24,13 +24,21 @@ body {
   z-index: 2000;
   display: flex;
   align-items: center;
-  padding-left: 15px;
+  padding: 0 15px;
   background: #0b0b0b;
+  border-bottom: 2px solid #333;
 }
 .menu-btn {
   font-size: 24px;
   cursor: pointer;
   user-select: none;
+  margin-right: 10px;
+}
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
 }
 
 /* Side Menu */
@@ -65,7 +73,6 @@ body {
   margin: auto;
   padding: 70px 20px 20px;
 }
-h1 { text-align: center }
 
 /* Search & Pastes */
 .search {
@@ -131,6 +138,7 @@ textarea { min-height: 200px; resize: vertical }
 
 <div class="topbar">
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <div class="brand">Norbin</div>
 </div>
 
 <div class="side-menu" id="menu">
@@ -144,11 +152,15 @@ textarea { min-height: 200px; resize: vertical }
 
 <div class="container">
 
-<h1 id="pageTitle">Pastebin</h1>
-
 <!-- HOME -->
-<div id="home" class="hidden">
+<div id="home">
   <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
+  
+  <div class="section">
+    <h2>Pinned Pastes</h2>
+    <div id="pinned"></div>
+  </div>
+  
   <div class="section">
     <h2>Recent Pastes</h2>
     <div id="recent"></div>
@@ -202,6 +214,7 @@ textarea { min-height: 200px; resize: vertical }
 <script>
 /* ---------- STATE ---------- */
 let pastes = JSON.parse(localStorage.getItem("pastes") || "[]");
+let pinnedPastes = JSON.parse(localStorage.getItem("pinned") || "[]"); // pinned pastes
 let users = JSON.parse(localStorage.getItem("users") || "{}");
 let currentUser = localStorage.getItem("currentUser");
 
@@ -214,7 +227,11 @@ function toggleMenu() {
 function hideAll() {
   document.querySelectorAll(".container > div").forEach(d => d.classList.add("hidden"));
 }
-function goHome() { hideAll(); home.classList.remove("hidden") }
+function goHome() { 
+  hideAll(); 
+  home.classList.remove("hidden"); 
+  render(); 
+}
 function openPaste() { hideAll(); create.classList.remove("hidden") }
 function openLogin() { hideAll(); login.classList.remove("hidden") }
 function openSignup() { hideAll(); signup.classList.remove("hidden") }
@@ -233,11 +250,25 @@ function publishPaste() {
   localStorage.setItem("pastes", JSON.stringify(pastes));
   clearPaste();
   goHome();
-  render();
 }
 function clearPaste() { pasteTitle.value = ""; pasteText.value = "" }
 
 function render() {
+  // Pinned
+  pinned.innerHTML = "";
+  pinnedPastes.forEach(p => {
+    const d = document.createElement("div");
+    d.className = "paste";
+    d.textContent = p.title;
+    d.onclick = () => {
+      hideAll();
+      view.classList.remove("hidden");
+      viewContent.textContent = p.text;
+    };
+    pinned.appendChild(d);
+  });
+
+  // Recent
   recent.innerHTML = "";
   pastes.forEach(p => {
     const d = document.createElement("div");
@@ -251,8 +282,23 @@ function render() {
     recent.appendChild(d);
   });
 }
+
 function search(q) {
+  pinned.innerHTML = "";
   recent.innerHTML = "";
+  pinnedPastes.filter(p => p.title.toLowerCase().includes(q.toLowerCase()))
+    .forEach(p => {
+      const d = document.createElement("div");
+      d.className = "paste";
+      d.textContent = p.title;
+      d.onclick = () => {
+        hideAll();
+        view.classList.remove("hidden");
+        viewContent.textContent = p.text;
+      };
+      pinned.appendChild(d);
+    });
+
   pastes.filter(p => p.title.toLowerCase().includes(q.toLowerCase()))
     .forEach(p => {
       const d = document.createElement("div");
@@ -276,7 +322,6 @@ function signup() {
   currentUser = signupUser.value;
   localStorage.setItem("currentUser", currentUser);
   updateAuth();
-  goHome();
 }
 function login() {
   if (!loginUser.value || !loginPass.value) return alert("Fill username & password");
@@ -284,13 +329,11 @@ function login() {
   currentUser = loginUser.value;
   localStorage.setItem("currentUser", currentUser);
   updateAuth();
-  goHome();
 }
 function logout() {
   localStorage.removeItem("currentUser");
   currentUser = null;
   updateAuth();
-  goHome();
 }
 function updateAuth() {
   loginBtn.classList.toggle("hidden", !!currentUser);
@@ -301,13 +344,6 @@ function updateAuth() {
 /* ---------- INIT ---------- */
 updateAuth();
 render();
-
-// Show Login page by default if not logged in
-if(!currentUser){
-  openLogin();
-}else{
-  goHome();
-}
 </script>
 
 </body>
