@@ -52,7 +52,7 @@ textarea{min-height:200px;resize:vertical;}
 <div class="side-menu" id="menu">
   <h2>Menu</h2>
   <button onclick="goHome()">Home</button>
-  <button onclick="openPaste()">Paste</button>
+  <button onclick="openPaste()">Create Paste</button>
   <button id="loginBtn" onclick="openLogin()">Login</button>
   <button id="signupBtn" onclick="openSignup()">Sign up</button>
   <button id="accountBtn" class="hidden" onclick="openAccount()">My Account</button>
@@ -114,6 +114,7 @@ textarea{min-height:200px;resize:vertical;}
 <div id="account" class="hidden">
   <h2>Account</h2>
   <p id="accName"></p>
+  <button class="publish" onclick="updateUsernamePrompt()">Update Username</button>
   <div id="userPastes"></div>
   <button class="clear" onclick="logout()">Log out</button>
 </div>
@@ -174,7 +175,7 @@ function signupUserFunc(){
   const pass = signupPass.value.trim();
   if(!email||!pass) return alert("Fill email & password");
   auth.createUserWithEmailAndPassword(email,pass).then(()=>{
-    db.collection("users").doc(email).set({followers: [], role:null});
+    db.collection("users").doc(email).set({followers: [], role:null, username: email.split("@")[0]});
     currentUser = email; updateAuth(); goHome();
   }).catch(e=>alert(e.message));
 }
@@ -193,6 +194,13 @@ function updateAuth(){
   accountBtn.classList.toggle("hidden",!currentUser);
   roleCodeBtn.classList.toggle("hidden",!currentUser);
   checkAdminRole();
+}
+
+// UPDATE USERNAME
+function updateUsernamePrompt(){
+  const newName = prompt("Enter your new username:");
+  if(!newName) return;
+  db.collection("users").doc(currentUser).update({username: newName}).then(()=>{alert("Username updated!"); loadUserAccount(currentUser);});
 }
 
 // CHECK ADMIN/OWNER FOR ADMIN PANEL
@@ -225,7 +233,7 @@ function renderPastes(){
   pinned.innerHTML=""; recent.innerHTML="";
   pastes.forEach(p=>{
     const div=document.createElement("div"); div.className="paste";
-    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}${p.role?` <span class='user-tag ${p.role}-tag'>(${p.role})</span>`:""}</span>`;
+    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`;
     div.onclick=()=>viewPaste(p);
     if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
   });
@@ -253,22 +261,16 @@ function loadUserAccount(u){
   });
   db.collection("users").doc(u).get().then(doc=>{
     let followers = doc.data()?.followers||[];
-    let btn=document.createElement("button"); btn.className="follow-btn";
-    if(u===currentUser){btn.disabled=true; btn.textContent="This is you";}
-    else{btn.textContent=followers.includes(currentUser)?"Following":"Follow";
-      btn.onclick=()=>toggleFollow(u,btn);}
-    userPastes.appendChild(btn);
+    let username = doc.data()?.username || u;
+    accName.textContent = `User: ${username} (${u})`;
+    if(u===currentUser){ 
+      const btn = document.createElement("button"); 
+      btn.className="publish"; 
+      btn.textContent="Update Username"; 
+      btn.onclick=updateUsernamePrompt; 
+      userPastes.appendChild(btn);
+    }
     const fcount=document.createElement("p"); fcount.textContent="Followers: "+followers.length; fcount.id="fcount"; userPastes.appendChild(fcount);
-  });
-}
-function toggleFollow(u,btn){
-  db.collection("users").doc(u).get().then(doc=>{
-    let followers = doc.data()?.followers||[];
-    if(followers.includes(currentUser)) followers = followers.filter(x=>x!==currentUser);
-    else followers.push(currentUser);
-    db.collection("users").doc(u).update({followers});
-    btn.textContent = followers.includes(currentUser)?"Following":"Follow";
-    document.getElementById("fcount").textContent="Followers: "+followers.length;
   });
 }
 
