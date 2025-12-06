@@ -70,6 +70,7 @@
 </div>
 
 <div id="login" class="hidden">
+  <h2>Login</h2>
   <input class="input" id="loginUser" placeholder="Email">
   <input class="input" id="loginPass" type="password" placeholder="Password">
   <div class="form-buttons">
@@ -79,6 +80,7 @@
 </div>
 
 <div id="signup" class="hidden">
+  <h2>Sign Up</h2>
   <input class="input" id="signupUser" placeholder="Email">
   <input class="input" id="signupPass" type="password" placeholder="Password">
   <div class="form-buttons">
@@ -116,7 +118,6 @@
 </div>
 
 <script>
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBN29E6HxcBEAum3BU2ntbXWUfe6my9oy8",
   authDomain: "n0rb1n.firebaseapp.com",
@@ -149,7 +150,7 @@ function signup(){
   const email = signupUser.value.trim();
   const pass = signupPass.value.trim();
   if(!email||!pass) return alert("Fill email & password");
-  auth.createUserWithEmailAndPassword(email,pass).then(()=> {
+  auth.createUserWithEmailAndPassword(email,pass).then(()=>{
     db.collection("users").doc(email).set({followers: [], role:null});
     currentUser = email; updateAuth(); goHome();
   }).catch(e=>alert(e.message));
@@ -166,6 +167,16 @@ function updateAuth(){
   signupBtn.classList.toggle("hidden",!!currentUser);
   accountBtn.classList.toggle("hidden",!currentUser);
   roleCodeBtn.classList.toggle("hidden",!currentUser);
+  checkAdminRole();
+}
+
+// CHECK ADMIN/OWNER FOR ADMIN PANEL
+function checkAdminRole(){
+  if(!currentUser){adminPanelBtn.classList.add("hidden"); return;}
+  db.collection("users").doc(currentUser).get().then(doc=>{
+    const role = doc.data()?.role;
+    adminPanelBtn.classList.toggle("hidden",!(role==="admin"||role==="owner"));
+  });
 }
 
 // PASTES
@@ -184,7 +195,7 @@ db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{
   renderPastes();
 });
 
-// RENDER
+// RENDER PASTES
 function renderPastes(){
   pinned.innerHTML=""; recent.innerHTML="";
   pastes.forEach(p=>{
@@ -215,6 +226,25 @@ function loadUserAccount(u){
     const d=document.createElement("div"); d.className="paste"; d.textContent=p.title+(p.pinned?" (Pinned)":"");
     d.onclick=()=>viewPaste(p); userPastes.appendChild(d);
   });
+  db.collection("users").doc(u).get().then(doc=>{
+    let followers = doc.data()?.followers||[];
+    let btn=document.createElement("button"); btn.className="follow-btn";
+    if(u===currentUser){btn.disabled=true; btn.textContent="This is you";}
+    else{btn.textContent=followers.includes(currentUser)?"Following":"Follow";
+      btn.onclick=()=>toggleFollow(u,btn);}
+    userPastes.appendChild(btn);
+    const fcount=document.createElement("p"); fcount.textContent="Followers: "+followers.length; fcount.id="fcount"; userPastes.appendChild(fcount);
+  });
+}
+function toggleFollow(u,btn){
+  db.collection("users").doc(u).get().then(doc=>{
+    let followers = doc.data()?.followers||[];
+    if(followers.includes(currentUser)) followers = followers.filter(x=>x!==currentUser);
+    else followers.push(currentUser);
+    db.collection("users").doc(u).update({followers});
+    btn.textContent = followers.includes(currentUser)?"Following":"Follow";
+    document.getElementById("fcount").textContent="Followers: "+followers.length;
+  });
 }
 
 // ROLE CODE
@@ -225,7 +255,7 @@ function enterRoleCode(){
   if(code==="swaggyboiii50-owner") role="owner";
   else if(code==="norbin-admin-svensixty") role="admin";
   else return alert("Invalid code");
-  db.collection("users").doc(currentUser).update({role}).then(()=>{alert(role+" activated");goHome();});
+  db.collection("users").doc(currentUser).update({role}).then(()=>{alert(role+" activated"); updateAuth(); goHome();});
 }
 
 // SEARCH
@@ -240,9 +270,36 @@ function search(q){
   });
 }
 
-// INIT AUTH LISTENER
+// ADMIN PANEL
+function loadAdminPanel(){
+  userList.innerHTML=""; pasteList.innerHTML="";
+  db.collection("users").get().then(usersSnap=>{
+    usersSnap.forEach(doc=>{
+      const u = doc.id; const role = doc.data()?.role;
+      const div=document.createElement("div"); div.textContent=u + (role==="owner"?" (Owner)":role==="admin"?" (Admin)":"");
+      if(role==="owner" && u!==currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);}
+      userList.appendChild(div);
+    });
+  });
+  db.collection("pastes").get().then(pasteSnap=>{
+    pasteSnap.forEach(doc=>{
+      const p = doc.data(); const div=document.createElement("div");
+      div.textContent=`${p.title} by ${p.author}` + (p.role?" ("+p.role+")":"");
+      if(currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Delete"; b.onclick=()=>deletePaste(doc.id); div.appendChild(b);
+        const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);}
+      pasteList.appendChild(div);
+    });
+  });
+}
+function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>{s.forEach(doc=>doc.ref.delete());}); loadAdminPanel();}}
+function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
+function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
+
+// INIT AUTH
 auth.onAuthStateChanged(u=>{
-  currentUser=u?u.email:null; updateAuth(); goHome();
+  currentUser = u?u.email:null;
+  updateAuth();
+  goHome();
 });
 </script>
 
