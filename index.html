@@ -31,13 +31,12 @@ textarea{min-height:200px;resize:vertical;}
 .user-tag{font-weight:bold;margin-left:5px;}
 .owner-tag{color:red;text-shadow:0 0 5px red,0 0 10px red,0 0 20px red;}
 .admin-tag{color:darkblue;text-shadow:0 0 5px darkblue,0 0 10px darkblue,0 0 20px darkblue;}
-.follow-btn{padding:5px 10px;background:#2a7;border:none;color:#fff;cursor:pointer;}
-.admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;margin-left:5px;}
-.pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;margin-left:5px;}
 .profile-banner{width:100%;height:120px;object-fit:cover;margin-bottom:10px;border:1px solid #333;}
 .profile-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #2a7;margin-bottom:10px;}
 .chat-box{background:#111;border:2px solid #222;padding:10px;height:300px;overflow-y:auto;margin-bottom:10px;}
 .chat-input{width:100%;padding:10px;background:#111;border:2px solid #333;color:#fff;}
+.admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;margin-left:5px;}
+.pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;margin-left:5px;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
@@ -245,7 +244,7 @@ function loadUserAccount(u){
   db.collection("users").doc(u).onSnapshot(doc=>{
     if(!doc.exists) return;
     const data=doc.data();
-    document.getElementById("accName").textContent="Username: "+data.username;
+    document.getElementById("accName").textContent="Username: "+data.username+" "+(data.role?"("+data.role+")":"");
     document.getElementById("profilePhoto").src=data.photoURL||"";
     document.getElementById("profileBanner").src=data.bannerURL||"";
     loadUserPastes(u);
@@ -313,4 +312,58 @@ function loadAdminPanel(){
       userList.appendChild(div);
     });
   });
-  db.collection("pastes").get().
+  db.collection("pastes").get().then(pasteSnap=>{
+    pasteSnap.forEach(doc=>{
+      const p=doc.data();
+      const div=document.createElement("div"); div.textContent=p.title+" by "+(p.username||p.author)+(p.pinned?" (Pinned)":"");
+      const delBtn=document.createElement("button"); delBtn.className="admin-btn"; delBtn.textContent="Delete"; 
+      delBtn.onclick=()=>{ if(confirm("Delete paste?")){ db.collection("pastes").doc(doc.id).delete(); loadAdminPanel(); }};
+      div.appendChild(delBtn);
+      const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; 
+      pinBtn.onclick=()=>{ db.collection("pastes").doc(doc.id).update({pinned:!p.pinned}); loadAdminPanel(); };
+      div.appendChild(pinBtn);
+      pasteList.appendChild(div);
+    });
+  });
+}
+
+function banUser(u){
+  if(confirm("Ban user "+u+"?")){
+    db.collection("users").doc(u).delete();
+    db.collection("pastes").where("author","==",u).get().then(snap=>snap.forEach(doc=>doc.ref.delete()));
+    loadAdminPanel();
+  }
+}
+
+// CHAT SYSTEM
+const chatBox=document.getElementById("chatBox");
+function loadChat(){
+  db.collection("chat").orderBy("time","asc").onSnapshot(snapshot=>{
+    chatBox.innerHTML="";
+    snapshot.docs.forEach(doc=>{
+      const msg=doc.data();
+      const div=document.createElement("div");
+      div.textContent=`[${new Date(msg.time).toLocaleTimeString()}] ${msg.username||msg.author}: ${msg.text}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop=chatBox.scrollHeight;
+    });
+  });
+}
+
+function sendChat(){
+  const text=document.getElementById("chatInput").value.trim();
+  if(!text || !currentUser) return;
+  db.collection("users").doc(currentUser).get().then(doc=>{
+    const username=doc.data()?.username||currentUser;
+    db.collection("chat").add({author:currentUser,username,text,time:Date.now()});
+    document.getElementById("chatInput").value="";
+  });
+}
+
+auth.onAuthStateChanged(u=>{currentUser=u?.email||null;updateAuth();});
+
+goHome();
+</script>
+
+</body>
+</html>
