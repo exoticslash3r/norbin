@@ -35,12 +35,15 @@ textarea{min-height:200px;resize:vertical;}
 .follow-btn{padding:5px 10px;background:#2a7;border:none;color:#fff;cursor:pointer;}
 .admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;margin-left:5px;}
 .pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;margin-left:5px;}
+.profile-banner{width:100%;height:120px;object-fit:cover;margin-bottom:10px;border:1px solid #333;}
+.profile-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #2a7;margin-bottom:10px;}
 </style>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
@@ -113,8 +116,14 @@ textarea{min-height:200px;resize:vertical;}
 
 <div id="account" class="hidden">
   <h2>Account</h2>
+  <img id="profileBanner" class="profile-banner" src="" alt="Banner">
+  <img id="profilePhoto" class="profile-photo" src="" alt="Profile Photo">
   <p id="accName"></p>
-  <button class="publish" onclick="updateUsernamePrompt()">Update Username</button>
+  <div class="form-buttons">
+    <button class="publish" onclick="updateUsernamePrompt()">Update Username</button>
+    <button class="publish" onclick="updateProfilePhoto()">Update Photo</button>
+    <button class="publish" onclick="updateBanner()">Update Banner</button>
+  </div>
   <div id="userPastes"></div>
   <button class="clear" onclick="logout()">Log out</button>
 </div>
@@ -132,18 +141,19 @@ textarea{min-height:200px;resize:vertical;}
 </div>
 
 <script>
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBN29E6HxcBEAum3BU2ntbXWUfe6my9oy8",
   authDomain: "n0rb1n.firebaseapp.com",
   projectId: "n0rb1n",
-  storageBucket: "n0rb1n.firebasestorage.app",
+  storageBucket: "n0rb1n.appspot.com",
   messagingSenderId: "269496774941",
-  appId: "1:269496774941:web:74d9e873abbe707bdb31f4",
-  measurementId: "G-RBYY7TFED8"
+  appId: "1:269496774941:web:74d9e873abbe707bdb31f4"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 let currentUser = null;
 let pastes = [];
@@ -175,7 +185,13 @@ function signupUserFunc(){
   const pass = signupPass.value.trim();
   if(!email||!pass) return alert("Fill email & password");
   auth.createUserWithEmailAndPassword(email,pass).then(()=>{
-    db.collection("users").doc(email).set({followers: [], role:null, username: email.split("@")[0]});
+    db.collection("users").doc(email).set({
+      followers: [],
+      role:null,
+      username: email.split("@")[0],
+      photoURL:"",
+      bannerURL:""
+    });
     currentUser = email; updateAuth(); goHome();
   }).catch(e=>alert(e.message));
 }
@@ -203,12 +219,34 @@ function updateUsernamePrompt(){
   db.collection("users").doc(currentUser).update({username: newName}).then(()=>{alert("Username updated!"); loadUserAccount(currentUser);});
 }
 
-// CHECK ADMIN/OWNER FOR ADMIN PANEL
-function checkAdminRole(){
-  if(!currentUser){adminPanelBtn.classList.add("hidden"); return;}
-  db.collection("users").doc(currentUser).get().then(doc=>{
-    const role = doc.data()?.role;
-    adminPanelBtn.classList.toggle("hidden",!(role==="admin"||role==="owner"));
+// UPDATE PHOTO
+function updateProfilePhoto(){
+  const file = promptFile("Select a profile photo");
+  if(!file) return;
+  const ref = storage.ref("users/"+currentUser+"/photo.jpg");
+  ref.put(file).then(()=>ref.getDownloadURL()).then(url=>{
+    db.collection("users").doc(currentUser).update({photoURL:url}).then(()=>loadUserAccount(currentUser));
+  });
+}
+
+// UPDATE BANNER
+function updateBanner(){
+  const file = promptFile("Select a banner image");
+  if(!file) return;
+  const ref = storage.ref("users/"+currentUser+"/banner.jpg");
+  ref.put(file).then(()=>ref.getDownloadURL()).then(url=>{
+    db.collection("users").doc(currentUser).update({bannerURL:url}).then(()=>loadUserAccount(currentUser));
+  });
+}
+
+// promptFile helper
+function promptFile(msg){
+  return new Promise(resolve=>{
+    const input=document.createElement("input");
+    input.type="file";
+    input.accept="image/*";
+    input.onchange=()=>resolve(input.files[0]);
+    input.click();
   });
 }
 
@@ -248,29 +286,17 @@ function viewPaste(p){
 }
 
 // USER PROFILE
-function viewUser(u){
-  hideAll(); accountDiv.classList.remove("hidden");
-  loadUserAccount(u);
-}
-function loadUserAccount(u){
-  accName.textContent="User: "+u;
+async function loadUserAccount(u){
+  accName.textContent="Loading...";
   userPastes.innerHTML="";
+  const doc = await db.collection("users").doc(u).get();
+  const data = doc.data();
+  accName.textContent = `User: ${data.username || u} (${u})`;
+  profilePhoto.src = data.photoURL || "";
+  profileBanner.src = data.bannerURL || "";
   pastes.filter(p=>p.author===u).forEach(p=>{
     const d=document.createElement("div"); d.className="paste"; d.textContent=p.title+(p.pinned?" (Pinned)":"");
     d.onclick=()=>viewPaste(p); userPastes.appendChild(d);
-  });
-  db.collection("users").doc(u).get().then(doc=>{
-    let followers = doc.data()?.followers||[];
-    let username = doc.data()?.username || u;
-    accName.textContent = `User: ${username} (${u})`;
-    if(u===currentUser){ 
-      const btn = document.createElement("button"); 
-      btn.className="publish"; 
-      btn.textContent="Update Username"; 
-      btn.onclick=updateUsernamePrompt; 
-      userPastes.appendChild(btn);
-    }
-    const fcount=document.createElement("p"); fcount.textContent="Followers: "+followers.length; fcount.id="fcount"; userPastes.appendChild(fcount);
   });
 }
 
@@ -319,16 +345,4 @@ function loadAdminPanel(){
   });
 }
 function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>{s.forEach(doc=>doc.ref.delete());}); loadAdminPanel();}}
-function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
-function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
-
-// INIT AUTH
-auth.onAuthStateChanged(u=>{
-  currentUser = u?u.email:null;
-  updateAuth();
-  goHome();
-});
-</script>
-
-</body>
-</html>
+function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete();
