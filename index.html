@@ -10,18 +10,7 @@ body{margin:0;background:#0b0b0b;color:#f1f1f1;font-family:monospace;}
 .topbar{position:fixed;top:0;left:0;width:100%;height:50px;z-index:2000;display:flex;align-items:center;padding:0 15px;background:#0b0b0b;border-bottom:2px solid #333;}
 .menu-btn{font-size:24px;cursor:pointer;user-select:none;margin-right:10px;}
 .brand{font-size:20px;font-weight:bold;color:#ff0000;text-shadow:0 0 5px #ff0000,0 0 10px #ff0000,0 0 20px #ff0000;}
-.top-menu{
-  position:fixed;
-  top:-300px; /* hidden initially */
-  left:0;
-  width:100%;
-  background:#111;
-  border-bottom:2px solid #222;
-  padding:60px 15px 15px;
-  transition: top 0.3s ease;
-  z-index:1500;
-  text-align:center;
-}
+.top-menu{position:fixed;top:-300px;left:0;width:100%;background:#111;border-bottom:2px solid #222;padding:60px 15px 15px;transition:top 0.3s ease;z-index:1500;text-align:center;}
 .top-menu.open{top:50px;}
 .top-menu button{width:90%;margin:8px 0;padding:12px;background:#1a1a1a;color:#fff;border:1px solid #333;cursor:pointer;}
 .top-menu button:hover{background:#222;}
@@ -48,11 +37,9 @@ textarea{min-height:200px;resize:vertical;}
 .profile-banner{width:100%;height:120px;object-fit:cover;margin-bottom:10px;border:1px solid #333;}
 .profile-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #2a7;margin-bottom:10px;}
 </style>
-
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
@@ -72,7 +59,6 @@ textarea{min-height:200px;resize:vertical;}
 </div>
 
 <div class="container">
-
 <div id="home">
   <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
   <div class="section"><h2>Pinned Pastes</h2><div id="pinned"></div></div>
@@ -132,29 +118,33 @@ textarea{min-height:200px;resize:vertical;}
     <div id="pasteList"></div>
   </div>
 </div>
-
 </div>
 
 <script>
-// Firebase config
-const firebaseConfig = {apiKey:"AIzaSyBN29E6HxcBEAum3BU2ntbXWUfe6my9oy8",authDomain:"n0rb1n.firebaseapp.com",projectId:"n0rb1n",storageBucket:"n0rb1n.appspot.com",messagingSenderId:"269496774941",appId:"1:269496774941:web:74d9e873abbe707bdb31f4"};
+const firebaseConfig = {
+  apiKey: "AIzaSyBN29E6HxcBEAum3BU2ntbXWUfe6my9oy8",
+  authDomain: "n0rb1n.firebaseapp.com",
+  projectId: "n0rb1n",
+  storageBucket: "n0rb1n.appspot.com",
+  messagingSenderId: "269496774941",
+  appId: "1:269496774941:web:74d9e873abbe707bdb31f4"
+};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
 let currentUser=null;
 let pastes=[];
 
-// DOM
-const loginBtn = document.getElementById("loginBtn");
-const signupBtn = document.getElementById("signupBtn");
-const accountBtn = document.getElementById("accountBtn");
-const roleCodeBtn = document.getElementById("roleCodeBtn");
-const adminPanelBtn = document.getElementById("adminPanelBtn");
-const pinned = document.getElementById("pinned");
-const recent = document.getElementById("recent");
+const loginBtn=document.getElementById("loginBtn");
+const signupBtn=document.getElementById("signupBtn");
+const accountBtn=document.getElementById("accountBtn");
+const roleCodeBtn=document.getElementById("roleCodeBtn");
+const adminPanelBtn=document.getElementById("adminPanelBtn");
+const pinned=document.getElementById("pinned");
+const recent=document.getElementById("recent");
 
+// MENU
 function toggleMenu(){document.getElementById("menu").classList.toggle("open");}
 function hideAll(){document.querySelectorAll(".container>div").forEach(d=>d.classList.add("hidden"));}
 function goHome(){hideAll();document.getElementById("home").classList.remove("hidden");}
@@ -164,11 +154,31 @@ function openSignup(){hideAll();document.getElementById("signup").classList.remo
 function openAccount(){hideAll();document.getElementById("account").classList.remove("hidden");loadUserAccount(currentUser);}
 function openAdminPanel(){hideAll();document.getElementById("adminPanel").classList.remove("hidden");loadAdminPanel();}
 
-// Auth functions (login/signup/publish/load pastes etc.) go here (similar to previous full working version)
+// AUTH FUNCTIONS
+function signupUserFunc(){
+  const email=document.getElementById("signupUser").value.trim();
+  const pass=document.getElementById("signupPass").value.trim();
+  if(!email||!pass)return alert("Fill email & password");
+  auth.createUserWithEmailAndPassword(email,pass).then(()=>{
+    db.collection("users").doc(email).set({
+      followers:[],
+      role:null,
+      username:email.split("@")[0],
+      photoURL:"",
+      bannerURL:""
+    });
+    currentUser=email; updateAuth(); goHome();
+  }).catch(e=>alert(e.message));
+}
 
-// Auth state
-auth.onAuthStateChanged(u=>{currentUser=u?u.email:null;updateAuth();goHome();});
+function loginUserFunc(){
+  const email=document.getElementById("loginUser").value.trim();
+  const pass=document.getElementById("loginPass").value.trim();
+  if(!email||!pass)return alert("Fill email & password");
+  auth.signInWithEmailAndPassword(email,pass).then(()=>{currentUser=email;updateAuth();goHome();}).catch(e=>alert(e.message));
+}
 
+function logout(){auth.signOut();currentUser=null;updateAuth();goHome();}
 function updateAuth(){
   loginBtn.classList.toggle("hidden",!!currentUser);
   signupBtn.classList.toggle("hidden",!!currentUser);
@@ -176,7 +186,6 @@ function updateAuth(){
   roleCodeBtn.classList.toggle("hidden",!currentUser);
   checkAdminRole();
 }
-
 function checkAdminRole(){
   if(!currentUser){adminPanelBtn.classList.add("hidden");return;}
   db.collection("users").doc(currentUser).get().then(doc=>{
@@ -184,6 +193,38 @@ function checkAdminRole(){
     adminPanelBtn.classList.toggle("hidden",!(role==="admin"||role==="owner"));
   });
 }
+
+// LIVE PASTE FETCH
+db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{
+  pastes=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPastes();
+});
+
+function renderPastes(){
+  pinned.innerHTML=""; recent.innerHTML="";
+  pastes.forEach(p=>{
+    const div=document.createElement("div"); div.className="paste";
+    div.textContent=p.title + " by " + (p.username||p.author);
+    div.onclick=()=>alert(p.text);
+    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
+  });
+}
+
+function publishPaste(){
+  const title=document.getElementById("pasteTitle").value.trim();
+  const text=document.getElementById("pasteText").value.trim();
+  if(!currentUser)return alert("Login first");
+  if(!title||!text)return alert("Fill title & content");
+  db.collection("users").doc(currentUser).get().then(doc=>{
+    const username=doc.data()?.username || currentUser;
+    db.collection("pastes").add({title,text,author:currentUser,username,time:Date.now(),pinned:false});
+  });
+  document.getElementById("pasteTitle").value="";
+  document.getElementById("pasteText").value="";
+  goHome();
+}
+
+auth.onAuthStateChanged(u=>{currentUser=u?u.email:null;updateAuth();goHome();});
 </script>
 
 </body>
