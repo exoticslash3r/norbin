@@ -134,6 +134,16 @@ const db = firebase.firestore();
 let currentUser = null;
 let pastes = [];
 
+// DOM References
+const login = document.getElementById("login");
+const signup = document.getElementById("signup");
+const home = document.getElementById("home");
+const create = document.getElementById("create");
+const view = document.getElementById("view");
+const account = document.getElementById("account");
+const roleCode = document.getElementById("roleCode");
+const adminPanel = document.getElementById("adminPanel");
+
 // MENU
 function toggleMenu(){document.getElementById("menu").classList.toggle("open");}
 function hideAll(){document.querySelectorAll(".container>div").forEach(d=>d.classList.add("hidden"));}
@@ -277,14 +287,14 @@ function loadAdminPanel(){
     usersSnap.forEach(doc=>{
       const u = doc.id; const role = doc.data()?.role;
       const div=document.createElement("div"); div.textContent=u + (role==="owner"?" (Owner)":role==="admin"?" (Admin)":"");
-      if(role==="owner" && u!==currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);}
+      if(role!=="owner"){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);}
       userList.appendChild(div);
     });
   });
   db.collection("pastes").get().then(pasteSnap=>{
     pasteSnap.forEach(doc=>{
       const p = doc.data(); const div=document.createElement("div");
-      div.textContent=`${p.title} by ${p.author}` + (p.role?" ("+p.role+")":"");
+      div.textContent=`${p.title} by ${p.author}` + (p.pinned?" (Pinned)":"");
       if(currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Delete"; b.onclick=()=>deletePaste(doc.id); div.appendChild(b);
         const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);}
       pasteList.appendChild(div);
