@@ -23,6 +23,11 @@
 .admin-btn{padding:4px 8px;background:#922;border:none;color:#fff;cursor:pointer;margin-left:5px;}
 .pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;cursor:pointer;margin-left:5px;}
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -44,28 +49,17 @@
 
 <div class="container">
 
-<!-- HOME -->
 <div id="home">
   <input class="search" placeholder="Search pastes..." oninput="search(this.value)">
-  
-  <div class="section">
-    <h2>Pinned Pastes</h2>
-    <div id="pinned"></div>
-  </div>
-  
-  <div class="section">
-    <h2>Recent Pastes</h2>
-    <div id="recent"></div>
-  </div>
+  <div class="section"><h2>Pinned Pastes</h2><div id="pinned"></div></div>
+  <div class="section"><h2>Recent Pastes</h2><div id="recent"></div></div>
 </div>
 
-<!-- VIEW PASTE -->
 <div id="view" class="hidden">
   <div style="margin-bottom:10px;">Author: <span id="viewAuthor" style="cursor:pointer;text-decoration:underline;"></span> | <span id="viewTime"></span></div>
   <div class="paste-box" id="viewContent"></div>
 </div>
 
-<!-- CREATE PASTE -->
 <div id="create" class="hidden">
   <input class="input" id="pasteTitle" placeholder="Paste title">
   <textarea id="pasteText" placeholder="Paste content"></textarea>
@@ -75,9 +69,8 @@
   </div>
 </div>
 
-<!-- LOGIN PAGE -->
 <div id="login" class="hidden">
-  <input class="input" id="loginUser" placeholder="Username">
+  <input class="input" id="loginUser" placeholder="Email">
   <input class="input" id="loginPass" type="password" placeholder="Password">
   <div class="form-buttons">
     <button class="publish" onclick="login()">Login</button>
@@ -85,9 +78,8 @@
   </div>
 </div>
 
-<!-- SIGNUP PAGE -->
 <div id="signup" class="hidden">
-  <input class="input" id="signupUser" placeholder="Username">
+  <input class="input" id="signupUser" placeholder="Email">
   <input class="input" id="signupPass" type="password" placeholder="Password">
   <div class="form-buttons">
     <button class="publish" onclick="signup()">Sign up</button>
@@ -95,7 +87,6 @@
   </div>
 </div>
 
-<!-- ROLE CODE PAGE -->
 <div id="roleCode" class="hidden">
   <h2>Enter Role Code</h2>
   <input class="input" id="roleInput" placeholder="Enter code here">
@@ -105,15 +96,13 @@
   </div>
 </div>
 
-<!-- ACCOUNT PAGE -->
 <div id="account" class="hidden">
-  <h2>My Account</h2>
+  <h2>Account</h2>
   <p id="accName"></p>
   <div id="userPastes"></div>
   <button class="clear" onclick="logout()">Log out</button>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel" class="hidden">
   <h2>Admin Panel</h2>
   <div id="adminControls">
@@ -127,17 +116,27 @@
 </div>
 
 <script>
-let pastes=JSON.parse(localStorage.getItem("pastes")||"[]");
-let pinnedPastes=JSON.parse(localStorage.getItem("pinned")||"[]");
-let users=JSON.parse(localStorage.getItem("users")||"{}");
-let followers=JSON.parse(localStorage.getItem("followers")||"{}");
-let currentUser=localStorage.getItem("currentUser");
-let admins=JSON.parse(localStorage.getItem("admins")||"{}");
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyBN29E6HxcBEAum3BU2ntbXWUfe6my9oy8",
+  authDomain: "n0rb1n.firebaseapp.com",
+  projectId: "n0rb1n",
+  storageBucket: "n0rb1n.firebasestorage.app",
+  messagingSenderId: "269496774941",
+  appId: "1:269496774941:web:74d9e873abbe707bdb31f4",
+  measurementId: "G-RBYY7TFED8"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-/* MENU */
+let currentUser = null;
+let pastes = [];
+
+// MENU
 function toggleMenu(){document.getElementById("menu").classList.toggle("open");}
 function hideAll(){document.querySelectorAll(".container>div").forEach(d=>d.classList.add("hidden"));}
-function goHome(){hideAll();home.classList.remove("hidden");render();}
+function goHome(){hideAll();home.classList.remove("hidden");}
 function openPaste(){hideAll();create.classList.remove("hidden");}
 function openLogin(){hideAll();login.classList.remove("hidden");}
 function openSignup(){hideAll();signup.classList.remove("hidden");}
@@ -145,53 +144,106 @@ function openAccount(){hideAll();account.classList.remove("hidden");loadUserAcco
 function openRoleCode(){hideAll();roleCode.classList.remove("hidden");}
 function openAdminPanel(){hideAll();adminPanel.classList.remove("hidden");loadAdminPanel();}
 
-/* AUTH */
-function signup(){if(!signupUser.value||!signupPass.value)return alert("Fill username & password");if(users[signupUser.value])return alert("User exists");users[signupUser.value]=signupPass.value;followers[signupUser.value]=[];localStorage.setItem("users",JSON.stringify(users));localStorage.setItem("followers",JSON.stringify(followers));currentUser=signupUser.value;localStorage.setItem("currentUser",currentUser);updateAuth();}
-function login(){if(!loginUser.value||!loginPass.value)return alert("Fill username & password");if(users[loginUser.value]!==loginPass.value)return alert("Invalid");currentUser=loginUser.value;localStorage.setItem("currentUser",currentUser);updateAuth();}
-function logout(){localStorage.removeItem("currentUser");currentUser=null;updateAuth();goHome();}
+// AUTH
+function signup(){
+  const email = signupUser.value.trim();
+  const pass = signupPass.value.trim();
+  if(!email||!pass) return alert("Fill email & password");
+  auth.createUserWithEmailAndPassword(email,pass).then(()=> {
+    db.collection("users").doc(email).set({followers: [], role:null});
+    currentUser = email; updateAuth(); goHome();
+  }).catch(e=>alert(e.message));
+}
+function login(){
+  const email = loginUser.value.trim();
+  const pass = loginPass.value.trim();
+  if(!email||!pass) return alert("Fill email & password");
+  auth.signInWithEmailAndPassword(email,pass).then(()=>{currentUser=email;updateAuth();goHome();}).catch(e=>alert(e.message));
+}
+function logout(){auth.signOut();currentUser=null;updateAuth();goHome();}
 function updateAuth(){
-  loginBtn.classList.toggle("hidden",!!currentUser);signupBtn.classList.toggle("hidden",!!currentUser);accountBtn.classList.toggle("hidden",!currentUser);
+  loginBtn.classList.toggle("hidden",!!currentUser);
+  signupBtn.classList.toggle("hidden",!!currentUser);
+  accountBtn.classList.toggle("hidden",!currentUser);
   roleCodeBtn.classList.toggle("hidden",!currentUser);
-  adminPanelBtn.classList.toggle("hidden",!(currentUser && admins[currentUser]));
 }
 
-/* PASTE */
-function publishPaste(){if(!currentUser)return alert("Login");const t=pasteTitle.value.trim(),c=pasteText.value.trim();if(!t||!c)return alert("Fill");pastes.unshift({title:t,text:c,author:currentUser,time:Date.now(),pinned:false});localStorage.setItem("pastes",JSON.stringify(pastes));clearPaste();goHome();}
+// PASTES
+function publishPaste(){
+  if(!currentUser) return alert("Login");
+  const t=pasteTitle.value.trim(), c=pasteText.value.trim();
+  if(!t||!c) return alert("Fill");
+  db.collection("pastes").add({title:t,text:c,author:currentUser,time:Date.now(),pinned:false});
+  clearPaste(); goHome();
+}
 function clearPaste(){pasteTitle.value="";pasteText.value="";}
-function render(){renderSection(pinned,pastes.filter(p=>p.pinned));renderSection(recent,pastes);}
-function renderSection(container,array){container.innerHTML="";array.forEach((p,i)=>{const d=document.createElement("div");d.className="paste";d.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}${getTag(p.author)}</span>`;d.onclick=e=>{if(e.target.tagName!=="SPAN")viewPaste(p)};container.appendChild(d);});}
-function search(q){renderSection(pinned,pastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())&&p.pinned));renderSection(recent,pastes.filter(p=>p.title.toLowerCase().includes(q.toLowerCase())));}
 
-/* VIEW PASTE */
-function viewPaste(p){hideAll();view.classList.remove("hidden");viewContent.textContent=p.text;viewAuthor.textContent=p.author;viewAuthor.onclick=()=>viewUser(p.author);viewTime.textContent=new Date(p.time).toLocaleString();}
+// FETCH PASTES
+db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{
+  pastes = snap.docs.map(doc=>({id:doc.id,...doc.data()}));
+  renderPastes();
+});
 
-/* USER PROFILES */
-function viewUser(u){hideAll();account.classList.remove("hidden");loadUserAccount(u);}
+// RENDER
+function renderPastes(){
+  pinned.innerHTML=""; recent.innerHTML="";
+  pastes.forEach(p=>{
+    const div=document.createElement("div"); div.className="paste";
+    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}${p.role?` <span class='user-tag ${p.role}-tag'>(${p.role})</span>`:""}</span>`;
+    div.onclick=()=>viewPaste(p);
+    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
+  });
+}
+
+function viewPaste(p){
+  hideAll(); view.classList.remove("hidden");
+  viewContent.textContent=p.text;
+  viewAuthor.textContent=p.author;
+  viewAuthor.onclick=()=>viewUser(p.author);
+  viewTime.textContent=new Date(p.time).toLocaleString();
+}
+
+// USER PROFILE
+function viewUser(u){
+  hideAll(); account.classList.remove("hidden");
+  loadUserAccount(u);
+}
 function loadUserAccount(u){
-  accName.textContent="User: "+u+getTag(u);
+  accName.textContent="User: "+u;
   userPastes.innerHTML="";
-  pastes.filter(p=>p.author===u).forEach(p=>{const d=document.createElement("div");d.className="paste";d.textContent=p.title;d.onclick=()=>viewPaste(p);userPastes.appendChild(d);});
-  let btn=document.createElement("button");btn.className="follow-btn";if(u===currentUser){btn.disabled=true;btn.textContent="This is you";}else{btn.textContent=followers[u]?.includes(currentUser)?"Following":"Follow";btn.onclick=()=>toggleFollow(u,btn);}userPastes.appendChild(btn);
-  const fcount=document.createElement("p");fcount.textContent="Followers: "+(followers[u]?.length||0);fcount.id="fcount";userPastes.appendChild(fcount);
+  pastes.filter(p=>p.author===u).forEach(p=>{
+    const d=document.createElement("div"); d.className="paste"; d.textContent=p.title+(p.pinned?" (Pinned)":"");
+    d.onclick=()=>viewPaste(p); userPastes.appendChild(d);
+  });
 }
-function toggleFollow(u,btn){if(!currentUser)return alert("Login");if(!followers[u])followers[u]=[];if(followers[u].includes(currentUser)){followers[u]=followers[u].filter(x=>x!==currentUser);btn.textContent="Follow";}else{followers[u].push(currentUser);btn.textContent="Following";}localStorage.setItem("followers",JSON.stringify(followers));document.getElementById("fcount").textContent="Followers: "+followers[u].length;}
 
-/* ROLE CODE */
-function enterRoleCode(){if(!currentUser)return alert("Login first");const code=roleInput.value.trim();if(code==="swaggyboiii50-owner"){admins[currentUser]="owner";alert("Owner activated");}else if(code==="norbin-admin-svensixty"){admins[currentUser]="admin";alert("Admin activated");}else return alert("Invalid code");localStorage.setItem("admins",JSON.stringify(admins));updateAuth();goHome();}
-
-/* ADMIN PANEL */
-function getTag(u){if(admins[u]==="owner")return' <span class="user-tag owner-tag">(Norbin Owner)</span>';if(admins[u]==="admin")return' <span class="user-tag admin-tag">(Norbin Admin)</span>';return'';}
-function loadAdminPanel(){
-  userList.innerHTML="";pasteList.innerHTML="";
-  Object.keys(users).forEach(u=>{const div=document.createElement("div");div.textContent=u+getTag(u);if(admins[currentUser]==="owner" && u!==currentUser){const b=document.createElement("button");b.className="admin-btn";b.textContent="Ban";b.onclick=()=>banUser(u);div.appendChild(b);}userList.appendChild(div);});
-  pastes.forEach((p,i)=>{const div=document.createElement("div");div.textContent=`${p.title} by ${p.author}`+getTag(p.author);if(admins[currentUser]){const b=document.createElement("button");b.className="admin-btn";b.textContent="Delete";b.onclick=()=>deletePaste(i);div.appendChild(b);const pinBtn=document.createElement("button");pinBtn.className="pin-btn";pinBtn.textContent=p.pinned?"Unpin":"Pin";pinBtn.onclick=()=>togglePin(i);div.appendChild(pinBtn);}pasteList.appendChild(div);});
+// ROLE CODE
+function enterRoleCode(){
+  const code=roleInput.value.trim();
+  if(!currentUser) return alert("Login first");
+  let role=null;
+  if(code==="swaggyboiii50-owner") role="owner";
+  else if(code==="norbin-admin-svensixty") role="admin";
+  else return alert("Invalid code");
+  db.collection("users").doc(currentUser).update({role}).then(()=>{alert(role+" activated");goHome();});
 }
-function banUser(u){if(confirm("Ban "+u+"?")){delete users[u];delete followers[u];pastes=pastes.filter(p=>p.author!==u);localStorage.setItem("users",JSON.stringify(users));localStorage.setItem("followers",JSON.stringify(followers));localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}}
-function deletePaste(i){if(confirm("Delete paste?")){pastes.splice(i,1);localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}}
-function togglePin(i){pastes[i].pinned=!pastes[i].pinned;localStorage.setItem("pastes",JSON.stringify(pastes));loadAdminPanel();render();}
 
-/* INIT */
-updateAuth();render();
+// SEARCH
+function search(q){
+  const qLower=q.toLowerCase();
+  pinned.innerHTML=""; recent.innerHTML="";
+  pastes.filter(p=>p.title.toLowerCase().includes(qLower)).forEach(p=>{
+    const div=document.createElement("div"); div.className="paste";
+    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`;
+    div.onclick=()=>viewPaste(p);
+    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
+  });
+}
+
+// INIT AUTH LISTENER
+auth.onAuthStateChanged(u=>{
+  currentUser=u?u.email:null; updateAuth(); goHome();
+});
 </script>
 
 </body>
