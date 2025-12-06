@@ -130,7 +130,8 @@ textarea{min-height:200px;resize:vertical;}
 
 <div id="adminPanel" class="hidden">
   <h2>Admin Panel</h2>
-  <div id="adminControls">
+  <button onclick="togglePermissions()">Permissions</button>
+  <div id="permissionsPanel" class="hidden">
     <h3>Users</h3>
     <div id="userList"></div>
     <h3>All Pastes</h3>
@@ -212,148 +213,51 @@ function updateAuth(){
   checkAdminRole();
 }
 
-// UPDATE USERNAME
-function updateUsernamePrompt(){
-  const newName = prompt("Enter your new username:");
-  if(!newName) return;
-  db.collection("users").doc(currentUser).update({username: newName}).then(()=>{alert("Username updated!"); loadUserAccount(currentUser);});
-}
-
-// UPDATE PHOTO
-function updateProfilePhoto(){
-  const file = promptFile("Select a profile photo");
-  if(!file) return;
-  const ref = storage.ref("users/"+currentUser+"/photo.jpg");
-  ref.put(file).then(()=>ref.getDownloadURL()).then(url=>{
-    db.collection("users").doc(currentUser).update({photoURL:url}).then(()=>loadUserAccount(currentUser));
+// CHECK ADMIN ROLE
+function checkAdminRole(){
+  if(!currentUser){adminPanelBtn.classList.add("hidden"); return;}
+  db.collection("users").doc(currentUser).get().then(doc=>{
+    const role = doc.data()?.role;
+    adminPanelBtn.classList.toggle("hidden",!(role==="admin"||role==="owner"));
   });
 }
 
-// UPDATE BANNER
-function updateBanner(){
-  const file = promptFile("Select a banner image");
-  if(!file) return;
-  const ref = storage.ref("users/"+currentUser+"/banner.jpg");
-  ref.put(file).then(()=>ref.getDownloadURL()).then(url=>{
-    db.collection("users").doc(currentUser).update({bannerURL:url}).then(()=>loadUserAccount(currentUser));
-  });
-}
+// UPDATE USERNAME / PHOTO / BANNER
+function updateUsernamePrompt(){const newName=prompt("Enter new username:"); if(!newName) return; db.collection("users").doc(currentUser).update({username:newName}).then(()=>loadUserAccount(currentUser));}
+async function updateProfilePhoto(){const file = await selectFile(); if(!file) return; const ref=storage.ref("users/"+currentUser+"/photo.jpg"); await ref.put(file); const url=await ref.getDownloadURL(); await db.collection("users").doc(currentUser).update({photoURL:url}); loadUserAccount(currentUser);}
+async function updateBanner(){const file = await selectFile(); if(!file) return; const ref=storage.ref("users/"+currentUser+"/banner.jpg"); await ref.put(file); const url=await ref.getDownloadURL(); await db.collection("users").doc(currentUser).update({bannerURL:url}); loadUserAccount(currentUser);}
+function selectFile(){return new Promise(resolve=>{const input=document.createElement("input");input.type="file";input.accept="image/*";input.onchange=()=>resolve(input.files[0]);input.click();});}
 
-// promptFile helper
-function promptFile(msg){
-  return new Promise(resolve=>{
-    const input=document.createElement("input");
-    input.type="file";
-    input.accept="image/*";
-    input.onchange=()=>resolve(input.files[0]);
-    input.click();
-  });
-}
-
-// PASTES
-function publishPaste(){
-  if(!currentUser) return alert("Login");
-  const t=pasteTitle.value.trim(), c=pasteText.value.trim();
-  if(!t||!c) return alert("Fill");
-  db.collection("pastes").add({title:t,text:c,author:currentUser,time:Date.now(),pinned:false});
-  clearPaste(); goHome();
-}
+// PASTE FUNCTIONS
+function publishPaste(){if(!currentUser) return alert("Login"); const t=pasteTitle.value.trim(), c=pasteText.value.trim(); if(!t||!c) return alert("Fill"); db.collection("pastes").add({title:t,text:c,author:currentUser,time:Date.now(),pinned:false}); clearPaste(); goHome();}
 function clearPaste(){pasteTitle.value="";pasteText.value="";}
 
 // FETCH PASTES
-db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{
-  pastes = snap.docs.map(doc=>({id:doc.id,...doc.data()}));
-  renderPastes();
-});
+db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{pastes = snap.docs.map(doc=>({id:doc.id,...doc.data()})); renderPastes();});
 
 // RENDER PASTES
-function renderPastes(){
-  pinned.innerHTML=""; recent.innerHTML="";
-  pastes.forEach(p=>{
-    const div=document.createElement("div"); div.className="paste";
-    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`;
-    div.onclick=()=>viewPaste(p);
-    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
-  });
-}
+function renderPastes(){pinned.innerHTML=""; recent.innerHTML=""; pastes.forEach(p=>{const div=document.createElement("div"); div.className="paste"; div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`; div.onclick=()=>viewPaste(p); if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);});}
 
-function viewPaste(p){
-  hideAll(); viewDiv.classList.remove("hidden");
-  viewContent.textContent=p.text;
-  viewAuthor.textContent=p.author;
-  viewAuthor.onclick=()=>viewUser(p.author);
-  viewTime.textContent=new Date(p.time).toLocaleString();
-}
+function viewPaste(p){hideAll(); viewDiv.classList.remove("hidden"); viewContent.textContent=p.text; viewAuthor.textContent=p.author; viewAuthor.onclick=()=>viewUser(p.author); viewTime.textContent=new Date(p.time).toLocaleString();}
 
-// USER PROFILE
-async function loadUserAccount(u){
-  accName.textContent="Loading...";
-  userPastes.innerHTML="";
-  const doc = await db.collection("users").doc(u).get();
-  const data = doc.data();
-  accName.textContent = `User: ${data.username || u} (${u})`;
-  profilePhoto.src = data.photoURL || "";
-  profileBanner.src = data.bannerURL || "";
-  pastes.filter(p=>p.author===u).forEach(p=>{
-    const d=document.createElement("div"); d.className="paste"; d.textContent=p.title+(p.pinned?" (Pinned)":"");
-    d.onclick=()=>viewPaste(p); userPastes.appendChild(d);
-  });
-}
+// LOAD USER ACCOUNT
+async function loadUserAccount(u){const doc=await db.collection("users").doc(u).get(); const data=doc.data(); accName.textContent=`User: ${data.username || u} (${u})`; profilePhoto.src=data.photoURL||""; profileBanner.src=data.bannerURL||""; userPastes.innerHTML=""; pastes.filter(p=>p.author===u).forEach(p=>{const d=document.createElement("div"); d.className="paste"; d.textContent=p.title+(p.pinned?" (Pinned)":""); d.onclick=()=>viewPaste(p); userPastes.appendChild(d);});}
 
 // ROLE CODE
-function enterRoleCode(){
-  const code=roleInput.value.trim();
-  if(!currentUser) return alert("Login first");
-  let role=null;
-  if(code==="swaggyboiii50-owner") role="owner";
-  else if(code==="norbin-admin-svensixty") role="admin";
-  else return alert("Invalid code");
-  db.collection("users").doc(currentUser).update({role}).then(()=>{alert(role+" activated"); updateAuth(); goHome();});
-}
+function enterRoleCode(){const code=roleInput.value.trim(); if(!currentUser) return alert("Login first"); let role=null; if(code==="swaggyboiii50-owner") role="owner"; else if(code==="norbin-admin-svensixty") role="admin"; else return alert("Invalid code"); db.collection("users").doc(currentUser).update({role}).then(()=>{alert(role+" activated"); updateAuth(); goHome();});}
 
 // SEARCH
-function search(q){
-  const qLower=q.toLowerCase();
-  pinned.innerHTML=""; recent.innerHTML="";
-  pastes.filter(p=>p.title.toLowerCase().includes(qLower)).forEach(p=>{
-    const div=document.createElement("div"); div.className="paste";
-    div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`;
-    div.onclick=()=>viewPaste(p);
-    if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);
-  });
-}
+function search(q){const qLower=q.toLowerCase(); pinned.innerHTML=""; recent.innerHTML=""; pastes.filter(p=>p.title.toLowerCase().includes(qLower)).forEach(p=>{const div=document.createElement("div"); div.className="paste"; div.innerHTML=`<span>${p.title}</span><span style="cursor:pointer;text-decoration:underline;color:#2a7;" onclick="viewUser('${p.author}')">${p.author}</span>`; div.onclick=()=>viewPaste(p); if(p.pinned) pinned.appendChild(div); else recent.appendChild(div);});
 
 // ADMIN PANEL
-function loadAdminPanel(){
-  userList.innerHTML=""; pasteList.innerHTML="";
-  db.collection("users").get().then(usersSnap=>{
-    usersSnap.forEach(doc=>{
-      const u = doc.id; const role = doc.data()?.role;
-      const div=document.createElement("div"); div.textContent=u + (role==="owner"?" (Owner)":role==="admin"?" (Admin)":"");
-      if(role!=="owner"){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);}
-      userList.appendChild(div);
-    });
-  });
-  db.collection("pastes").get().then(pasteSnap=>{
-    pasteSnap.forEach(doc=>{
-      const p = doc.data(); const div=document.createElement("div");
-      div.textContent=`${p.title} by ${p.author}` + (p.pinned?" (Pinned)":"");
-      if(currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Delete"; b.onclick=()=>deletePaste(doc.id); div.appendChild(b);
-        const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);}
-      pasteList.appendChild(div);
-    });
-  });
-}
+function loadAdminPanel(){userList.innerHTML=""; pasteList.innerHTML=""; db.collection("users").get().then(usersSnap=>{usersSnap.forEach(doc=>{const u=doc.id; const role=doc.data()?.role; const div=document.createElement("div"); div.textContent=u+(role==="owner"?" (Owner)":role==="admin"?" (Admin)":""); if(role!=="owner"){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);} userList.appendChild(div);});}); db.collection("pastes").get().then(pasteSnap=>{pasteSnap.forEach(doc=>{const p=doc.data(); const div=document.createElement("div"); div.textContent=`${p.title} by ${p.author}`+(p.pinned?" (Pinned)":""); if(currentUser){const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Delete"; b.onclick=()=>deletePaste(doc.id); div.appendChild(b); const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);} pasteList.appendChild(div);});});}
+function togglePermissions(){permissionsPanel.classList.toggle("hidden");}
 function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>{s.forEach(doc=>doc.ref.delete());}); loadAdminPanel();}}
 function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
 function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
 
 // INIT AUTH
-auth.onAuthStateChanged(u=>{
-  currentUser = u?u.email:null;
-  updateAuth();
-  goHome();
-});
+auth.onAuthStateChanged(u=>{currentUser=u?u.email:null; updateAuth(); goHome();});
 </script>
 
 </body>
