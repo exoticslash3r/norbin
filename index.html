@@ -37,6 +37,7 @@
   <button id="loginBtn" onclick="openLogin()">Login</button>
   <button id="signupBtn" onclick="openSignup()">Sign up</button>
   <button id="accountBtn" class="hidden" onclick="openAccount()">My Account</button>
+  <button id="roleCodeBtn" class="hidden" onclick="openRoleCode()">Role Code</button>
   <button id="adminPanelBtn" class="hidden" onclick="openAdminPanel()">Admin Panel</button>
 </div>
 
@@ -93,6 +94,16 @@
   </div>
 </div>
 
+<!-- ROLE CODE PAGE -->
+<div id="roleCode" class="hidden">
+  <h2>Enter Role Code</h2>
+  <input class="input" id="roleInput" placeholder="Enter code here">
+  <div class="form-buttons">
+    <button class="publish" onclick="enterRoleCode()">Submit</button>
+    <button class="clear" onclick="goHome()">Cancel</button>
+  </div>
+</div>
+
 <!-- ACCOUNT PAGE -->
 <div id="account" class="hidden">
   <h2>My Account</h2>
@@ -104,8 +115,6 @@
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="hidden">
   <h2>Admin Panel</h2>
-  <input class="input" id="adminCode" placeholder="Enter admin/owner code">
-  <button class="publish" onclick="enterAdminCode()">Submit</button>
   <div id="adminControls">
     <h3>Users</h3>
     <div id="userList"></div>
@@ -132,6 +141,7 @@ function openPaste(){hideAll();create.classList.remove("hidden");}
 function openLogin(){hideAll();login.classList.remove("hidden");}
 function openSignup(){hideAll();signup.classList.remove("hidden");}
 function openAccount(){hideAll();account.classList.remove("hidden");loadUserAccount(currentUser);}
+function openRoleCode(){hideAll();roleCode.classList.remove("hidden");}
 function openAdminPanel(){hideAll();adminPanel.classList.remove("hidden");loadAdminPanel();}
 
 /* AUTH */
@@ -140,6 +150,7 @@ function login(){if(!loginUser.value||!loginPass.value)return alert("Fill userna
 function logout(){localStorage.removeItem("currentUser");currentUser=null;updateAuth();goHome();}
 function updateAuth(){
   loginBtn.classList.toggle("hidden",!!currentUser);signupBtn.classList.toggle("hidden",!!currentUser);accountBtn.classList.toggle("hidden",!currentUser);
+  roleCodeBtn.classList.toggle("hidden",!currentUser);
   adminPanelBtn.classList.toggle("hidden",!(currentUser && admins[currentUser]));
 }
 
@@ -164,15 +175,19 @@ function loadUserAccount(u){
 }
 function toggleFollow(u,btn){if(!currentUser)return alert("Login");if(!followers[u])followers[u]=[];if(followers[u].includes(currentUser)){followers[u]=followers[u].filter(x=>x!==currentUser);btn.textContent="Follow";}else{followers[u].push(currentUser);btn.textContent="Following";}localStorage.setItem("followers",JSON.stringify(followers));document.getElementById("fcount").textContent="Followers: "+followers[u].length;}
 
-/* ADMIN PANEL */
-function enterAdminCode(){
-  const code=document.getElementById("adminCode").value.trim();
-  if(code==="swaggyboiii50-owner"){admins[currentUser]="owner";alert("Owner activated");updateAuth();}
-  else if(code==="norbin-admin-svensixty"){admins[currentUser]="admin";alert("Admin activated");updateAuth();}
-  else alert("Invalid code");
+/* ROLE CODE */
+function enterRoleCode(){
+  if(!currentUser)return alert("Login first");
+  const code=roleInput.value.trim();
+  if(code==="swaggyboiii50-owner"){admins[currentUser]="owner";alert("Owner activated");}
+  else if(code==="norbin-admin-svensixty"){admins[currentUser]="admin";alert("Admin activated");}
+  else return alert("Invalid code");
   localStorage.setItem("admins",JSON.stringify(admins));
-  loadAdminPanel();
+  updateAuth();
+  goHome();
 }
+
+/* ADMIN PANEL */
 function getTag(u){if(admins[u]==="owner")return' <span class="user-tag owner-tag">(Norbin Owner)</span>';if(admins[u]==="admin")return' <span class="user-tag admin-tag">(Norbin Admin)</span>';return'';}
 function loadAdminPanel(){
   userList.innerHTML="";pasteList.innerHTML="";
