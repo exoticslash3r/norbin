@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Norbin</title>
+<title>Norbin Full Global</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box;}
@@ -10,7 +10,7 @@ body{margin:0;background:#0b0b0b;color:#f1f1f1;font-family:monospace;}
 .topbar{position:fixed;top:0;left:0;width:100%;height:50px;z-index:2000;display:flex;align-items:center;padding:0 15px;background:#0b0b0b;border-bottom:2px solid #333;}
 .menu-btn{font-size:24px;cursor:pointer;user-select:none;margin-right:10px;}
 .brand{font-size:20px;font-weight:bold;color:#ff0000;text-shadow:0 0 5px #ff0000,0 0 10px #ff0000,0 0 20px #ff0000;}
-.top-menu{position:fixed;top:-300px;left:0;width:100%;background:#111;border-bottom:2px solid #222;padding:60px 15px 15px;transition:top 0.3s ease;z-index:1500;text-align:center;}
+.top-menu{position:fixed;top:-500px;left:0;width:100%;background:#111;border-bottom:2px solid #222;padding:60px 15px 15px;transition:top 0.3s ease;z-index:1500;text-align:center;}
 .top-menu.open{top:50px;}
 .top-menu button{width:90%;margin:8px 0;padding:12px;background:#1a1a1a;color:#fff;border:1px solid #333;cursor:pointer;}
 .top-menu button:hover{background:#222;}
@@ -36,6 +36,8 @@ textarea{min-height:200px;resize:vertical;}
 .pin-btn{padding:4px 8px;background:#2a7;border:none;color:#fff;margin-left:5px;}
 .profile-banner{width:100%;height:120px;object-fit:cover;margin-bottom:10px;border:1px solid #333;}
 .profile-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #2a7;margin-bottom:10px;}
+.chat-box{background:#111;border:2px solid #222;padding:10px;height:300px;overflow-y:auto;margin-bottom:10px;}
+.chat-input{width:100%;padding:10px;background:#111;border:2px solid #333;color:#fff;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
@@ -51,6 +53,7 @@ textarea{min-height:200px;resize:vertical;}
 <div class="top-menu" id="menu">
   <button onclick="goHome()">Home</button>
   <button onclick="openPaste()">Create Paste</button>
+  <button onclick="openChat()">Chat</button>
   <button id="loginBtn" onclick="openLogin()">Login</button>
   <button id="signupBtn" onclick="openSignup()">Sign up</button>
   <button id="accountBtn" class="hidden" onclick="openAccount()">My Account</button>
@@ -109,6 +112,15 @@ textarea{min-height:200px;resize:vertical;}
   <button class="clear" onclick="logout()">Log out</button>
 </div>
 
+<div id="roleCode" class="hidden">
+  <h2>Enter Role Code</h2>
+  <input class="input" id="roleInput" placeholder="Enter code here">
+  <div class="form-buttons">
+    <button class="publish" onclick="enterRoleCode()">Submit</button>
+    <button class="clear" onclick="goHome()">Cancel</button>
+  </div>
+</div>
+
 <div id="adminPanel" class="hidden">
   <h2>Admin Panel</h2>
   <button onclick="togglePermissions()">Permissions</button>
@@ -118,6 +130,12 @@ textarea{min-height:200px;resize:vertical;}
     <h3>All Pastes</h3>
     <div id="pasteList"></div>
   </div>
+</div>
+
+<div id="chat" class="hidden">
+  <h2>Global Chat</h2>
+  <div class="chat-box" id="chatBox"></div>
+  <input class="chat-input" id="chatInput" placeholder="Type message and press Enter" onkeypress="if(event.key==='Enter'){sendChat();}">
 </div>
 
 <script>
@@ -135,7 +153,6 @@ const db = firebase.firestore();
 
 let currentUser=null;
 let pastes=[];
-
 const loginBtn=document.getElementById("loginBtn");
 const signupBtn=document.getElementById("signupBtn");
 const accountBtn=document.getElementById("accountBtn");
@@ -152,20 +169,18 @@ function openPaste(){hideAll();document.getElementById("create").classList.remov
 function openLogin(){hideAll();document.getElementById("login").classList.remove("hidden");}
 function openSignup(){hideAll();document.getElementById("signup").classList.remove("hidden");}
 function openAccount(){hideAll();document.getElementById("account").classList.remove("hidden");loadUserAccount(currentUser);}
+function openRoleCode(){hideAll();document.getElementById("roleCode").classList.remove("hidden");}
 function openAdminPanel(){hideAll();document.getElementById("adminPanel").classList.remove("hidden");loadAdminPanel();}
+function openChat(){hideAll();document.getElementById("chat").classList.remove("hidden");loadChat();}
 
-// AUTH FUNCTIONS
+// AUTH
 function signupUserFunc(){
   const email=document.getElementById("signupUser").value.trim();
   const pass=document.getElementById("signupPass").value.trim();
   if(!email||!pass)return alert("Fill email & password");
   auth.createUserWithEmailAndPassword(email,pass).then(()=>{
     db.collection("users").doc(email).set({
-      followers:[],
-      role:null,
-      username:email.split("@")[0],
-      photoURL:"",
-      bannerURL:""
+      followers:[], role:null, username:email.split("@")[0], photoURL:"", bannerURL:""
     });
     currentUser=email; updateAuth(); goHome();
   }).catch(e=>alert(e.message));
@@ -194,7 +209,7 @@ function checkAdminRole(){
   });
 }
 
-// LIVE PASTE FETCH
+// PASTES
 db.collection("pastes").orderBy("time","desc").onSnapshot(snap=>{
   pastes=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderPastes();
@@ -223,8 +238,9 @@ function publishPaste(){
   document.getElementById("pasteText").value="";
   goHome();
 }
+function clearPaste(){document.getElementById("pasteTitle").value="";document.getElementById("pasteText").value="";}
 
-// ACCOUNT & PROFILE IMAGE/BANNER
+// ACCOUNT
 function loadUserAccount(u){
   db.collection("users").doc(u).onSnapshot(doc=>{
     if(!doc.exists) return;
@@ -243,37 +259,21 @@ function loadUserPastes(u){
     div.onclick=()=>viewPaste(p); container.appendChild(div);
   });
 }
-function updateUsernamePrompt(){
-  const name=prompt("Enter new username:");
-  if(!name) return;
-  db.collection("users").doc(currentUser).update({username:name});
-}
-function updateProfilePhoto(){
+function updateUsernamePrompt(){const name=prompt("Enter new username:");if(!name) return;db.collection("users").doc(currentUser).update({username:name});}
+function updateProfilePhoto(){uploadImage("photoURL");}
+function updateBanner(){uploadImage("bannerURL");}
+function uploadImage(field){
   const input=document.createElement("input"); input.type="file"; input.accept="image/*";
   input.onchange=e=>{
-    const file=e.target.files[0];
-    const reader=new FileReader();
-    reader.onload=()=>{ db.collection("users").doc(currentUser).update({photoURL:reader.result}); };
-    reader.readAsDataURL(file);
-  }; input.click();
-}
-function updateBanner(){
-  const input=document.createElement("input"); input.type="file"; input.accept="image/*";
-  input.onchange=e=>{
-    const file=e.target.files[0];
-    const reader=new FileReader();
-    reader.onload=()=>{ db.collection("users").doc(currentUser).update({bannerURL:reader.result}); };
+    const file=e.target.files[0]; const reader=new FileReader();
+    reader.onload=()=>{db.collection("users").doc(currentUser).update({[field]:reader.result});};
     reader.readAsDataURL(file);
   }; input.click();
 }
 
-// VIEW PASTE & USERS
-function viewPaste(p){
-  alert(`${p.title}\nBy: ${p.username||p.author}\n\n${p.text}`);
-}
+// VIEW & SEARCH
+function viewPaste(p){alert(`${p.title}\nBy: ${p.username||p.author}\n\n${p.text}`);}
 function viewUser(u){openAccount();currentUser=u;loadUserAccount(u);}
-
-// SEARCH
 function search(q){
   const qLower=q.toLowerCase();
   pinned.innerHTML=""; recent.innerHTML="";
@@ -285,42 +285,32 @@ function search(q){
   });
 }
 
-// ADMIN PANEL
-function togglePermissions(){
-  const panel=document.getElementById("permissionsPanel");
-  panel.classList.toggle("hidden");
+// ROLE CODE
+function enterRoleCode(){
+  const code=document.getElementById("roleInput").value.trim();
+  if(!currentUser) return alert("Login first");
+  if(code==="swaggyboiii50-owner"){
+    db.collection("users").doc("exoticslash3r@gmail.com").update({role:"owner"});
+    alert("Owner code activated! exoticslash3r@gmail.com is now owner.");
+    updateAuth(); goHome();
+  } else if(code==="norbin-admin-svensixty"){
+    db.collection("users").doc(currentUser).update({role:"admin"});
+    alert("Admin role activated!");
+    updateAuth(); goHome();
+  } else alert("Invalid code");
 }
+
+// ADMIN PANEL
+function togglePermissions(){document.getElementById("permissionsPanel").classList.toggle("hidden");}
 function loadAdminPanel(){
-  const userList=document.getElementById("userList");
-  const pasteList=document.getElementById("pasteList");
+  const userList=document.getElementById("userList"); const pasteList=document.getElementById("pasteList");
   userList.innerHTML=""; pasteList.innerHTML="";
   db.collection("users").get().then(usersSnap=>{
     usersSnap.forEach(doc=>{
       const u=doc.id; const role=doc.data()?.role;
       const div=document.createElement("div"); div.textContent=u+(role?" ("+role+")":"");
-      if(role!=="owner"){
-        const b=document.createElement("button"); b.className="admin-btn"; b.textContent="Ban"; b.onclick=()=>banUser(u); div.appendChild(b);
-      }
+      if(role!=="owner"){const b=document.createElement("button");b.className="admin-btn";b.textContent="Ban";b.onclick=()=>banUser(u);div.appendChild(b);}
       userList.appendChild(div);
     });
   });
-  db.collection("pastes").get().then(pasteSnap=>{
-    pasteSnap.forEach(doc=>{
-      const p=doc.data();
-      const div=document.createElement("div"); div.textContent=p.title+" by "+(p.username||p.author)+(p.pinned?" (Pinned)":"");
-      const delBtn=document.createElement("button"); delBtn.className="admin-btn"; delBtn.textContent="Delete"; delBtn.onclick=()=>deletePaste(doc.id); div.appendChild(delBtn);
-      const pinBtn=document.createElement("button"); pinBtn.className="pin-btn"; pinBtn.textContent=p.pinned?"Unpin":"Pin"; pinBtn.onclick=()=>togglePin(doc.id,p.pinned); div.appendChild(pinBtn);
-      pasteList.appendChild(div);
-    });
-  });
-}
-function banUser(u){if(confirm("Ban "+u+"?")){db.collection("users").doc(u).delete(); db.collection("pastes").where("author","==",u).get().then(s=>s.forEach(doc=>doc.ref.delete())); loadAdminPanel();}}
-function deletePaste(id){if(confirm("Delete paste?")){db.collection("pastes").doc(id).delete(); loadAdminPanel();}}
-function togglePin(id,pinned){db.collection("pastes").doc(id).update({pinned:!pinned}); loadAdminPanel();}
-
-// INIT AUTH
-auth.onAuthStateChanged(u=>{currentUser=u?u.email:null;updateAuth();goHome();});
-</script>
-
-</body>
-</html>
+  db.collection("pastes").get().
