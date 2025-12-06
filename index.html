@@ -14,7 +14,7 @@ body {
   font-family: monospace;
 }
 
-/* ---------- TOP BAR ---------- */
+/* Top Bar */
 .topbar {
   position: fixed;
   top: 0;
@@ -27,14 +27,13 @@ body {
   padding-left: 15px;
   background: #0b0b0b;
 }
-
 .menu-btn {
   font-size: 24px;
   cursor: pointer;
   user-select: none;
 }
 
-/* ---------- SIDE MENU ---------- */
+/* Side Menu */
 .side-menu {
   position: fixed;
   top: 0;
@@ -47,10 +46,8 @@ body {
   transition: left 0.3s ease;
   z-index: 1000;
 }
-
 .side-menu.open { left: 0 }
 .side-menu h2 { margin-top:0; margin-bottom:15px }
-
 .side-menu button {
   width: 100%;
   padding: 12px;
@@ -60,19 +57,17 @@ body {
   border: 1px solid #333;
   cursor: pointer;
 }
-
 .side-menu button:hover { background: #222 }
 
-/* ---------- MAIN ---------- */
+/* Main Container */
 .container {
   max-width: 900px;
   margin: auto;
   padding: 70px 20px 20px;
 }
-
 h1 { text-align: center }
 
-/* ---------- SEARCH ---------- */
+/* Search & Pastes */
 .search {
   width: 100%;
   padding: 14px;
@@ -82,11 +77,8 @@ h1 { text-align: center }
   border: 2px solid #333;
   outline: none;
 }
-
 .section { margin-top: 25px }
 .section h2 { border-bottom: 1px solid #222 }
-
-/* ---------- PASTES ---------- */
 .paste {
   padding: 12px;
   background: #111;
@@ -95,10 +87,9 @@ h1 { text-align: center }
   cursor: pointer;
 }
 .paste:hover { background: #151515 }
-
 .hidden { display: none }
 
-/* ---------- PASTE VIEW ---------- */
+/* Paste View */
 .paste-box {
   background: #111;
   border: 2px solid #222;
@@ -108,7 +99,7 @@ h1 { text-align: center }
   white-space: pre-wrap;
 }
 
-/* ---------- FORMS ---------- */
+/* Forms */
 .input, textarea {
   width: 100%;
   background: #111;
@@ -117,21 +108,17 @@ h1 { text-align: center }
   padding: 12px;
   margin-bottom: 10px;
 }
-
 textarea { min-height: 200px; resize: vertical }
-
 .form-buttons {
   display: flex;
   gap: 10px;
 }
-
 .form-buttons button {
   flex: 1;
   padding: 12px;
   border: none;
   cursor: pointer;
 }
-
 .publish { background: #2a7 }
 .clear { background: #922 }
 
@@ -140,7 +127,6 @@ textarea { min-height: 200px; resize: vertical }
 }
 </style>
 </head>
-
 <body>
 
 <div class="topbar">
@@ -228,7 +214,6 @@ function toggleMenu() {
 function hideAll() {
   document.querySelectorAll(".container > div").forEach(d => d.classList.add("hidden"));
 }
-
 function goHome() { hideAll(); home.classList.remove("hidden") }
 function openPaste() { hideAll(); create.classList.remove("hidden") }
 function openLogin() { hideAll(); login.classList.remove("hidden") }
@@ -244,14 +229,12 @@ function publishPaste() {
   const title = pasteTitle.value.trim();
   const text = pasteText.value.trim();
   if (!title || !text) return alert("Fill everything");
-
   pastes.unshift({ title, text, time: Date.now() });
   localStorage.setItem("pastes", JSON.stringify(pastes));
   clearPaste();
   goHome();
   render();
 }
-
 function clearPaste() { pasteTitle.value = ""; pasteText.value = "" }
 
 function render() {
@@ -268,7 +251,6 @@ function render() {
     recent.appendChild(d);
   });
 }
-
 function search(q) {
   recent.innerHTML = "";
   pastes.filter(p => p.title.toLowerCase().includes(q.toLowerCase()))
@@ -296,7 +278,6 @@ function signup() {
   updateAuth();
   goHome();
 }
-
 function login() {
   if (!loginUser.value || !loginPass.value) return alert("Fill username & password");
   if (users[loginUser.value] !== loginPass.value) return alert("Invalid");
@@ -305,14 +286,12 @@ function login() {
   updateAuth();
   goHome();
 }
-
 function logout() {
   localStorage.removeItem("currentUser");
   currentUser = null;
   updateAuth();
   goHome();
 }
-
 function updateAuth() {
   loginBtn.classList.toggle("hidden", !!currentUser);
   signupBtn.classList.toggle("hidden", !!currentUser);
