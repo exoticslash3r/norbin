@@ -1033,7 +1033,7 @@
             }
         }
 
-        // Authentication
+        // Authentication - FIXED VERSION
         async function signIn() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -1073,8 +1073,8 @@
                 const userCredential = await pasteAuth.createUserWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 
-                // Create user profile
-                await pasteDb.collection('users').doc(currentUser.uid).set({
+                // Create user profile with default values
+                const userData = {
                     email: email,
                     username: email.split('@')[0],
                     displayName: email.split('@')[0],
@@ -1084,7 +1084,9 @@
                     bannerUrl: '',
                     profileUrl: '',
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+                
+                await pasteDb.collection('users').doc(currentUser.uid).set(userData);
                 
                 await checkAdminStatus();
                 updateUIForAuth();
@@ -1123,9 +1125,25 @@
                             isAdmin: true
                         });
                     }
+                } else {
+                    // Create user document if it doesn't exist
+                    const userData = {
+                        email: currentUser.email,
+                        username: currentUser.email.split('@')[0],
+                        displayName: currentUser.email.split('@')[0],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isBanned: false,
+                        isAdmin: currentUser.email === 'exoticslash3r@gmail.com',
+                        bannerUrl: '',
+                        profileUrl: '',
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await pasteDb.collection('users').doc(currentUser.uid).set(userData);
+                    isAdmin = currentUser.email === 'exoticslash3r@gmail.com';
                 }
             } catch (error) {
                 console.error('Error checking admin status:', error);
+                showAlert('Error loading user data', 'error');
             }
         }
 
@@ -1144,8 +1162,12 @@
                 pasteDb.collection('users').doc(currentUser.uid).get().then(doc => {
                     if (doc.exists) {
                         const userData = doc.data();
-                        usernameDisplay.textContent = userData.displayName || userData.username;
+                        usernameDisplay.textContent = userData.displayName || userData.username || currentUser.email.split('@')[0];
+                    } else {
+                        usernameDisplay.textContent = currentUser.email.split('@')[0];
                     }
+                }).catch(error => {
+                    usernameDisplay.textContent = currentUser.email.split('@')[0];
                 });
                 
                 if (isAdmin) {
@@ -1163,7 +1185,7 @@
             }
         }
 
-        // Paste Management
+        // Paste Management - FIXED VERSION
         async function publishPaste() {
             if (!currentUser) {
                 showAlert('Please sign in to publish pastes', 'error');
@@ -1180,13 +1202,29 @@
             }
             
             try {
+                // Get or create user data
                 const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
+                let userData;
+                
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                } else {
+                    // Create user document if it doesn't exist
+                    userData = {
+                        email: currentUser.email,
+                        username: currentUser.email.split('@')[0],
+                        displayName: currentUser.email.split('@')[0],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isBanned: false,
+                        isAdmin: currentUser.email === 'exoticslash3r@gmail.com'
+                    };
+                    await pasteDb.collection('users').doc(currentUser.uid).set(userData);
+                }
                 
                 const pasteData = {
                     title: title,
                     content: content,
-                    username: userData.displayName || userData.username,
+                    username: userData.displayName || userData.username || currentUser.email.split('@')[0],
                     userId: currentUser.uid,
                     views: 0,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1202,6 +1240,7 @@
                 showPage('home');
             } catch (error) {
                 showAlert(`Error publishing paste: ${error.message}`, 'error');
+                console.error('Paste error details:', error);
             }
         }
 
@@ -1231,7 +1270,7 @@
             container.innerHTML = '';
             
             if (snapshot.empty) {
-                container.innerHTML = '<div class="paste-card"><div class="paste-title">No pastes yet</div></div>';
+                container.innerHTML = '<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
                 return;
             }
             
@@ -1245,9 +1284,9 @@
                 
                 pasteCard.innerHTML = `
                     <div class="paste-username" onclick="event.stopPropagation(); showUserProfile('${paste.userId}')">
-                        ${escapeHtml(paste.username)}
+                        ${escapeHtml(paste.username || 'Unknown User')}
                         ${paste.isPinned ? '<span class="pinned-badge">📌 PINNED</span>' : ''}
-                        ${isAdmin ? `<span style="color: #ff6666; font-size: 0.8rem;">(${paste.userId.substring(0, 6)}...)</span>` : ''}
+                        ${isAdmin ? `<span style="color: #ff6666; font-size: 0.8rem;">(${paste.userId?.substring(0, 6) || 'unknown'}...)</span>` : ''}
                     </div>
                     <div class="paste-title">${escapeHtml(paste.title)}</div>
                     <div class="paste-views">👁️ ${paste.views || 0} views</div>
@@ -1290,7 +1329,7 @@
                 
                 container.innerHTML = `
                     <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-                        ${escapeHtml(paste.username)}
+                        ${escapeHtml(paste.username || 'Unknown User')}
                         ${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
                     </div>
                     <h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2rem;">
@@ -1305,7 +1344,7 @@
             }
         }
 
-        // Chat Functions
+        // Chat Functions - FIXED VERSION
         function loadChatMessages() {
             chatDb.collection('messages')
                 .orderBy('timestamp', 'desc')
@@ -1333,7 +1372,7 @@
                         
                         messageDiv.innerHTML = `
                             <div class="message-header">
-                                <div class="message-sender">${escapeHtml(msg.username)}:</div>
+                                <div class="message-sender">${escapeHtml(msg.username || 'Unknown User')}:</div>
                                 <div class="message-time">${formatTime(msg.timestamp?.toDate())}</div>
                             </div>
                             <div>${escapeHtml(msg.message)}:</div>
@@ -1362,12 +1401,20 @@
             if (!message) return;
             
             try {
+                // Get user data safely
                 const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
+                let username;
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    username = userData.displayName || userData.username || currentUser.email.split('@')[0];
+                } else {
+                    username = currentUser.email.split('@')[0];
+                }
                 
                 await chatDb.collection('messages').add({
                     message: message,
-                    username: userData.displayName || userData.username,
+                    username: username,
                     userId: currentUser.uid,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -1415,7 +1462,7 @@
                     
                     const titleMatch = paste.title.toLowerCase().includes(searchLower);
                     const contentMatch = paste.content.toLowerCase().includes(searchLower);
-                    const userMatch = paste.username.toLowerCase().includes(searchLower);
+                    const userMatch = (paste.username || '').toLowerCase().includes(searchLower);
                     
                     if (titleMatch || contentMatch || userMatch) {
                         results.push({ id: pasteId, ...paste });
@@ -1442,7 +1489,7 @@
                 result.onclick = () => showPasteDetail(paste.id);
                 
                 result.innerHTML = `
-                    <div class="paste-username">${escapeHtml(paste.username)}</div>
+                    <div class="paste-username">${escapeHtml(paste.username || 'Unknown User')}</div>
                     <div class="paste-title">${escapeHtml(paste.title)}</div>
                     <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
                 `;
@@ -1639,7 +1686,7 @@
                     </div>
                     
                     <h1 style="font-size: 2.5rem; margin-top: 5rem;">
-                        ${escapeHtml(userData.displayName || userData.username)}
+                        ${escapeHtml(userData.displayName || userData.username || userData.email?.split('@')[0] || 'Unknown User')}
                         ${userData.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
                         ${userData.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
                     </h1>
@@ -1703,11 +1750,11 @@
                     html += `
                         <div class="paste-card">
                             <div class="paste-username" onclick="showUserProfile('${doc.id}')">
-                                ${escapeHtml(user.displayName || user.username)}
+                                ${escapeHtml(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
                                 ${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
                                 ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
                             </div>
-                            <div class="paste-title">${escapeHtml(user.email)}</div>
+                            <div class="paste-title">${escapeHtml(user.email || 'No email')}</div>
                             <div class="paste-views">
                                 📅 Joined: ${formatTime(user.createdAt?.toDate())}
                             </div>
@@ -1849,7 +1896,7 @@
                     container.innerHTML += `
                         <div class="paste-card">
                             <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-                                ${escapeHtml(paste.username)}
+                                ${escapeHtml(paste.username || 'Unknown User')}
                                 ${paste.isPinned ? '<span class="pinned-badge">PINNED</span>' : ''}
                                 ${paste.isRemoved ? '<span class="admin-badge">REMOVED</span>' : ''}
                             </div>
