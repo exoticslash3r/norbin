@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Norbin Paste & Chat</title>
+    <title>Norbin - Paste & Chat Platform</title>
     <style>
-        /* Dark theme with black background */
+        /* Black and White Theme */
         :root {
             --primary-bg: #000000;
             --secondary-bg: #111111;
-            --tertiary-bg: #1a1a1a;
             --card-bg: #0a0a0a;
             --text-color: #ffffff;
-            --accent-color: #00ff00;
+            --accent-color: #ffffff;
             --border-color: #333333;
             --hover-color: #222222;
         }
@@ -25,30 +24,11 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
+            font-family: 'Arial', sans-serif;
             background-color: var(--primary-bg);
             color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--secondary-bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #444444;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555555;
+            line-height: 1.6;
         }
 
         /* Navbar */
@@ -60,16 +40,9 @@
             width: 100%;
             z-index: 1000;
             border-bottom: 2px solid var(--accent-color);
-            box-shadow: 0 2px 20px rgba(0, 255, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
         }
 
         .hamburger-btn {
@@ -79,174 +52,12 @@
             font-size: 2rem;
             cursor: pointer;
             padding: 0.5rem;
-            transition: transform 0.3s;
         }
 
-        .hamburger-btn:hover {
-            transform: rotate(90deg);
-        }
-
-        .music-indicator {
-            color: var(--accent-color);
-            font-size: 1rem;
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 20px;
-            border: 1px solid var(--accent-color);
-        }
-
-        .music-indicator.active {
-            display: flex;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Music Player Styles */
-        .music-player {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--accent-color);
-            border-radius: 15px;
-            padding: 1rem;
-            z-index: 1000;
-            min-width: 300px;
-            box-shadow: 0 5px 30px rgba(0, 255, 0, 0.2);
-            display: none;
-            backdrop-filter: blur(10px);
-        }
-
-        .music-player.active {
-            display: block;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
-        }
-
-        .player-title {
-            color: var(--accent-color);
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .close-player {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.2rem;
-        }
-
-        .player-controls {
+        .user-info {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .control-btn {
-            background: rgba(0, 255, 0, 0.1);
-            border: 2px solid var(--accent-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            color: var(--accent-color);
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .control-btn:hover {
-            background: var(--accent-color);
-            color: #000000;
-            transform: scale(1.1);
-        }
-
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .volume-slider {
-            width: 100px;
-            -webkit-appearance: none;
-            height: 5px;
-            background: rgba(0, 255, 0, 0.3);
-            border-radius: 5px;
-            outline: none;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 15px;
-            height: 15px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .progress-container {
-            margin-top: 1rem;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 5px;
-            background: rgba(0, 255, 0, 0.2);
-            border-radius: 5px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .progress {
-            height: 100%;
-            background: var(--accent-color);
-            width: 0%;
-            transition: width 0.1s;
-        }
-
-        .time-display {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #888888;
-        }
-
-        .song-title {
-            margin-top: 1rem;
-            text-align: center;
-            color: var(--accent-color);
-            font-size: 1rem;
-            padding: 0.5rem;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(0, 255, 0, 0.3);
         }
 
         /* Slide Down Menu */
@@ -255,13 +66,11 @@
             top: -100%;
             left: 0;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: #000000;
             z-index: 999;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
             border-bottom: 2px solid var(--accent-color);
-            transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            backdrop-filter: blur(10px);
+            transition: top 0.5s ease;
         }
 
         .slide-down-menu.active {
@@ -277,25 +86,21 @@
         }
 
         .menu-btn {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
+            background: #111111;
             color: var(--accent-color);
             border: 2px solid var(--accent-color);
             padding: 1.5rem;
             text-align: center;
             font-size: 1.2rem;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 5px;
             transition: all 0.3s;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .menu-btn:hover {
             background: var(--accent-color);
             color: #000000;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.3);
+            transform: translateY(-2px);
         }
 
         .hidden {
@@ -307,8 +112,7 @@
             padding-top: 120px;
             max-width: 1400px;
             margin: 0 auto;
-            padding-left: 2rem;
-            padding-right: 2rem;
+            padding: 120px 2rem 2rem;
             min-height: calc(100vh - 120px);
         }
 
@@ -316,90 +120,51 @@
         .logo-container {
             text-align: center;
             margin-bottom: 2rem;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
         }
 
         .logo {
-            max-width: 250px;
+            max-width: 300px;
             height: auto;
             margin: 1rem auto;
-            filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
+            border: 3px solid var(--accent-color);
+            padding: 1rem;
+            background: #000000;
         }
 
         .search-container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto 3rem;
-            position: relative;
         }
 
         .search-bar {
             width: 100%;
-            padding: 1.2rem 2rem;
+            padding: 1rem 1.5rem;
             font-size: 1.2rem;
             border: 2px solid var(--accent-color);
-            border-radius: 50px;
-            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            background: #000000;
             color: var(--accent-color);
             outline: none;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
         }
 
-        .search-bar::placeholder {
-            color: #666666;
-        }
-
-        .search-bar:focus {
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
-        }
-
-        /* Search Results */
         .search-results {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.8);
+            margin-top: 1rem;
+            background: #111111;
             border: 1px solid var(--accent-color);
-            border-radius: 10px;
+            border-radius: 5px;
+            padding: 1rem;
             max-height: 400px;
             overflow-y: auto;
         }
 
-        .results-header {
-            color: var(--accent-color);
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 0.5rem;
-        }
-
         /* Recent Pastes */
-        .recent-pastes {
-            margin-top: 3rem;
-        }
-
         .section-title {
             color: var(--accent-color);
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 2rem;
             text-align: center;
-            position: relative;
+            border-bottom: 2px solid var(--accent-color);
             padding-bottom: 1rem;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: var(--accent-color);
-            border-radius: 2px;
         }
 
         .pastes-grid {
@@ -410,152 +175,304 @@
         }
 
         .paste-card {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
+            background: #111111;
             border: 2px solid var(--accent-color);
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 1.5rem;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .paste-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
-            transition: 0.5s;
-        }
-
-        .paste-card:hover::before {
-            left: 100%;
         }
 
         .paste-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2);
-            border-color: #00ff00;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
         }
 
         .paste-username {
             color: var(--accent-color);
             font-size: 1rem;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.5rem;
             cursor: pointer;
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 20px;
-            transition: all 0.3s;
-        }
-
-        .paste-username:hover {
-            background: rgba(0, 255, 0, 0.2);
-            transform: scale(1.05);
         }
 
         .paste-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin-bottom: 0.8rem;
-            color: #ffffff;
-            line-height: 1.4;
+            margin-bottom: 0.5rem;
         }
 
         .paste-views {
             color: #888888;
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
-        .paste-timestamp {
-            color: #666666;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
+        .admin-badge {
+            background: #ff0000;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
         }
 
         /* Paste Detail */
         .paste-detail {
-            background: rgba(0, 0, 0, 0.9);
-            border: 3px solid var(--accent-color);
-            border-radius: 20px;
-            padding: 2.5rem;
+            background: #111111;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 2rem;
             margin-top: 2rem;
-            box-shadow: 0 10px 40px rgba(0, 255, 0, 0.1);
-            position: relative;
         }
 
         .back-btn {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
+            background: #111111;
             color: var(--accent-color);
             border: 2px solid var(--accent-color);
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 5px;
             margin-bottom: 2rem;
             transition: all 0.3s;
-            font-weight: bold;
         }
 
         .back-btn:hover {
             background: var(--accent-color);
             color: #000000;
-            transform: translateX(-5px);
         }
 
         .paste-content {
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
-            background: rgba(0, 0, 0, 0.7);
+            background: #000000;
+            padding: 1.5rem;
+            border-radius: 5px;
+            border: 1px solid #333333;
+            margin-top: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Forms */
+        .paste-form, .auth-form, .profile-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #111111;
             padding: 2rem;
             border-radius: 10px;
-            border: 1px solid #333333;
-            margin-top: 2rem;
-            max-height: 600px;
-            overflow-y: auto;
-            line-height: 1.8;
-            color: #cccccc;
+            border: 2px solid var(--accent-color);
         }
 
-        /* Hall of Autism Page */
-        .hall-page {
-            position: relative;
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .hall-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
         }
 
-        .music-toggle {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background: #000000;
+            color: var(--accent-color);
+            outline: none;
+        }
+
+        .form-textarea {
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        /* File Upload */
+        .file-upload-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #000000;
             color: var(--accent-color);
             border: 2px solid var(--accent-color);
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             transition: all 0.3s;
         }
 
-        .music-toggle:hover {
+        .file-label:hover {
             background: var(--accent-color);
             color: #000000;
-            transform: translateY(-2px);
         }
 
+        .preview-container {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 150px;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+        }
+
+        .upload-progress {
+            margin-top: 0.5rem;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            color: #000000;
+        }
+
+        .btn-secondary {
+            background: #222222;
+            color: var(--accent-color);
+            border: 2px solid #666666;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+        }
+
+        .btn-danger {
+            background: #ff0000;
+            color: white;
+            border: 2px solid #ff0000;
+        }
+
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Chat Page */
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #111111;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #000000;
+            padding: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #0a0a0a;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #111111;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .message-time {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            background: #000000;
+            border-top: 2px solid var(--accent-color);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            background: #000000;
+            color: var(--accent-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .send-btn {
+            padding: 0.8rem 1.5rem;
+            background: #000000;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-color);
+            color: #000000;
+        }
+
+        /* Hall of Autism */
         .hall-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -576,291 +493,56 @@
         }
 
         .hall-box {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
+            background: #111111;
             border: 2px solid var(--accent-color);
-            border-radius: 15px;
-            padding: 2rem;
+            border-radius: 10px;
+            padding: 1.5rem;
             text-align: center;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
         }
 
         .hall-box:hover {
-            transform: translateY(-10px) rotate(2deg);
-            box-shadow: 0 15px 30px rgba(0, 255, 0, 0.2);
-        }
-
-        .hall-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(0, 255, 0, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .hall-box:hover::before {
-            opacity: 1;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
         }
 
         .hall-image {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(145deg, #1a1a1a, #000000);
-            border-radius: 50%;
-            margin-bottom: 1.5rem;
-            border: 3px solid var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: var(--accent-color);
-            position: relative;
-            z-index: 1;
+            width: 100%;
+            height: 200px;
+            background: #000000;
+            border: 2px solid var(--accent-color);
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .hall-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .hall-name {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.5rem;
             color: var(--accent-color);
-            position: relative;
-            z-index: 1;
         }
 
         .hall-description {
             color: #888888;
-            font-style: italic;
-            font-size: 1.1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Chat Page */
-        .chat-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.8);
-            border: 3px solid var(--accent-color);
-            border-radius: 20px;
-            height: 70vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 255, 0, 0.1);
-        }
-
-        .chat-header {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 1.5rem;
-            border-bottom: 2px solid var(--accent-color);
-            text-align: center;
-            font-size: 1.3rem;
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            background: rgba(10, 10, 10, 0.5);
-        }
-
-        .message {
-            margin-bottom: 1.5rem;
-            padding: 1rem 1.2rem;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            border-left: 4px solid var(--accent-color);
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-        }
-
-        .message-sender {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1.1rem;
-        }
-
-        .message-time {
-            color: #888888;
             font-size: 0.9rem;
         }
 
-        .message-content {
-            color: #cccccc;
-            line-height: 1.6;
-        }
-
-        .chat-input-container {
-            padding: 1.5rem;
-            background: rgba(0, 0, 0, 0.9);
-            border-top: 2px solid var(--accent-color);
-        }
-
-        .chat-input-wrapper {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 1.2rem;
-            border: 2px solid var(--accent-color);
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: var(--accent-color);
-            font-size: 1.1rem;
-            outline: none;
-        }
-
-        .send-btn {
-            padding: 1.2rem 2rem;
-            background: linear-gradient(145deg, #0a0a0a, #000000);
-            color: var(--accent-color);
-            border: 2px solid var(--accent-color);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .send-btn:hover {
-            background: var(--accent-color);
-            color: #000000;
-            transform: translateY(-2px);
-        }
-
-        .chat-stats {
-            color: #666666;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            text-align: center;
-        }
-
-        /* Forms */
-        .paste-form, .auth-form, .profile-form {
-            max-width: 900px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 3rem;
-            border-radius: 20px;
-            border: 3px solid var(--accent-color);
-            box-shadow: 0 10px 40px rgba(0, 255, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 2rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.8rem;
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1.2rem;
-        }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 1.2rem;
-            border: 2px solid var(--accent-color);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            background: rgba(0, 0, 0, 0.8);
-            color: var(--accent-color);
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .form-textarea {
-            min-height: 400px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 1.2rem 2.5rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(145deg, #0a0a0a, #000000);
-            color: var(--accent-color);
-            border: 2px solid var(--accent-color);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-color);
-            color: #000000;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(145deg, #1a1a1a, #000000);
-            color: #ffffff;
-            border: 2px solid #666666;
-        }
-
-        .btn-secondary:hover {
-            background: #333333;
-            transform: translateY(-3px);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        /* Profile */
+        /* Profile Page */
         .profile-banner {
             height: 300px;
-            background: linear-gradient(145deg, #0a0a0a, #000000);
-            border-radius: 20px;
+            background: #000000;
+            border-radius: 10px;
             margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
-            border: 3px solid var(--accent-color);
+            border: 2px solid var(--accent-color);
         }
 
         .profile-banner-img {
@@ -870,14 +552,14 @@
         }
 
         .profile-picture {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            border: 4px solid var(--accent-color);
-            background: linear-gradient(145deg, #1a1a1a, #000000);
+            width: 150px;
+            height: 150px;
+            background: #000000;
             position: absolute;
-            bottom: -90px;
-            left: 3rem;
+            bottom: -75px;
+            left: 2rem;
+            border: 3px solid var(--accent-color);
+            border-radius: 10px;
             overflow: hidden;
         }
 
@@ -887,17 +569,51 @@
             object-fit: cover;
         }
 
-        /* Admin Badge */
-        .admin-badge {
-            background: linear-gradient(145deg, #ff0000, #cc0000);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-left: 0.8rem;
-            font-weight: bold;
-            display: inline-block;
-            animation: pulse 2s infinite;
+        /* Admin Controls */
+        .admin-controls {
+            background: #111111;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .admin-title {
+            color: #ff0000;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ff0000;
+            padding-bottom: 0.5rem;
+        }
+
+        .admin-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Alerts */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .alert {
+            padding: 1rem 2rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            background: #111111;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         /* Utility */
@@ -915,71 +631,28 @@
         .align-center { align-items: center; }
         .gap-2 { gap: 0.5rem; }
         .gap-3 { gap: 1rem; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-content { padding: 120px 1rem 2rem; }
-            .menu-items { grid-template-columns: 1fr; }
-            .pastes-grid { grid-template-columns: 1fr; }
-            .paste-form, .auth-form { padding: 2rem 1rem; }
-            .btn-group { flex-direction: column; }
-            .music-player { 
-                left: 20px;
-                right: 20px;
-                min-width: auto;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Music Player -->
-    <div class="music-player" id="musicPlayer">
-        <div class="player-header">
-            <div class="player-title">🎵 Now Playing</div>
-            <button class="close-player" onclick="toggleMusicPlayer()">✕</button>
-        </div>
-        <div class="song-title">Scheiss Egal (District Red Remix)</div>
-        <div class="player-controls">
-            <button class="control-btn" onclick="togglePlay()" id="playPauseBtn">▶️</button>
-            <button class="control-btn" onclick="skipBackward()">⏪</button>
-            <button class="control-btn" onclick="skipForward()">⏩</button>
-            <div class="volume-control">
-                <span>🔊</span>
-                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="changeVolume(this.value)" id="volumeSlider">
-            </div>
-        </div>
-        <div class="progress-container">
-            <div class="progress-bar" onclick="seekMusic(event)" id="progressBar">
-                <div class="progress" id="progress"></div>
-            </div>
-            <div class="time-display">
-                <span id="currentTime">0:00</span>
-                <span id="duration">0:00</span>
-            </div>
-        </div>
-    </div>
-
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="navbar-left">
-            <button class="hamburger-btn" onclick="toggleMenu()">☰ NORBIN</button>
-            <div class="music-indicator" id="musicIndicator">
-                <span>🎵</span>
-                <span>Music Playing</span>
-            </div>
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <div class="user-info">
+            <span id="usernameDisplay"></span>
+            <button class="btn btn-primary" onclick="showPage('auth')" id="authBtn">Sign In</button>
         </div>
     </nav>
 
     <!-- Slide Down Menu -->
     <div class="slide-down-menu" id="slideDownMenu">
         <div class="menu-items">
-            <button class="menu-btn" onclick="showPage('home')">🏠 Home</button>
-            <button class="menu-btn" onclick="showPage('paste')">📝 Create Paste</button>
-            <button class="menu-btn" onclick="showPage('chat')">💬 Global Chat</button>
-            <button class="menu-btn" onclick="showPage('most-mentioned')">🔥 Most Mentioned</button>
-            <button class="menu-btn" onclick="showPage('hall')">🎭 Hall of Autism</button>
-            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">👤 My Account</button>
-            <button class="menu-btn" onclick="showPage('auth')" id="authBtn">🔐 Sign In</button>
+            <button class="menu-btn" onclick="showPage('home')">Home</button>
+            <button class="menu-btn" onclick="showPage('paste')">Create Paste</button>
+            <button class="menu-btn" onclick="showPage('chat')">Global Chat</button>
+            <button class="menu-btn" onclick="showPage('most-mentioned')">Most Mentioned</button>
+            <button class="menu-btn" onclick="showPage('hall')">Hall of Autism</button>
+            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">My Account</button>
+            <button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">Admin Panel</button>
         </div>
     </div>
 
@@ -995,18 +668,18 @@
                 <input type="text" 
                        class="search-bar" 
                        id="searchBar" 
-                       placeholder="🔍 Search pastes by title, username, or content..."
+                       placeholder="Search pastes by title, username, or content..."
                        oninput="handleSearch()">
                 <div class="search-results hidden" id="searchResults">
-                    <div class="results-header">Search Results:</div>
+                    <div class="section-title">Search Results</div>
                     <div id="searchResultsContent"></div>
                 </div>
             </div>
 
             <div class="recent-pastes">
-                <h2 class="section-title">📜 Recent Pastes</h2>
+                <h2 class="section-title">Recent Pastes</h2>
                 <div id="pastes-container" class="pastes-grid">
-                    <!-- Pastes will be dynamically loaded -->
+                    <!-- Pastes will be loaded here -->
                 </div>
             </div>
         </div>
@@ -1015,38 +688,38 @@
         <div id="paste-detail-page" class="hidden">
             <button class="back-btn" onclick="showPage('home')">← Back to Pastes</button>
             <div id="paste-detail-content" class="paste-detail">
-                <!-- Paste details will be loaded -->
+                <!-- Paste details will be loaded here -->
             </div>
         </div>
 
         <!-- Create Paste -->
         <div id="paste-page" class="hidden">
-            <h2 class="section-title">📝 Create New Paste</h2>
+            <h2 class="section-title">Create New Paste</h2>
             <div class="paste-form">
                 <div class="form-group">
                     <label class="form-label">Title</label>
-                    <input type="text" class="form-input" id="paste-title" placeholder="Enter paste title...">
+                    <input type="text" class="form-input" id="paste-title" placeholder="Enter paste title">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Content</label>
                     <textarea class="form-textarea" id="paste-content" placeholder="Enter your paste content here..."></textarea>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="publishPaste()">🚀 Publish</button>
-                    <button class="btn btn-secondary" onclick="clearPasteForm()">🗑️ Clear</button>
+                    <button class="btn btn-primary" onclick="publishPaste()">Publish</button>
+                    <button class="btn btn-secondary" onclick="clearPasteForm()">Clear</button>
                 </div>
             </div>
         </div>
 
         <!-- Global Chat -->
         <div id="chat-page" class="hidden">
-            <h2 class="section-title">💬 Global Chat</h2>
+            <h2 class="section-title">Global Chat</h2>
             <div class="chat-container">
                 <div class="chat-header">
-                    🌍 Live Global Chat • <span id="onlineCount">0</span> users online
+                    Live Global Chat • <span id="onlineCount">0</span> users online
                 </div>
                 <div class="chat-messages" id="chat-messages">
-                    <!-- Chat messages will be loaded -->
+                    <!-- Chat messages will be loaded here -->
                 </div>
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
@@ -1055,10 +728,7 @@
                                id="chat-input" 
                                placeholder="Type your message... (Press Enter to send)"
                                onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                        <button class="send-btn" onclick="sendChatMessage()">📤 Send</button>
-                    </div>
-                    <div class="chat-stats">
-                        Format: <span style="color: var(--accent-color)">username:message:</span>
+                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
                     </div>
                 </div>
             </div>
@@ -1066,29 +736,23 @@
 
         <!-- Most Mentioned -->
         <div id="most-mentioned-page" class="hidden">
-            <h2 class="section-title">🔥 Most Mentioned Titles</h2>
+            <h2 class="section-title">Most Mentioned Titles</h2>
             <div id="most-mentioned-container" class="pastes-grid">
-                <!-- Most mentioned pastes will be loaded -->
+                <!-- Most mentioned pastes will be loaded here -->
             </div>
         </div>
 
-        <!-- Hall of Autism Page -->
-        <div id="hall-page" class="hidden hall-page">
-            <div class="hall-header">
-                <h2 class="section-title">🎭 Hall of Autism</h2>
-                <button class="music-toggle" onclick="toggleHallMusic()" id="musicToggleBtn">
-                    <span id="musicToggleIcon">🔇</span>
-                    <span id="musicToggleText">Enable Music</span>
-                </button>
-            </div>
+        <!-- Hall of Autism -->
+        <div id="hall-page" class="hidden">
+            <h2 class="section-title">Hall of Autism</h2>
             <div class="hall-grid" id="hall-container">
-                <!-- Hall boxes will be generated -->
+                <!-- Hall boxes will be generated here -->
             </div>
         </div>
 
         <!-- My Account -->
         <div id="myaccount-page" class="hidden">
-            <h2 class="section-title">👤 My Account</h2>
+            <h2 class="section-title">My Account</h2>
             <div class="profile-form">
                 <div class="form-group">
                     <div class="profile-banner">
@@ -1097,16 +761,56 @@
                             <div id="profile-picture-img" class="profile-picture-img"></div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
-                        <label class="form-label">Banner Image URL</label>
-                        <input type="text" class="form-input" id="banner-url" placeholder="https://example.com/banner.jpg">
-                        <button class="btn btn-primary mt-3" onclick="updateBanner()">🖼️ Update Banner</button>
+                        <label class="form-label">Banner Image</label>
+                        <div class="file-upload-container">
+                            <input type="file" class="file-input" id="banner-file" accept="image/*" onchange="previewBanner(event)">
+                            <label for="banner-file" class="file-label">Choose Banner Image</label>
+                            <div class="preview-container">
+                                <img id="banner-preview" class="preview-image hidden">
+                            </div>
+                            <div id="banner-progress" class="upload-progress hidden"></div>
+                        </div>
+                        <button class="btn btn-primary mt-3" onclick="uploadBanner()">Upload Banner</button>
                     </div>
+
                     <div class="form-group">
-                        <label class="form-label">Profile Picture URL</label>
-                        <input type="text" class="form-input" id="profile-url" placeholder="https://example.com/profile.jpg">
-                        <button class="btn btn-primary mt-3" onclick="updateProfilePicture()">👤 Update Profile Picture</button>
+                        <label class="form-label">Profile Picture</label>
+                        <div class="file-upload-container">
+                            <input type="file" class="file-input" id="profile-file" accept="image/*" onchange="previewProfile(event)">
+                            <label for="profile-file" class="file-label">Choose Profile Picture</label>
+                            <div class="preview-container">
+                                <img id="profile-preview" class="preview-image hidden">
+                            </div>
+                            <div id="profile-progress" class="upload-progress hidden"></div>
+                        </div>
+                        <button class="btn btn-primary mt-3" onclick="uploadProfilePicture()">Upload Profile Picture</button>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-input" id="display-name" placeholder="Enter display name">
+                        <button class="btn btn-primary mt-3" onclick="updateDisplayName()">Update Display Name</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-page" class="hidden">
+            <h2 class="section-title">Admin Panel</h2>
+            <div class="admin-controls">
+                <div class="admin-title">Administrator Controls</div>
+                
+                <div class="admin-actions">
+                    <button class="btn btn-danger" onclick="adminViewAllUsers()">View All Users</button>
+                    <button class="btn btn-danger" onclick="adminViewReports()">View Reports</button>
+                    <button class="btn btn-danger" onclick="adminViewLogs()">View System Logs</button>
+                </div>
+
+                <div id="admin-content" class="mt-4">
+                    <!-- Admin content will be loaded here -->
                 </div>
             </div>
         </div>
@@ -1115,44 +819,47 @@
         <div id="user-profile-page" class="hidden">
             <button class="back-btn" onclick="showPage('home')">← Back</button>
             <div id="user-profile-content" class="paste-detail">
-                <!-- User profile will be loaded -->
+                <!-- User profile will be loaded here -->
             </div>
         </div>
 
         <!-- Auth Page -->
         <div id="auth-page" class="hidden">
-            <h2 class="section-title">🔐 Authentication</h2>
+            <h2 class="section-title">Sign In / Create Account</h2>
             <div class="auth-form">
                 <div class="form-group">
-                    <label class="form-label">📧 Email</label>
+                    <label class="form-label">Email</label>
                     <input type="email" class="form-input" id="auth-email" placeholder="your@email.com">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">🔑 Password</label>
+                    <label class="form-label">Password</label>
                     <input type="password" class="form-input" id="auth-password" placeholder="••••••••">
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="signIn()">🚀 Sign In</button>
-                    <button class="btn btn-secondary" onclick="signUp()">✨ Create Account</button>
+                    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
+                    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
                 </div>
-                <div id="auth-message" class="mt-4 text-center"></div>
+                <div id="auth-message" class="mt-3 text-center"></div>
             </div>
         </div>
     </div>
 
-    <!-- Audio Element for Music -->
-    <audio id="hallMusic" preload="auto">
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
+
+    <!-- Audio for Hall of Autism (auto-play, no UI) -->
+    <audio id="hallMusic" autoplay loop style="display: none;">
         <source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
-        Your browser does not support the audio element.
     </audio>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
-        // Dual Firebase Configuration for Firestore
+        // Firebase Configuration
         const pasteDbConfig = {
             apiKey: "AIzaSyA1qaJnsRvWDvxNn9Nd1tmMVjvkF-WpUQY",
             authDomain: "norbin-c2fdb.firebaseapp.com",
@@ -1177,243 +884,210 @@
         const pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
         const chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
 
-        // Get Firestore instances
+        // Get Firebase Services
+        const pasteAuth = pasteApp.auth();
         const pasteDb = pasteApp.firestore();
+        const pasteStorage = pasteApp.storage();
         const chatDb = chatApp.firestore();
-        const auth = pasteApp.auth();
+        const chatAuth = chatApp.auth();
 
         // Global State
         let currentUser = null;
         let isAdmin = false;
         let onlineUsers = {};
         let searchTimeout = null;
-        
-        // Music Player State
-        let isMusicEnabled = false;
-        let isMusicPlaying = false;
-        let currentHallPage = false;
-        const hallMusic = document.getElementById('hallMusic');
-        const progress = document.getElementById('progress');
-        const currentTimeDisplay = document.getElementById('currentTime');
-        const durationDisplay = document.getElementById('duration');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const progressBar = document.getElementById('progressBar');
-        let progressInterval;
-
-        // Music Player Functions
-        function initializeMusicPlayer() {
-            hallMusic.volume = 0.5;
-            hallMusic.addEventListener('loadedmetadata', function() {
-                durationDisplay.textContent = formatTime(hallMusic.duration);
-            });
-            
-            hallMusic.addEventListener('timeupdate', updateProgress);
-            hallMusic.addEventListener('ended', function() {
-                playPauseBtn.innerHTML = '▶️';
-                isMusicPlaying = false;
-                hallMusic.currentTime = 0;
-                updateProgress();
-            });
-            
-            // Set initial volume
-            document.getElementById('volumeSlider').value = hallMusic.volume;
-        }
-
-        function toggleHallMusic() {
-            isMusicEnabled = !isMusicEnabled;
-            const toggleBtn = document.getElementById('musicToggleBtn');
-            const toggleIcon = document.getElementById('musicToggleIcon');
-            const toggleText = document.getElementById('musicToggleText');
-            
-            if (isMusicEnabled) {
-                toggleIcon.textContent = '🔊';
-                toggleText.textContent = 'Disable Music';
-                if (currentHallPage) {
-                    startMusic();
-                }
-            } else {
-                toggleIcon.textContent = '🔇';
-                toggleText.textContent = 'Enable Music';
-                stopMusic();
-            }
-            
-            // Save preference to localStorage
-            localStorage.setItem('hallMusicEnabled', isMusicEnabled);
-        }
-
-        function startMusic() {
-            if (!isMusicEnabled) return;
-            
-            try {
-                hallMusic.play().then(() => {
-                    isMusicPlaying = true;
-                    playPauseBtn.innerHTML = '⏸️';
-                    document.getElementById('musicIndicator').classList.add('active');
-                    document.getElementById('musicPlayer').classList.add('active');
-                    updateMusicIndicator();
-                }).catch(error => {
-                    console.log("Auto-play prevented:", error);
-                    // Show play button for user interaction
-                    isMusicPlaying = false;
-                    playPauseBtn.innerHTML = '▶️';
-                });
-            } catch (error) {
-                console.log("Music play error:", error);
-            }
-        }
-
-        function stopMusic() {
-            hallMusic.pause();
-            isMusicPlaying = false;
-            playPauseBtn.innerHTML = '▶️';
-            document.getElementById('musicIndicator').classList.remove('active');
-            updateMusicIndicator();
-        }
-
-        function togglePlay() {
-            if (!isMusicEnabled) {
-                isMusicEnabled = true;
-                document.getElementById('musicToggleIcon').textContent = '🔊';
-                document.getElementById('musicToggleText').textContent = 'Disable Music';
-                localStorage.setItem('hallMusicEnabled', true);
-            }
-            
-            if (isMusicPlaying) {
-                hallMusic.pause();
-                playPauseBtn.innerHTML = '▶️';
-            } else {
-                hallMusic.play();
-                playPauseBtn.innerHTML = '⏸️';
-            }
-            isMusicPlaying = !isMusicPlaying;
-            updateMusicIndicator();
-        }
-
-        function skipBackward() {
-            hallMusic.currentTime = Math.max(0, hallMusic.currentTime - 10);
-        }
-
-        function skipForward() {
-            hallMusic.currentTime = Math.min(hallMusic.duration, hallMusic.currentTime + 10);
-        }
-
-        function changeVolume(value) {
-            hallMusic.volume = value;
-            localStorage.setItem('musicVolume', value);
-        }
-
-        function seekMusic(event) {
-            const progressBarRect = progressBar.getBoundingClientRect();
-            const clickPosition = (event.clientX - progressBarRect.left) / progressBarRect.width;
-            hallMusic.currentTime = clickPosition * hallMusic.duration;
-        }
-
-        function updateProgress() {
-            if (hallMusic.duration) {
-                const progressPercent = (hallMusic.currentTime / hallMusic.duration) * 100;
-                progress.style.width = progressPercent + '%';
-                currentTimeDisplay.textContent = formatTime(hallMusic.currentTime);
-            }
-        }
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-
-        function toggleMusicPlayer() {
-            const player = document.getElementById('musicPlayer');
-            player.classList.toggle('active');
-        }
-
-        function updateMusicIndicator() {
-            const indicator = document.getElementById('musicIndicator');
-            if (isMusicPlaying && currentHallPage) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        }
 
         // Alert System
         function showAlert(message, type = 'info') {
             const container = document.getElementById('alert-container');
-            if (!container) {
-                // Create alert container if it doesn't exist
-                const alertContainer = document.createElement('div');
-                alertContainer.id = 'alert-container';
-                alertContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
-                document.body.appendChild(alertContainer);
-            }
-            
             const alert = document.createElement('div');
-            alert.style.cssText = `
-                padding: 1rem 2rem;
-                margin-bottom: 1rem;
-                border-radius: 10px;
-                background: ${type === 'error' ? 'rgba(255, 50, 50, 0.9)' : 'rgba(0, 255, 0, 0.9)'};
-                color: ${type === 'error' ? '#fff' : '#000'};
-                border: 2px solid ${type === 'error' ? '#ff0000' : '#00ff00'};
-                animation: slideInRight 0.3s ease-out;
-                font-weight: bold;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            `;
+            alert.className = 'alert';
+            alert.style.borderColor = type === 'error' ? '#ff0000' : 
+                                     type === 'success' ? '#00ff00' : 
+                                     '#ffffff';
             alert.textContent = message;
-            document.getElementById('alert-container').appendChild(alert);
+            container.appendChild(alert);
             
             setTimeout(() => {
-                alert.style.animation = 'slideOutRight 0.3s ease-out forwards';
-                setTimeout(() => alert.remove(), 300);
+                alert.remove();
             }, 5000);
         }
 
-        // Add CSS for alert animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOutRight {
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize Hall of Autism
+        // Initialize Hall of Autism with placeholder images
         function initializeHallOfAutism() {
             const hallContainer = document.getElementById('hall-container');
             hallContainer.innerHTML = '';
             
-            const hallData = [
-                { name: "Noone", description: "Untitled", emoji: "1️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "2️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "3️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "4️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "5️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "6️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "7️⃣" },
-                { name: "Noone", description: "Untitled", emoji: "8️⃣" }
+            const hallItems = [
+                { id: 1, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+1" },
+                { id: 2, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+2" },
+                { id: 3, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+3" },
+                { id: 4, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+4" },
+                { id: 5, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+5" },
+                { id: 6, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+6" },
+                { id: 7, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+7" },
+                { id: 8, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+8" }
             ];
             
-            hallData.forEach((item, index) => {
+            hallItems.forEach(item => {
                 const box = document.createElement('div');
                 box.className = 'hall-box';
                 box.innerHTML = `
-                    <div class="hall-image">${item.emoji}</div>
+                    <div class="hall-image">
+                        <img src="${item.image}" alt="${item.name}">
+                    </div>
                     <div class="hall-name">${item.name}</div>
                     <div class="hall-description">${item.description}</div>
                 `;
                 hallContainer.appendChild(box);
             });
             
-            // Start music if enabled
-            if (isMusicEnabled && currentHallPage) {
-                setTimeout(() => {
-                    startMusic();
-                }, 1000);
+            // Start music on Hall of Autism page
+            if (document.getElementById('hall-page').classList.contains('hidden') === false) {
+                const hallMusic = document.getElementById('hallMusic');
+                hallMusic.play().catch(e => {
+                    console.log("Autoplay prevented:", e);
+                    // Music will play when user interacts with page
+                });
+            }
+        }
+
+        // File Upload Functions
+        function previewBanner(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('banner-preview').src = e.target.result;
+                    document.getElementById('banner-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewProfile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-preview').src = e.target.result;
+                    document.getElementById('profile-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function uploadBanner() {
+            if (!currentUser) {
+                showAlert('Please sign in to upload images', 'error');
+                return;
+            }
+            
+            const fileInput = document.getElementById('banner-file');
+            if (!fileInput.files[0]) {
+                showAlert('Please select a banner image first', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const storageRef = pasteStorage.ref(`users/${currentUser.uid}/banner`);
+            const uploadTask = storageRef.put(file);
+            
+            const progressDiv = document.getElementById('banner-progress');
+            progressDiv.classList.remove('hidden');
+            
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+                },
+                (error) => {
+                    progressDiv.classList.add('hidden');
+                    showAlert(`Upload failed: ${error.message}`, 'error');
+                },
+                async () => {
+                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                    await pasteDb.collection('users').doc(currentUser.uid).update({
+                        bannerUrl: downloadURL,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    progressDiv.classList.add('hidden');
+                    showAlert('Banner uploaded successfully!', 'success');
+                    document.getElementById('banner-preview').classList.add('hidden');
+                    fileInput.value = '';
+                    
+                    // Update display
+                    document.getElementById('profile-banner-img').style.backgroundImage = `url(${downloadURL})`;
+                }
+            );
+        }
+
+        async function uploadProfilePicture() {
+            if (!currentUser) {
+                showAlert('Please sign in to upload images', 'error');
+                return;
+            }
+            
+            const fileInput = document.getElementById('profile-file');
+            if (!fileInput.files[0]) {
+                showAlert('Please select a profile picture first', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const storageRef = pasteStorage.ref(`users/${currentUser.uid}/profile`);
+            const uploadTask = storageRef.put(file);
+            
+            const progressDiv = document.getElementById('profile-progress');
+            progressDiv.classList.remove('hidden');
+            
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+                },
+                (error) => {
+                    progressDiv.classList.add('hidden');
+                    showAlert(`Upload failed: ${error.message}`, 'error');
+                },
+                async () => {
+                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                    await pasteDb.collection('users').doc(currentUser.uid).update({
+                        profileUrl: downloadURL,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    progressDiv.classList.add('hidden');
+                    showAlert('Profile picture uploaded successfully!', 'success');
+                    document.getElementById('profile-preview').classList.add('hidden');
+                    fileInput.value = '';
+                    
+                    // Update display
+                    document.getElementById('profile-picture-img').style.backgroundImage = `url(${downloadURL})`;
+                }
+            );
+        }
+
+        async function updateDisplayName() {
+            if (!currentUser) return;
+            
+            const displayName = document.getElementById('display-name').value.trim();
+            if (!displayName) {
+                showAlert('Please enter a display name', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Display name updated successfully!', 'success');
+                document.getElementById('usernameDisplay').textContent = displayName;
+            } catch (error) {
+                showAlert(`Error updating display name: ${error.message}`, 'error');
             }
         }
 
@@ -1426,9 +1100,6 @@
         function showPage(pageId) {
             // Close menu
             document.getElementById('slideDownMenu').classList.remove('active');
-            
-            // Update current page state for music
-            currentHallPage = (pageId === 'hall');
             
             // Hide all pages
             document.querySelectorAll('[id$="-page"]').forEach(page => {
@@ -1454,61 +1125,804 @@
                         break;
                     case 'hall':
                         initializeHallOfAutism();
-                        // Auto-start music if enabled
-                        if (isMusicEnabled) {
-                            setTimeout(() => {
-                                startMusic();
-                            }, 500);
-                        }
+                        // Auto-play music
+                        setTimeout(() => {
+                            document.getElementById('hallMusic').play().catch(e => console.log("Autoplay prevented"));
+                        }, 1000);
                         break;
                     case 'myaccount':
                         loadUserProfileData();
                         break;
+                    case 'admin':
+                        loadAdminPanel();
+                        break;
                 }
             }
-            
-            // Update music indicator
-            updateMusicIndicator();
         }
 
-        // Rest of your existing Firebase functions (signIn, signUp, publishPaste, etc.)
-        // ... [All your existing Firebase functions remain the same as before]
-        // Note: I've truncated this section for brevity, but you should include
-        // all the Firebase functions from the previous implementation
+        // Authentication
+        async function signIn() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email || !password) {
+                showAlert('Please enter both email and password', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await pasteAuth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                await checkAdminStatus();
+                updateUIForAuth();
+                showAlert('Successfully signed in!', 'success');
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function signUp() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email || !password) {
+                showAlert('Please enter both email and password', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await pasteAuth.createUserWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Create user profile
+                await pasteDb.collection('users').doc(currentUser.uid).set({
+                    email: email,
+                    username: email.split('@')[0],
+                    displayName: email.split('@')[0],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isBanned: false,
+                    isAdmin: email === 'exoticslash3r@gmail.com',
+                    bannerUrl: '',
+                    profileUrl: '',
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await checkAdminStatus();
+                updateUIForAuth();
+                showAlert('Account created successfully!', 'success');
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function signOut() {
+            pasteAuth.signOut().then(() => {
+                currentUser = null;
+                isAdmin = false;
+                updateUIForAuth();
+                showAlert('Signed out successfully', 'success');
+                showPage('home');
+            });
+        }
+
+        async function checkAdminStatus() {
+            if (!currentUser) {
+                isAdmin = false;
+                return;
+            }
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    isAdmin = userData.isAdmin || currentUser.email === 'exoticslash3r@gmail.com';
+                    
+                    // Update admin status if needed
+                    if (currentUser.email === 'exoticslash3r@gmail.com' && !userData.isAdmin) {
+                        await pasteDb.collection('users').doc(currentUser.uid).update({
+                            isAdmin: true
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        function updateUIForAuth() {
+            const authBtn = document.getElementById('authBtn');
+            const myAccountBtn = document.getElementById('myAccountBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            
+            if (currentUser) {
+                authBtn.textContent = 'Sign Out';
+                authBtn.onclick = signOut;
+                myAccountBtn.classList.remove('hidden');
+                
+                // Load username
+                pasteDb.collection('users').doc(currentUser.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        usernameDisplay.textContent = userData.displayName || userData.username;
+                    }
+                });
+                
+                if (isAdmin) {
+                    adminBtn.classList.remove('hidden');
+                    showAlert('Admin privileges activated!', 'success');
+                } else {
+                    adminBtn.classList.add('hidden');
+                }
+            } else {
+                authBtn.textContent = 'Sign In';
+                authBtn.onclick = () => showPage('auth');
+                myAccountBtn.classList.add('hidden');
+                adminBtn.classList.add('hidden');
+                usernameDisplay.textContent = '';
+            }
+        }
+
+        // Paste Management
+        async function publishPaste() {
+            if (!currentUser) {
+                showAlert('Please sign in to publish pastes', 'error');
+                showPage('auth');
+                return;
+            }
+            
+            const title = document.getElementById('paste-title').value.trim();
+            const content = document.getElementById('paste-content').value.trim();
+            
+            if (!title || !content) {
+                showAlert('Please fill in both title and content', 'error');
+                return;
+            }
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                const pasteData = {
+                    title: title,
+                    content: content,
+                    username: userData.displayName || userData.username,
+                    userId: currentUser.uid,
+                    views: 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    isPinned: false,
+                    isRemoved: false,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await pasteDb.collection('pastes').add(pasteData);
+                
+                showAlert('Paste published successfully!', 'success');
+                clearPasteForm();
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error publishing paste: ${error.message}`, 'error');
+            }
+        }
+
+        function clearPasteForm() {
+            document.getElementById('paste-title').value = '';
+            document.getElementById('paste-content').value = '';
+        }
+
+        async function loadRecentPastes() {
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                displayPastes(snapshot, 'pastes-container');
+            } catch (error) {
+                console.error('Error loading pastes:', error);
+            }
+        }
+
+        function displayPastes(snapshot, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const paste = doc.data();
+                const pasteId = doc.id;
+                
+                const pasteCard = document.createElement('div');
+                pasteCard.className = 'paste-card';
+                pasteCard.onclick = () => showPasteDetail(pasteId);
+                
+                pasteCard.innerHTML = `
+                    <div class="paste-username" onclick="event.stopPropagation(); showUserProfile('${paste.userId}')">
+                        ${paste.username}
+                        ${paste.isPinned ? '<span class="admin-badge">PINNED</span>' : ''}
+                    </div>
+                    <div class="paste-title">${escapeHtml(paste.title)}</div>
+                    <div class="paste-views">${paste.views || 0} views</div>
+                `;
+                
+                container.appendChild(pasteCard);
+            });
+        }
+
+        async function showPasteDetail(pasteId) {
+            showPage('pasteDetail');
+            
+            try {
+                // Increment view count
+                await pasteDb.collection('pastes').doc(pasteId).update({
+                    views: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                const doc = await pasteDb.collection('pastes').doc(pasteId).get();
+                const paste = doc.data();
+                const container = document.getElementById('paste-detail-content');
+                
+                let adminControls = '';
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="btn-group mt-4">
+                            <button class="btn btn-danger" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
+                                ${paste.isPinned ? 'Unpin' : 'Pin'} Paste
+                            </button>
+                            <button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
+                                Remove Paste
+                            </button>
+                            <button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
+                                Ban User
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = `
+                    <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                        ${paste.username}
+                        ${paste.isPinned ? '<span class="admin-badge">PINNED</span>' : ''}
+                    </div>
+                    <h2>${escapeHtml(paste.title)}</h2>
+                    <div class="paste-views">${paste.views || 0} views</div>
+                    <div class="paste-content">${escapeHtml(paste.content)}</div>
+                    ${adminControls}
+                `;
+            } catch (error) {
+                showAlert(`Error loading paste: ${error.message}`, 'error');
+            }
+        }
+
+        // Chat Functions
+        function loadChatMessages() {
+            chatDb.collection('messages')
+                .orderBy('timestamp', 'desc')
+                .limit(100)
+                .onSnapshot(snapshot => {
+                    const container = document.getElementById('chat-messages');
+                    container.innerHTML = '';
+                    
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sort by timestamp (newest first)
+                    messages.sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-header">
+                                <div class="message-sender">${escapeHtml(msg.username)}:</div>
+                                <div class="message-time">${formatTime(msg.timestamp?.toDate())}</div>
+                            </div>
+                            <div>${escapeHtml(msg.message)}:</div>
+                        `;
+                        
+                        container.appendChild(messageDiv);
+                    });
+                    
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        async function sendChatMessage() {
+            if (!currentUser) {
+                showAlert('Please sign in to chat', 'error');
+                showPage('auth');
+                return;
+            }
+            
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                await chatDb.collection('messages').add({
+                    message: message,
+                    username: userData.displayName || userData.username,
+                    userId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                input.value = '';
+            } catch (error) {
+                showAlert(`Error sending message: ${error.message}`, 'error');
+            }
+        }
+
+        function updateOnlineUsers() {
+            // Implement online users tracking
+            document.getElementById('onlineCount').textContent = '0';
+        }
+
+        // Search Functionality
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchBar').value.trim();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (searchTerm.length === 0) {
+                resultsDiv.classList.add('hidden');
+                return;
+            }
+            
+            if (searchTimeout) clearTimeout(searchTimeout);
+            
+            searchTimeout = setTimeout(() => {
+                performSearch(searchTerm);
+                resultsDiv.classList.remove('hidden');
+            }, 300);
+        }
+
+        async function performSearch(searchTerm) {
+            const resultsContent = document.getElementById('searchResultsContent');
+            resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;">Searching...</div>';
+            
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const results = [];
+                const searchLower = searchTerm.toLowerCase();
+                
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    const pasteId = doc.id;
+                    
+                    const titleMatch = paste.title.toLowerCase().includes(searchLower);
+                    const contentMatch = paste.content.toLowerCase().includes(searchLower);
+                    const userMatch = paste.username.toLowerCase().includes(searchLower);
+                    
+                    if (titleMatch || contentMatch || userMatch) {
+                        results.push({ id: pasteId, ...paste });
+                    }
+                });
+                
+                displaySearchResults(results, resultsContent);
+            } catch (error) {
+                resultsContent.innerHTML = `<div style="text-align: center; padding: 2rem; color: #ff0000;">Error: ${error.message}</div>`;
+            }
+        }
+
+        function displaySearchResults(results, container) {
+            if (results.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem;">No results found</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            results.slice(0, 10).forEach(paste => {
+                const result = document.createElement('div');
+                result.className = 'paste-card';
+                result.style.marginBottom = '1rem';
+                result.onclick = () => showPasteDetail(paste.id);
+                
+                result.innerHTML = `
+                    <div class="paste-username">${escapeHtml(paste.username)}</div>
+                    <div class="paste-title">${escapeHtml(paste.title)}</div>
+                    <div class="paste-views">${paste.views || 0} views</div>
+                `;
+                
+                container.appendChild(result);
+            });
+        }
+
+        // Most Mentioned
+        async function loadMostMentioned() {
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .get();
+                
+                const titleCount = {};
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    const title = paste.title.toLowerCase().trim();
+                    if (title) {
+                        titleCount[title] = (titleCount[title] || 0) + 1;
+                    }
+                });
+                
+                const sortedTitles = Object.entries(titleCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 20);
+                
+                const container = document.getElementById('most-mentioned-container');
+                container.innerHTML = '';
+                
+                sortedTitles.forEach(([title, count], index) => {
+                    const card = document.createElement('div');
+                    card.className = 'paste-card';
+                    card.innerHTML = `
+                        <div style="font-size: 1.5rem; margin-bottom: 1rem;">#${index + 1}</div>
+                        <div class="paste-title">${escapeHtml(title)}</div>
+                        <div class="paste-views">Mentioned ${count} times</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading most mentioned:', error);
+            }
+        }
+
+        // Profile Functions
+        async function loadUserProfileData() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    
+                    if (userData.bannerUrl) {
+                        document.getElementById('profile-banner-img').style.backgroundImage = `url(${userData.bannerUrl})`;
+                    }
+                    
+                    if (userData.profileUrl) {
+                        document.getElementById('profile-picture-img').style.backgroundImage = `url(${userData.profileUrl})`;
+                    }
+                    
+                    if (userData.displayName) {
+                        document.getElementById('display-name').value = userData.displayName;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+            }
+        }
+
+        async function showUserProfile(userId) {
+            showPage('userProfile');
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(userId).get();
+                const pasteSnap = await pasteDb.collection('pastes')
+                    .where('userId', '==', userId)
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+                
+                const container = document.getElementById('user-profile-content');
+                
+                if (!userDoc.exists) {
+                    container.innerHTML = '<div style="text-align: center; padding: 3rem;">User not found</div>';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                let adminControls = '';
+                
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="admin-controls mt-4">
+                            <div class="admin-title">Admin Controls</div>
+                            <div class="admin-actions">
+                                <button class="btn btn-danger" onclick="adminBanUser('${userId}', ${!userData.isBanned})">
+                                    ${userData.isBanned ? 'Unban User' : 'Ban User'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminDeleteUserPosts('${userId}')">
+                                    Delete User's Posts
+                                </button>
+                                <button class="btn btn-danger" onclick="adminDeleteUserAccount('${userId}')">
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                let postsHtml = '';
+                pasteSnap.forEach(doc => {
+                    const paste = doc.data();
+                    postsHtml += `
+                        <div class="paste-card mt-2" onclick="showPasteDetail('${doc.id}')">
+                            <div class="paste-title">${escapeHtml(paste.title)}</div>
+                            <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = `
+                    <div class="profile-banner" style="${userData.bannerUrl ? `background-image: url(${userData.bannerUrl})` : ''}">
+                        <div class="profile-picture" style="${userData.profileUrl ? `background-image: url(${userData.profileUrl})` : ''}"></div>
+                    </div>
+                    
+                    <h1 style="font-size: 2.5rem; margin-top: 5rem;">
+                        ${escapeHtml(userData.displayName || userData.username)}
+                        ${userData.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
+                        ${userData.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                    </h1>
+                    
+                    <div class="paste-content mt-3">
+                        <p><strong>Email:</strong> ${escapeHtml(userData.email || 'Not provided')}</p>
+                        <p><strong>Member since:</strong> ${formatTime(userData.createdAt?.toDate())}</p>
+                        <p><strong>Last login:</strong> ${formatTime(userData.lastLogin?.toDate())}</p>
+                        <p><strong>Total posts:</strong> ${pasteSnap.size}</p>
+                    </div>
+                    
+                    <h3 class="mt-4">Recent Posts:</h3>
+                    ${postsHtml || '<p>No posts yet</p>'}
+                    
+                    ${adminControls}
+                `;
+            } catch (error) {
+                showAlert(`Error loading profile: ${error.message}`, 'error');
+            }
+        }
+
+        // Admin Functions
+        async function loadAdminPanel() {
+            if (!isAdmin) {
+                showAlert('Admin access required', 'error');
+                showPage('home');
+                return;
+            }
+            
+            const container = document.getElementById('admin-content');
+            container.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading admin data...</div>';
+            
+            try {
+                // Get stats
+                const usersSnap = await pasteDb.collection('users').get();
+                const pastesSnap = await pasteDb.collection('pastes').get();
+                const chatSnap = await chatDb.collection('messages').get();
+                
+                const totalUsers = usersSnap.size;
+                const totalPastes = pastesSnap.size;
+                const totalChats = chatSnap.size;
+                const bannedUsers = usersSnap.docs.filter(doc => doc.data().isBanned).length;
+                
+                container.innerHTML = `
+                    <div class="pastes-grid">
+                        <div class="paste-card">
+                            <div class="paste-title">Total Users</div>
+                            <div class="paste-views">${totalUsers}</div>
+                        </div>
+                        <div class="paste-card">
+                            <div class="paste-title">Total Pastes</div>
+                            <div class="paste-views">${totalPastes}</div>
+                        </div>
+                        <div class="paste-card">
+                            <div class="paste-title">Chat Messages</div>
+                            <div class="paste-views">${totalChats}</div>
+                        </div>
+                        <div class="paste-card">
+                            <div class="paste-title">Banned Users</div>
+                            <div class="paste-views">${bannedUsers}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h3>Quick Actions:</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-danger" onclick="adminViewAllUsers()">View All Users</button>
+                            <button class="btn btn-danger" onclick="adminClearChat()">Clear Chat</button>
+                            <button class="btn btn-danger" onclick="adminBackupData()">Backup Data</button>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-details" class="mt-4"></div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div style="color: #ff0000;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function adminViewAllUsers() {
+            if (!isAdmin) return;
+            
+            try {
+                const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
+                const container = document.getElementById('admin-details');
+                
+                let html = '<h3>All Users:</h3><div class="pastes-grid">';
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    html += `
+                        <div class="paste-card">
+                            <div class="paste-username" onclick="showUserProfile('${doc.id}')">
+                                ${escapeHtml(user.displayName || user.username)}
+                                ${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
+                                ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                            </div>
+                            <div class="paste-title">${escapeHtml(user.email)}</div>
+                            <div class="paste-views">
+                                Joined: ${formatTime(user.createdAt?.toDate())}
+                            </div>
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
+                                    ${user.isBanned ? 'Unban' : 'Ban'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
+                                    ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function adminPinPaste(pasteId, pinState) {
+            if (!isAdmin) return;
+            
+            try {
+                await pasteDb.collection('pastes').doc(pasteId).update({
+                    isPinned: pinState
+                });
+                showAlert(`Paste ${pinState ? 'pinned' : 'unpinned'}`, 'success');
+                showPasteDetail(pasteId);
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function adminRemovePaste(pasteId) {
+            if (!isAdmin) return;
+            
+            if (confirm('Are you sure you want to remove this paste?')) {
+                try {
+                    await pasteDb.collection('pastes').doc(pasteId).update({
+                        isRemoved: true
+                    });
+                    showAlert('Paste removed', 'success');
+                    showPage('home');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminBanUser(userId, banState = true) {
+            if (!isAdmin) return;
+            
+            const action = banState ? 'ban' : 'unban';
+            if (confirm(`Are you sure you want to ${action} this user?`)) {
+                try {
+                    await pasteDb.collection('users').doc(userId).update({
+                        isBanned: banState
+                    });
+                    showAlert(`User ${banState ? 'banned' : 'unbanned'}`, 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminDeleteUserPosts(userId) {
+            if (!isAdmin) return;
+            
+            if (confirm('Delete ALL posts by this user?')) {
+                try {
+                    const snapshot = await pasteDb.collection('pastes')
+                        .where('userId', '==', userId)
+                        .get();
+                    
+                    const batch = pasteDb.batch();
+                    snapshot.forEach(doc => {
+                        batch.update(doc.ref, { isRemoved: true });
+                    });
+                    
+                    await batch.commit();
+                    showAlert('All user posts removed', 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminMakeAdmin(userId, makeAdmin) {
+            if (!isAdmin) return;
+            
+            if (confirm(`${makeAdmin ? 'Make' : 'Remove'} admin privileges?`)) {
+                try {
+                    await pasteDb.collection('users').doc(userId).update({
+                        isAdmin: makeAdmin
+                    });
+                    showAlert(`Admin privileges ${makeAdmin ? 'granted' : 'removed'}`, 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminClearChat() {
+            if (!isAdmin) return;
+            
+            if (confirm('Clear ALL chat messages?')) {
+                try {
+                    const snapshot = await chatDb.collection('messages').get();
+                    const batch = chatDb.batch();
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    showAlert('Chat cleared', 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Utility Functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(date) {
+            if (!date) return 'Unknown';
+            
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+            
+            return date.toLocaleDateString();
+        }
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             // Set logo
             document.getElementById('siteLogo').src = "https://i.postimg.cc/x8ML5hVd/logo.jpg";
             
-            // Initialize Music Player
-            initializeMusicPlayer();
-            
-            // Load music preferences
-            const savedMusicPref = localStorage.getItem('hallMusicEnabled');
-            if (savedMusicPref !== null) {
-                isMusicEnabled = savedMusicPref === 'true';
-                const toggleIcon = document.getElementById('musicToggleIcon');
-                const toggleText = document.getElementById('musicToggleText');
-                if (isMusicEnabled) {
-                    toggleIcon.textContent = '🔊';
-                    toggleText.textContent = 'Disable Music';
-                }
-            }
-            
-            // Load saved volume
-            const savedVolume = localStorage.getItem('musicVolume');
-            if (savedVolume) {
-                hallMusic.volume = parseFloat(savedVolume);
-                document.getElementById('volumeSlider').value = savedVolume;
-            }
-            
             // Set up auth listener
-            auth.onAuthStateChanged((user) => {
+            pasteAuth.onAuthStateChanged(async (user) => {
                 currentUser = user;
                 if (user) {
-                    checkIfAdmin(user.email);
-                    updateOnlineStatus();
+                    await checkAdminStatus();
+                } else {
+                    isAdmin = false;
                 }
                 updateUIForAuth();
                 loadRecentPastes();
@@ -1527,31 +1941,6 @@
                 }
             });
         });
-
-        // Include all your existing Firebase functions here...
-        // For brevity, I'm showing the structure. You should copy all your
-        // existing authentication, paste management, chat, and database functions
-        // from the previous implementation and paste them here.
-
-        // Sample structure for your existing functions:
-        function signIn() {
-            // Your existing signIn implementation
-        }
-
-        function signUp() {
-            // Your existing signUp implementation
-        }
-
-        function publishPaste() {
-            // Your existing publishPaste implementation
-        }
-
-        function loadRecentPastes() {
-            // Your existing loadRecentPastes implementation
-        }
-
-        // ... and all other functions
-
     </script>
 </body>
 </html>
