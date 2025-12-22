@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Norbin - Paste & Chat Platform</title>
+    <title>Norbin - Paste & Chat</title>
     <style>
         /* Black and White Theme */
         :root {
-            --primary-bg: #000000;
-            --secondary-bg: #111111;
-            --card-bg: #0a0a0a;
+            --bg-color: #000000;
             --text-color: #ffffff;
             --accent-color: #ffffff;
+            --card-bg: #111111;
             --border-color: #333333;
             --hover-color: #222222;
         }
@@ -25,10 +24,10 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: var(--primary-bg);
+            background-color: var(--bg-color);
             color: var(--text-color);
-            min-height: 100vh;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         /* Navbar */
@@ -139,12 +138,16 @@
         .search-bar {
             width: 100%;
             padding: 1rem 1.5rem;
-            font-size: 1.2rem;
             border: 2px solid var(--accent-color);
             border-radius: 5px;
             background: #000000;
             color: var(--accent-color);
+            font-size: 1.2rem;
             outline: none;
+        }
+
+        .search-bar::placeholder {
+            color: #666;
         }
 
         .search-results {
@@ -171,7 +174,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
 
         .paste-card {
@@ -206,8 +209,23 @@
             font-size: 0.9rem;
         }
 
+        .paste-timestamp {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
         .admin-badge {
             background: #ff0000;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .pinned-badge {
+            background: #00aa00;
             color: white;
             padding: 0.2rem 0.5rem;
             border-radius: 3px;
@@ -229,10 +247,10 @@
             color: var(--accent-color);
             border: 2px solid var(--accent-color);
             padding: 0.8rem 1.5rem;
-            font-size: 1rem;
             cursor: pointer;
-            border-radius: 5px;
             margin-bottom: 2rem;
+            border-radius: 5px;
+            font-size: 1rem;
             transition: all 0.3s;
         }
 
@@ -247,10 +265,10 @@
             background: #000000;
             padding: 1.5rem;
             border-radius: 5px;
-            border: 1px solid #333333;
             margin-top: 1rem;
             max-height: 500px;
             overflow-y: auto;
+            line-height: 1.6;
         }
 
         /* Forms */
@@ -279,9 +297,9 @@
             padding: 0.8rem;
             border: 2px solid var(--accent-color);
             border-radius: 5px;
-            font-size: 1rem;
             background: #000000;
             color: var(--accent-color);
+            font-size: 1rem;
             outline: none;
         }
 
@@ -291,49 +309,19 @@
             resize: vertical;
         }
 
-        /* File Upload */
-        .file-upload-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-label {
-            display: inline-block;
-            padding: 0.8rem 1.5rem;
-            background: #000000;
-            color: var(--accent-color);
-            border: 2px solid var(--accent-color);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .file-label:hover {
-            background: var(--accent-color);
-            color: #000000;
-        }
-
-        .preview-container {
-            margin-top: 1rem;
+        .url-input-group {
             display: flex;
             gap: 1rem;
-            flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
 
-        .preview-image {
-            max-width: 200px;
-            max-height: 150px;
+        .url-input {
+            flex: 1;
+            padding: 0.8rem;
             border: 2px solid var(--accent-color);
             border-radius: 5px;
-        }
-
-        .upload-progress {
-            margin-top: 0.5rem;
+            background: #000000;
             color: var(--accent-color);
-            font-size: 0.9rem;
         }
 
         /* Buttons */
@@ -344,6 +332,7 @@
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: bold;
         }
 
         .btn-primary {
@@ -377,6 +366,16 @@
             background: #cc0000;
         }
 
+        .btn-success {
+            background: #00aa00;
+            color: white;
+            border: 2px solid #00aa00;
+        }
+
+        .btn-success:hover {
+            background: #008800;
+        }
+
         .btn-group {
             display: flex;
             gap: 1rem;
@@ -390,7 +389,7 @@
             background: #111111;
             border: 2px solid var(--accent-color);
             border-radius: 10px;
-            height: 70vh;
+            height: 600px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -465,6 +464,7 @@
             border: 2px solid var(--accent-color);
             border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .send-btn:hover {
@@ -569,27 +569,54 @@
             object-fit: cover;
         }
 
-        /* Admin Controls */
+        /* Admin Panel */
         .admin-controls {
             background: #111111;
             border: 2px solid #ff0000;
             border-radius: 10px;
-            padding: 1.5rem;
+            padding: 2rem;
             margin-top: 2rem;
         }
 
         .admin-title {
             color: #ff0000;
             font-size: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid #ff0000;
             padding-bottom: 0.5rem;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: #000000;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
         }
 
         .admin-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         /* Alerts */
@@ -609,6 +636,16 @@
             border: 2px solid var(--accent-color);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             animation: slideIn 0.3s ease-out;
+        }
+
+        .alert.error {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .alert.success {
+            border-color: #00aa00;
+            color: #00aa00;
         }
 
         @keyframes slideIn {
@@ -631,6 +668,15 @@
         .align-center { align-items: center; }
         .gap-2 { gap: 0.5rem; }
         .gap-3 { gap: 1rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content { padding: 120px 1rem 2rem; }
+            .menu-items { grid-template-columns: 1fr; }
+            .pastes-grid { grid-template-columns: 1fr; }
+            .paste-form, .auth-form { padding: 1.5rem; }
+            .btn-group { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -646,13 +692,13 @@
     <!-- Slide Down Menu -->
     <div class="slide-down-menu" id="slideDownMenu">
         <div class="menu-items">
-            <button class="menu-btn" onclick="showPage('home')">Home</button>
-            <button class="menu-btn" onclick="showPage('paste')">Create Paste</button>
-            <button class="menu-btn" onclick="showPage('chat')">Global Chat</button>
-            <button class="menu-btn" onclick="showPage('most-mentioned')">Most Mentioned</button>
-            <button class="menu-btn" onclick="showPage('hall')">Hall of Autism</button>
-            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">My Account</button>
-            <button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">Admin Panel</button>
+            <button class="menu-btn" onclick="showPage('home')">🏠 Home</button>
+            <button class="menu-btn" onclick="showPage('paste')">📝 Create Paste</button>
+            <button class="menu-btn" onclick="showPage('chat')">💬 Global Chat</button>
+            <button class="menu-btn" onclick="showPage('most-mentioned')">🔥 Most Mentioned</button>
+            <button class="menu-btn" onclick="showPage('hall')">🎭 Hall of Autism</button>
+            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">👤 My Account</button>
+            <button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">⚙️ Admin Panel</button>
         </div>
     </div>
 
@@ -661,14 +707,14 @@
         <!-- Home Page -->
         <div id="home-page">
             <div class="logo-container">
-                <img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo" id="siteLogo">
+                <img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo">
             </div>
             
             <div class="search-container">
                 <input type="text" 
                        class="search-bar" 
                        id="searchBar" 
-                       placeholder="Search pastes by title, username, or content..."
+                       placeholder="🔍 Search pastes by title, username, or content..."
                        oninput="handleSearch()">
                 <div class="search-results hidden" id="searchResults">
                     <div class="section-title">Search Results</div>
@@ -676,25 +722,19 @@
                 </div>
             </div>
 
-            <div class="recent-pastes">
-                <h2 class="section-title">Recent Pastes</h2>
-                <div id="pastes-container" class="pastes-grid">
-                    <!-- Pastes will be loaded here -->
-                </div>
-            </div>
+            <h2 class="section-title">📜 Recent Pastes</h2>
+            <div id="pastes-container" class="pastes-grid"></div>
         </div>
 
         <!-- Paste Detail -->
         <div id="paste-detail-page" class="hidden">
             <button class="back-btn" onclick="showPage('home')">← Back to Pastes</button>
-            <div id="paste-detail-content" class="paste-detail">
-                <!-- Paste details will be loaded here -->
-            </div>
+            <div id="paste-detail-content" class="paste-detail"></div>
         </div>
 
         <!-- Create Paste -->
         <div id="paste-page" class="hidden">
-            <h2 class="section-title">Create New Paste</h2>
+            <h2 class="section-title">📝 Create New Paste</h2>
             <div class="paste-form">
                 <div class="form-group">
                     <label class="form-label">Title</label>
@@ -705,22 +745,20 @@
                     <textarea class="form-textarea" id="paste-content" placeholder="Enter your paste content here..."></textarea>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="publishPaste()">Publish</button>
-                    <button class="btn btn-secondary" onclick="clearPasteForm()">Clear</button>
+                    <button class="btn btn-primary" onclick="publishPaste()">🚀 Publish</button>
+                    <button class="btn btn-secondary" onclick="clearPasteForm()">🗑️ Clear</button>
                 </div>
             </div>
         </div>
 
         <!-- Global Chat -->
         <div id="chat-page" class="hidden">
-            <h2 class="section-title">Global Chat</h2>
+            <h2 class="section-title">💬 Global Chat</h2>
             <div class="chat-container">
                 <div class="chat-header">
-                    Live Global Chat • <span id="onlineCount">0</span> users online
+                    🌍 Live Global Chat • <span id="onlineCount">0</span> users online
                 </div>
-                <div class="chat-messages" id="chat-messages">
-                    <!-- Chat messages will be loaded here -->
-                </div>
+                <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
                         <input type="text" 
@@ -728,7 +766,7 @@
                                id="chat-input" 
                                placeholder="Type your message... (Press Enter to send)"
                                onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
+                        <button class="send-btn" onclick="sendChatMessage()">📤 Send</button>
                     </div>
                 </div>
             </div>
@@ -736,23 +774,19 @@
 
         <!-- Most Mentioned -->
         <div id="most-mentioned-page" class="hidden">
-            <h2 class="section-title">Most Mentioned Titles</h2>
-            <div id="most-mentioned-container" class="pastes-grid">
-                <!-- Most mentioned pastes will be loaded here -->
-            </div>
+            <h2 class="section-title">🔥 Most Mentioned Titles</h2>
+            <div id="most-mentioned-container" class="pastes-grid"></div>
         </div>
 
         <!-- Hall of Autism -->
         <div id="hall-page" class="hidden">
-            <h2 class="section-title">Hall of Autism</h2>
-            <div class="hall-grid" id="hall-container">
-                <!-- Hall boxes will be generated here -->
-            </div>
+            <h2 class="section-title">🎭 Hall of Autism</h2>
+            <div class="hall-grid" id="hall-container"></div>
         </div>
 
         <!-- My Account -->
         <div id="myaccount-page" class="hidden">
-            <h2 class="section-title">My Account</h2>
+            <h2 class="section-title">👤 My Account</h2>
             <div class="profile-form">
                 <div class="form-group">
                     <div class="profile-banner">
@@ -763,35 +797,25 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Banner Image</label>
-                        <div class="file-upload-container">
-                            <input type="file" class="file-input" id="banner-file" accept="image/*" onchange="previewBanner(event)">
-                            <label for="banner-file" class="file-label">Choose Banner Image</label>
-                            <div class="preview-container">
-                                <img id="banner-preview" class="preview-image hidden">
-                            </div>
-                            <div id="banner-progress" class="upload-progress hidden"></div>
-                        </div>
-                        <button class="btn btn-primary mt-3" onclick="uploadBanner()">Upload Banner</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Profile Picture</label>
-                        <div class="file-upload-container">
-                            <input type="file" class="file-input" id="profile-file" accept="image/*" onchange="previewProfile(event)">
-                            <label for="profile-file" class="file-label">Choose Profile Picture</label>
-                            <div class="preview-container">
-                                <img id="profile-preview" class="preview-image hidden">
-                            </div>
-                            <div id="profile-progress" class="upload-progress hidden"></div>
-                        </div>
-                        <button class="btn btn-primary mt-3" onclick="uploadProfilePicture()">Upload Profile Picture</button>
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label">Display Name</label>
                         <input type="text" class="form-input" id="display-name" placeholder="Enter display name">
                         <button class="btn btn-primary mt-3" onclick="updateDisplayName()">Update Display Name</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Banner Image URL</label>
+                        <div class="url-input-group">
+                            <input type="text" class="url-input" id="banner-url" placeholder="https://example.com/banner.jpg">
+                            <button class="btn btn-primary" onclick="updateBanner()">Update</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture URL</label>
+                        <div class="url-input-group">
+                            <input type="text" class="url-input" id="profile-url" placeholder="https://example.com/profile.jpg">
+                            <button class="btn btn-primary" onclick="updateProfilePicture()">Update</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -799,45 +823,61 @@
 
         <!-- Admin Panel -->
         <div id="admin-page" class="hidden">
-            <h2 class="section-title">Admin Panel</h2>
+            <h2 class="section-title">⚙️ Admin Panel</h2>
             <div class="admin-controls">
                 <div class="admin-title">Administrator Controls</div>
                 
-                <div class="admin-actions">
-                    <button class="btn btn-danger" onclick="adminViewAllUsers()">View All Users</button>
-                    <button class="btn btn-danger" onclick="adminViewReports()">View Reports</button>
-                    <button class="btn btn-danger" onclick="adminViewLogs()">View System Logs</button>
+                <div class="admin-stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalPastes">0</div>
+                        <div class="stat-label">Total Pastes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="bannedUsers">0</div>
+                        <div class="stat-label">Banned Users</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pinnedPastes">0</div>
+                        <div class="stat-label">Pinned Pastes</div>
+                    </div>
                 </div>
 
-                <div id="admin-content" class="mt-4">
-                    <!-- Admin content will be loaded here -->
+                <div class="admin-actions">
+                    <button class="btn btn-danger" onclick="adminViewAllUsers()">👥 View All Users</button>
+                    <button class="btn btn-danger" onclick="adminViewAllPastes()">📄 View All Pastes</button>
+                    <button class="btn btn-danger" onclick="adminClearChat()">🗑️ Clear Chat</button>
+                    <button class="btn btn-danger" onclick="adminBackupData()">💾 Backup Data</button>
                 </div>
+
+                <div id="admin-content" class="mt-4"></div>
             </div>
         </div>
 
         <!-- User Profile -->
         <div id="user-profile-page" class="hidden">
             <button class="back-btn" onclick="showPage('home')">← Back</button>
-            <div id="user-profile-content" class="paste-detail">
-                <!-- User profile will be loaded here -->
-            </div>
+            <div id="user-profile-content" class="paste-detail"></div>
         </div>
 
         <!-- Auth Page -->
         <div id="auth-page" class="hidden">
-            <h2 class="section-title">Sign In / Create Account</h2>
+            <h2 class="section-title">🔐 Authentication</h2>
             <div class="auth-form">
                 <div class="form-group">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">📧 Email</label>
                     <input type="email" class="form-input" id="auth-email" placeholder="your@email.com">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">🔑 Password</label>
                     <input type="password" class="form-input" id="auth-password" placeholder="••••••••">
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
-                    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
+                    <button class="btn btn-primary" onclick="signIn()">🚀 Sign In</button>
+                    <button class="btn btn-secondary" onclick="signUp()">✨ Create Account</button>
                 </div>
                 <div id="auth-message" class="mt-3 text-center"></div>
             </div>
@@ -847,7 +887,7 @@
     <!-- Alert Container -->
     <div id="alert-container" class="alert-container"></div>
 
-    <!-- Audio for Hall of Autism (auto-play, no UI) -->
+    <!-- Audio for Hall of Autism (auto-play, hidden) -->
     <audio id="hallMusic" autoplay loop style="display: none;">
         <source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
     </audio>
@@ -856,7 +896,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         // Firebase Configuration
@@ -887,24 +926,18 @@
         // Get Firebase Services
         const pasteAuth = pasteApp.auth();
         const pasteDb = pasteApp.firestore();
-        const pasteStorage = pasteApp.storage();
         const chatDb = chatApp.firestore();
-        const chatAuth = chatApp.auth();
 
         // Global State
         let currentUser = null;
         let isAdmin = false;
-        let onlineUsers = {};
         let searchTimeout = null;
 
         // Alert System
         function showAlert(message, type = 'info') {
             const container = document.getElementById('alert-container');
             const alert = document.createElement('div');
-            alert.className = 'alert';
-            alert.style.borderColor = type === 'error' ? '#ff0000' : 
-                                     type === 'success' ? '#00ff00' : 
-                                     '#ffffff';
+            alert.className = `alert ${type}`;
             alert.textContent = message;
             container.appendChild(alert);
             
@@ -913,20 +946,20 @@
             }, 5000);
         }
 
-        // Initialize Hall of Autism with placeholder images
+        // Initialize Hall of Autism
         function initializeHallOfAutism() {
             const hallContainer = document.getElementById('hall-container');
             hallContainer.innerHTML = '';
             
             const hallItems = [
-                { id: 1, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+1" },
-                { id: 2, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+2" },
-                { id: 3, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+3" },
-                { id: 4, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+4" },
-                { id: 5, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+5" },
-                { id: 6, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+6" },
-                { id: 7, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+7" },
-                { id: 8, name: "Noone", description: "Untitled", image: "https://via.placeholder.com/300x200/000000/ffffff?text=Image+8" }
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+1" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+2" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+3" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+4" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+5" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+6" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+7" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+8" }
             ];
             
             hallItems.forEach(item => {
@@ -934,7 +967,7 @@
                 box.className = 'hall-box';
                 box.innerHTML = `
                     <div class="hall-image">
-                        <img src="${item.image}" alt="${item.name}">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x300/000000/ffffff?text=Image+Error'">
                     </div>
                     <div class="hall-name">${item.name}</div>
                     <div class="hall-description">${item.description}</div>
@@ -942,152 +975,17 @@
                 hallContainer.appendChild(box);
             });
             
-            // Start music on Hall of Autism page
-            if (document.getElementById('hall-page').classList.contains('hidden') === false) {
-                const hallMusic = document.getElementById('hallMusic');
-                hallMusic.play().catch(e => {
-                    console.log("Autoplay prevented:", e);
-                    // Music will play when user interacts with page
-                });
-            }
-        }
-
-        // File Upload Functions
-        function previewBanner(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('banner-preview').src = e.target.result;
-                    document.getElementById('banner-preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function previewProfile(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profile-preview').src = e.target.result;
-                    document.getElementById('profile-preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        async function uploadBanner() {
-            if (!currentUser) {
-                showAlert('Please sign in to upload images', 'error');
-                return;
-            }
-            
-            const fileInput = document.getElementById('banner-file');
-            if (!fileInput.files[0]) {
-                showAlert('Please select a banner image first', 'error');
-                return;
-            }
-            
-            const file = fileInput.files[0];
-            const storageRef = pasteStorage.ref(`users/${currentUser.uid}/banner`);
-            const uploadTask = storageRef.put(file);
-            
-            const progressDiv = document.getElementById('banner-progress');
-            progressDiv.classList.remove('hidden');
-            
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-                },
-                (error) => {
-                    progressDiv.classList.add('hidden');
-                    showAlert(`Upload failed: ${error.message}`, 'error');
-                },
-                async () => {
-                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                    await pasteDb.collection('users').doc(currentUser.uid).update({
-                        bannerUrl: downloadURL,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            // Auto-play music on Hall of Autism page
+            if (!document.getElementById('hall-page').classList.contains('hidden')) {
+                try {
+                    const hallMusic = document.getElementById('hallMusic');
+                    hallMusic.play().catch(e => {
+                        // Autoplay may be blocked until user interaction
+                        console.log("Music autoplay prevented, will play on user interaction");
                     });
-                    
-                    progressDiv.classList.add('hidden');
-                    showAlert('Banner uploaded successfully!', 'success');
-                    document.getElementById('banner-preview').classList.add('hidden');
-                    fileInput.value = '';
-                    
-                    // Update display
-                    document.getElementById('profile-banner-img').style.backgroundImage = `url(${downloadURL})`;
+                } catch (e) {
+                    console.log("Music error:", e);
                 }
-            );
-        }
-
-        async function uploadProfilePicture() {
-            if (!currentUser) {
-                showAlert('Please sign in to upload images', 'error');
-                return;
-            }
-            
-            const fileInput = document.getElementById('profile-file');
-            if (!fileInput.files[0]) {
-                showAlert('Please select a profile picture first', 'error');
-                return;
-            }
-            
-            const file = fileInput.files[0];
-            const storageRef = pasteStorage.ref(`users/${currentUser.uid}/profile`);
-            const uploadTask = storageRef.put(file);
-            
-            const progressDiv = document.getElementById('profile-progress');
-            progressDiv.classList.remove('hidden');
-            
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-                },
-                (error) => {
-                    progressDiv.classList.add('hidden');
-                    showAlert(`Upload failed: ${error.message}`, 'error');
-                },
-                async () => {
-                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                    await pasteDb.collection('users').doc(currentUser.uid).update({
-                        profileUrl: downloadURL,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    progressDiv.classList.add('hidden');
-                    showAlert('Profile picture uploaded successfully!', 'success');
-                    document.getElementById('profile-preview').classList.add('hidden');
-                    fileInput.value = '';
-                    
-                    // Update display
-                    document.getElementById('profile-picture-img').style.backgroundImage = `url(${downloadURL})`;
-                }
-            );
-        }
-
-        async function updateDisplayName() {
-            if (!currentUser) return;
-            
-            const displayName = document.getElementById('display-name').value.trim();
-            if (!displayName) {
-                showAlert('Please enter a display name', 'error');
-                return;
-            }
-            
-            try {
-                await pasteDb.collection('users').doc(currentUser.uid).update({
-                    displayName: displayName,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showAlert('Display name updated successfully!', 'success');
-                document.getElementById('usernameDisplay').textContent = displayName;
-            } catch (error) {
-                showAlert(`Error updating display name: ${error.message}`, 'error');
             }
         }
 
@@ -1118,23 +1016,18 @@
                         break;
                     case 'chat':
                         loadChatMessages();
-                        updateOnlineUsers();
                         break;
                     case 'most-mentioned':
                         loadMostMentioned();
                         break;
                     case 'hall':
                         initializeHallOfAutism();
-                        // Auto-play music
-                        setTimeout(() => {
-                            document.getElementById('hallMusic').play().catch(e => console.log("Autoplay prevented"));
-                        }, 1000);
                         break;
                     case 'myaccount':
                         loadUserProfileData();
                         break;
                     case 'admin':
-                        loadAdminPanel();
+                        loadAdminStats();
                         break;
                 }
             }
@@ -1257,7 +1150,7 @@
                 
                 if (isAdmin) {
                     adminBtn.classList.remove('hidden');
-                    showAlert('Admin privileges activated!', 'success');
+                    showAlert('🔴 Admin privileges activated!', 'success');
                 } else {
                     adminBtn.classList.add('hidden');
                 }
@@ -1328,12 +1221,19 @@
                 displayPastes(snapshot, 'pastes-container');
             } catch (error) {
                 console.error('Error loading pastes:', error);
+                document.getElementById('pastes-container').innerHTML = 
+                    '<div class="paste-card"><div class="paste-title">Error loading pastes</div></div>';
             }
         }
 
         function displayPastes(snapshot, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="paste-card"><div class="paste-title">No pastes yet</div></div>';
+                return;
+            }
             
             snapshot.forEach(doc => {
                 const paste = doc.data();
@@ -1345,11 +1245,13 @@
                 
                 pasteCard.innerHTML = `
                     <div class="paste-username" onclick="event.stopPropagation(); showUserProfile('${paste.userId}')">
-                        ${paste.username}
-                        ${paste.isPinned ? '<span class="admin-badge">PINNED</span>' : ''}
+                        ${escapeHtml(paste.username)}
+                        ${paste.isPinned ? '<span class="pinned-badge">📌 PINNED</span>' : ''}
+                        ${isAdmin ? `<span style="color: #ff6666; font-size: 0.8rem;">(${paste.userId.substring(0, 6)}...)</span>` : ''}
                     </div>
                     <div class="paste-title">${escapeHtml(paste.title)}</div>
-                    <div class="paste-views">${paste.views || 0} views</div>
+                    <div class="paste-views">👁️ ${paste.views || 0} views</div>
+                    <div class="paste-timestamp">⏰ ${formatTime(paste.timestamp?.toDate())}</div>
                 `;
                 
                 container.appendChild(pasteCard);
@@ -1373,14 +1275,14 @@
                 if (isAdmin) {
                     adminControls = `
                         <div class="btn-group mt-4">
-                            <button class="btn btn-danger" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
-                                ${paste.isPinned ? 'Unpin' : 'Pin'} Paste
+                            <button class="btn btn-success" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
+                                ${paste.isPinned ? '📌 Unpin Paste' : '📌 Pin Paste'}
                             </button>
                             <button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
-                                Remove Paste
+                                🗑️ Remove Paste
                             </button>
                             <button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
-                                Ban User
+                                ⚠️ Ban User
                             </button>
                         </div>
                     `;
@@ -1388,11 +1290,13 @@
                 
                 container.innerHTML = `
                     <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-                        ${paste.username}
-                        ${paste.isPinned ? '<span class="admin-badge">PINNED</span>' : ''}
+                        ${escapeHtml(paste.username)}
+                        ${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
                     </div>
-                    <h2>${escapeHtml(paste.title)}</h2>
-                    <div class="paste-views">${paste.views || 0} views</div>
+                    <h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2rem;">
+                        ${escapeHtml(paste.title)}
+                    </h2>
+                    <div class="paste-views">👁️ ${paste.views || 0} views • ⏰ ${formatTime(paste.timestamp?.toDate())}</div>
                     <div class="paste-content">${escapeHtml(paste.content)}</div>
                     ${adminControls}
                 `;
@@ -1418,6 +1322,11 @@
                     // Sort by timestamp (newest first)
                     messages.sort((a, b) => b.timestamp - a.timestamp);
                     
+                    if (messages.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #888;">No messages yet</div>';
+                        return;
+                    }
+                    
                     messages.forEach(msg => {
                         const messageDiv = document.createElement('div');
                         messageDiv.className = 'message';
@@ -1435,6 +1344,8 @@
                     
                     // Scroll to bottom
                     container.scrollTop = container.scrollHeight;
+                }, error => {
+                    console.error('Error loading chat:', error);
                 });
         }
 
@@ -1465,11 +1376,6 @@
             } catch (error) {
                 showAlert(`Error sending message: ${error.message}`, 'error');
             }
-        }
-
-        function updateOnlineUsers() {
-            // Implement online users tracking
-            document.getElementById('onlineCount').textContent = '0';
         }
 
         // Search Functionality
@@ -1538,7 +1444,7 @@
                 result.innerHTML = `
                     <div class="paste-username">${escapeHtml(paste.username)}</div>
                     <div class="paste-title">${escapeHtml(paste.title)}</div>
-                    <div class="paste-views">${paste.views || 0} views</div>
+                    <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
                 `;
                 
                 container.appendChild(result);
@@ -1574,7 +1480,7 @@
                     card.innerHTML = `
                         <div style="font-size: 1.5rem; margin-bottom: 1rem;">#${index + 1}</div>
                         <div class="paste-title">${escapeHtml(title)}</div>
-                        <div class="paste-views">Mentioned ${count} times</div>
+                        <div class="paste-views">🔥 Mentioned ${count} times</div>
                     `;
                     container.appendChild(card);
                 });
@@ -1592,20 +1498,86 @@
                 if (doc.exists) {
                     const userData = doc.data();
                     
+                    document.getElementById('display-name').value = userData.displayName || '';
+                    document.getElementById('banner-url').value = userData.bannerUrl || '';
+                    document.getElementById('profile-url').value = userData.profileUrl || '';
+                    
                     if (userData.bannerUrl) {
-                        document.getElementById('profile-banner-img').style.backgroundImage = `url(${userData.bannerUrl})`;
+                        document.getElementById('profile-banner-img').style.backgroundImage = `url('${userData.bannerUrl}')`;
                     }
                     
                     if (userData.profileUrl) {
-                        document.getElementById('profile-picture-img').style.backgroundImage = `url(${userData.profileUrl})`;
-                    }
-                    
-                    if (userData.displayName) {
-                        document.getElementById('display-name').value = userData.displayName;
+                        document.getElementById('profile-picture-img').style.backgroundImage = `url('${userData.profileUrl}')`;
                     }
                 }
             } catch (error) {
                 console.error('Error loading profile data:', error);
+            }
+        }
+
+        async function updateDisplayName() {
+            if (!currentUser) return;
+            
+            const displayName = document.getElementById('display-name').value.trim();
+            if (!displayName) {
+                showAlert('Please enter a display name', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Display name updated successfully!', 'success');
+                document.getElementById('usernameDisplay').textContent = displayName;
+            } catch (error) {
+                showAlert(`Error updating display name: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateBanner() {
+            if (!currentUser) return;
+            
+            const bannerUrl = document.getElementById('banner-url').value.trim();
+            if (!bannerUrl) {
+                showAlert('Please enter a banner URL', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    bannerUrl: bannerUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Banner updated successfully!', 'success');
+                document.getElementById('profile-banner-img').style.backgroundImage = `url('${bannerUrl}')`;
+            } catch (error) {
+                showAlert(`Error updating banner: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateProfilePicture() {
+            if (!currentUser) return;
+            
+            const profileUrl = document.getElementById('profile-url').value.trim();
+            if (!profileUrl) {
+                showAlert('Please enter a profile picture URL', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    profileUrl: profileUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Profile picture updated successfully!', 'success');
+                document.getElementById('profile-picture-img').style.backgroundImage = `url('${profileUrl}')`;
+            } catch (error) {
+                showAlert(`Error updating profile picture: ${error.message}`, 'error');
             }
         }
 
@@ -1637,13 +1609,13 @@
                             <div class="admin-title">Admin Controls</div>
                             <div class="admin-actions">
                                 <button class="btn btn-danger" onclick="adminBanUser('${userId}', ${!userData.isBanned})">
-                                    ${userData.isBanned ? 'Unban User' : 'Ban User'}
+                                    ${userData.isBanned ? '🔓 Unban User' : '⚠️ Ban User'}
                                 </button>
                                 <button class="btn btn-danger" onclick="adminDeleteUserPosts('${userId}')">
-                                    Delete User's Posts
+                                    🗑️ Delete User's Posts
                                 </button>
-                                <button class="btn btn-danger" onclick="adminDeleteUserAccount('${userId}')">
-                                    Delete Account
+                                <button class="btn btn-danger" onclick="adminMakeAdmin('${userId}', ${!userData.isAdmin})">
+                                    ${userData.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
                                 </button>
                             </div>
                         </div>
@@ -1662,8 +1634,8 @@
                 });
                 
                 container.innerHTML = `
-                    <div class="profile-banner" style="${userData.bannerUrl ? `background-image: url(${userData.bannerUrl})` : ''}">
-                        <div class="profile-picture" style="${userData.profileUrl ? `background-image: url(${userData.profileUrl})` : ''}"></div>
+                    <div class="profile-banner" style="${userData.bannerUrl ? `background-image: url('${userData.bannerUrl}')` : ''}">
+                        <div class="profile-picture" style="${userData.profileUrl ? `background-image: url('${userData.profileUrl}')` : ''}"></div>
                     </div>
                     
                     <h1 style="font-size: 2.5rem; margin-top: 5rem;">
@@ -1673,10 +1645,9 @@
                     </h1>
                     
                     <div class="paste-content mt-3">
-                        <p><strong>Email:</strong> ${escapeHtml(userData.email || 'Not provided')}</p>
-                        <p><strong>Member since:</strong> ${formatTime(userData.createdAt?.toDate())}</p>
-                        <p><strong>Last login:</strong> ${formatTime(userData.lastLogin?.toDate())}</p>
-                        <p><strong>Total posts:</strong> ${pasteSnap.size}</p>
+                        <p><strong>📧 Email:</strong> ${escapeHtml(userData.email || 'Not provided')}</p>
+                        <p><strong>📅 Member since:</strong> ${formatTime(userData.createdAt?.toDate())}</p>
+                        <p><strong>💬 Total posts:</strong> ${pasteSnap.size}</p>
                     </div>
                     
                     <h3 class="mt-4">Recent Posts:</h3>
@@ -1690,60 +1661,31 @@
         }
 
         // Admin Functions
-        async function loadAdminPanel() {
+        async function loadAdminStats() {
             if (!isAdmin) {
                 showAlert('Admin access required', 'error');
                 showPage('home');
                 return;
             }
             
-            const container = document.getElementById('admin-content');
-            container.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading admin data...</div>';
-            
             try {
                 // Get stats
                 const usersSnap = await pasteDb.collection('users').get();
-                const pastesSnap = await pasteDb.collection('pastes').get();
+                const pastesSnap = await pasteDb.collection('pastes').where('isRemoved', '==', false).get();
                 const chatSnap = await chatDb.collection('messages').get();
                 
                 const totalUsers = usersSnap.size;
                 const totalPastes = pastesSnap.size;
-                const totalChats = chatSnap.size;
                 const bannedUsers = usersSnap.docs.filter(doc => doc.data().isBanned).length;
+                const pinnedPastes = pastesSnap.docs.filter(doc => doc.data().isPinned).length;
                 
-                container.innerHTML = `
-                    <div class="pastes-grid">
-                        <div class="paste-card">
-                            <div class="paste-title">Total Users</div>
-                            <div class="paste-views">${totalUsers}</div>
-                        </div>
-                        <div class="paste-card">
-                            <div class="paste-title">Total Pastes</div>
-                            <div class="paste-views">${totalPastes}</div>
-                        </div>
-                        <div class="paste-card">
-                            <div class="paste-title">Chat Messages</div>
-                            <div class="paste-views">${totalChats}</div>
-                        </div>
-                        <div class="paste-card">
-                            <div class="paste-title">Banned Users</div>
-                            <div class="paste-views">${bannedUsers}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h3>Quick Actions:</h3>
-                        <div class="btn-group">
-                            <button class="btn btn-danger" onclick="adminViewAllUsers()">View All Users</button>
-                            <button class="btn btn-danger" onclick="adminClearChat()">Clear Chat</button>
-                            <button class="btn btn-danger" onclick="adminBackupData()">Backup Data</button>
-                        </div>
-                    </div>
-                    
-                    <div id="admin-details" class="mt-4"></div>
-                `;
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalPastes').textContent = totalPastes;
+                document.getElementById('bannedUsers').textContent = bannedUsers;
+                document.getElementById('pinnedPastes').textContent = pinnedPastes;
+                
             } catch (error) {
-                container.innerHTML = `<div style="color: #ff0000;">Error: ${error.message}</div>`;
+                console.error('Error loading admin stats:', error);
             }
         }
 
@@ -1752,7 +1694,7 @@
             
             try {
                 const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
-                const container = document.getElementById('admin-details');
+                const container = document.getElementById('admin-content');
                 
                 let html = '<h3>All Users:</h3><div class="pastes-grid">';
                 
@@ -1767,14 +1709,14 @@
                             </div>
                             <div class="paste-title">${escapeHtml(user.email)}</div>
                             <div class="paste-views">
-                                Joined: ${formatTime(user.createdAt?.toDate())}
+                                📅 Joined: ${formatTime(user.createdAt?.toDate())}
                             </div>
                             <div class="btn-group mt-2">
                                 <button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
-                                    ${user.isBanned ? 'Unban' : 'Ban'}
+                                    ${user.isBanned ? '🔓 Unban' : '⚠️ Ban'}
                                 </button>
                                 <button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
-                                    ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                                    ${user.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
                                 </button>
                             </div>
                         </div>
@@ -1890,8 +1832,56 @@
             }
         }
 
+        async function adminViewAllPastes() {
+            if (!isAdmin) return;
+            
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .orderBy('timestamp', 'desc')
+                    .limit(100)
+                    .get();
+                
+                const container = document.getElementById('admin-content');
+                container.innerHTML = '<h3>All Pastes:</h3><div class="pastes-grid">';
+                
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    container.innerHTML += `
+                        <div class="paste-card">
+                            <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                                ${escapeHtml(paste.username)}
+                                ${paste.isPinned ? '<span class="pinned-badge">PINNED</span>' : ''}
+                                ${paste.isRemoved ? '<span class="admin-badge">REMOVED</span>' : ''}
+                            </div>
+                            <div class="paste-title">${escapeHtml(paste.title)}</div>
+                            <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-success" onclick="adminPinPaste('${doc.id}', ${!paste.isPinned})">
+                                    ${paste.isPinned ? '📌 Unpin' : '📌 Pin'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminRemovePaste('${doc.id}')">
+                                    🗑️ Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML += '</div>';
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function adminBackupData() {
+            if (!isAdmin) return;
+            
+            showAlert('Backup feature would export data here', 'success');
+        }
+
         // Utility Functions
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -1914,7 +1904,13 @@
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             // Set logo
-            document.getElementById('siteLogo').src = "https://i.postimg.cc/x8ML5hVd/logo.jpg";
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.src = "https://i.postimg.cc/x8ML5hVd/logo.jpg";
+                logo.onerror = function() {
+                    this.src = 'https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';
+                };
+            }
             
             // Set up auth listener
             pasteAuth.onAuthStateChanged(async (user) => {
@@ -1938,6 +1934,14 @@
                 
                 if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
                     menu.classList.remove('active');
+                }
+            });
+            
+            // Enable music autoplay on user interaction
+            document.body.addEventListener('click', function() {
+                const hallMusic = document.getElementById('hallMusic');
+                if (hallMusic && hallMusic.paused) {
+                    hallMusic.play().catch(e => console.log("Music play prevented"));
                 }
             });
         });
