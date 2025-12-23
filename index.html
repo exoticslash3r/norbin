@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Norbin</title>
+    <title>Norbin - Paste & Chat</title>
     <style>
         /* Black and White Theme */
         :root {
@@ -28,6 +28,27 @@
             color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+            border: 1px solid var(--accent-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cccccc;
         }
 
         /* Navbar */
@@ -233,13 +254,44 @@
             margin-left: 0.5rem;
         }
 
-        /* Paste Detail */
-        .paste-detail {
-            background: #111111;
-            border: 2px solid var(--accent-color);
-            border-radius: 10px;
+        /* FULLSCREEN PASTE DETAIL */
+        .paste-detail-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 9999;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .paste-detail-container.active {
+            display: block;
+        }
+
+        .paste-detail-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--accent-color);
+            z-index: 10000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .paste-detail-content {
+            margin-top: 80px;
             padding: 2rem;
-            margin-top: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .back-btn {
@@ -248,7 +300,6 @@
             border: 2px solid var(--accent-color);
             padding: 0.8rem 1.5rem;
             cursor: pointer;
-            margin-bottom: 2rem;
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
@@ -263,12 +314,15 @@
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
             background: #000000;
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: 5px;
-            margin-top: 1rem;
-            max-height: 500px;
+            border: 2px solid var(--accent-color);
+            margin-top: 2rem;
+            min-height: 200px;
+            max-height: calc(100vh - 200px);
             overflow-y: auto;
             line-height: 1.6;
+            font-size: 1.1rem;
         }
 
         /* Forms */
@@ -676,10 +730,21 @@
             .pastes-grid { grid-template-columns: 1fr; }
             .paste-form, .auth-form { padding: 1.5rem; }
             .btn-group { flex-direction: column; }
+            .paste-detail-content { padding: 1rem; }
+            .paste-content { padding: 1rem; }
         }
     </style>
 </head>
 <body>
+    <!-- Fullscreen Paste Detail -->
+    <div id="paste-detail-container" class="paste-detail-container">
+        <div class="paste-detail-header">
+            <button class="back-btn" onclick="closePasteDetail()">← Back to Pastes</button>
+            <div id="paste-detail-actions"></div>
+        </div>
+        <div id="paste-detail-content" class="paste-detail-content"></div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
@@ -707,7 +772,7 @@
         <!-- Home Page -->
         <div id="home-page">
             <div class="logo-container">
-                <img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo">
+                <img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';">
             </div>
             
             <div class="search-container">
@@ -724,12 +789,6 @@
 
             <h2 class="section-title">📜 Recent Pastes</h2>
             <div id="pastes-container" class="pastes-grid"></div>
-        </div>
-
-        <!-- Paste Detail -->
-        <div id="paste-detail-page" class="hidden">
-            <button class="back-btn" onclick="showPage('home')">← Back to Pastes</button>
-            <div id="paste-detail-content" class="paste-detail"></div>
         </div>
 
         <!-- Create Paste -->
@@ -887,7 +946,7 @@
     <!-- Alert Container -->
     <div id="alert-container" class="alert-container"></div>
 
-    <!-- Audio for Hall of Autism (auto-play, hidden) -->
+    <!-- Audio for Hall of Autism -->
     <audio id="hallMusic" autoplay loop style="display: none;">
         <source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
     </audio>
@@ -980,8 +1039,7 @@
                 try {
                     const hallMusic = document.getElementById('hallMusic');
                     hallMusic.play().catch(e => {
-                        // Autoplay may be blocked until user interaction
-                        console.log("Music autoplay prevented, will play on user interaction");
+                        console.log("Music autoplay prevented");
                     });
                 } catch (e) {
                     console.log("Music error:", e);
@@ -1033,7 +1091,72 @@
             }
         }
 
-        // Authentication - FIXED VERSION
+        // FULLSCREEN PASTE FUNCTIONS
+        function showPasteDetail(pasteId) {
+            const container = document.getElementById('paste-detail-container');
+            container.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            loadPasteDetailContent(pasteId);
+        }
+
+        function closePasteDetail() {
+            const container = document.getElementById('paste-detail-container');
+            container.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function loadPasteDetailContent(pasteId) {
+            try {
+                // Increment view count
+                await pasteDb.collection('pastes').doc(pasteId).update({
+                    views: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                const doc = await pasteDb.collection('pastes').doc(pasteId).get();
+                const paste = doc.data();
+                const container = document.getElementById('paste-detail-content');
+                const actionsContainer = document.getElementById('paste-detail-actions');
+                
+                let adminControls = '';
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
+                                ${paste.isPinned ? '📌 Unpin Paste' : '📌 Pin Paste'}
+                            </button>
+                            <button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
+                                🗑️ Remove Paste
+                            </button>
+                            <button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
+                                ⚠️ Ban User
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                actionsContainer.innerHTML = adminControls;
+                
+                container.innerHTML = `
+                    <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                        ${escapeHtml(paste.username || 'Unknown User')}
+                        ${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
+                    </div>
+                    <h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2.5rem;">
+                        ${escapeHtml(paste.title)}
+                    </h2>
+                    <div class="paste-views" style="margin-bottom: 2rem;">
+                        👁️ ${paste.views || 0} views • ⏰ ${formatTime(paste.timestamp?.toDate())}
+                    </div>
+                    <div class="paste-content">${escapeHtml(paste.content)}</div>
+                `;
+            } catch (error) {
+                showAlert(`Error loading paste: ${error.message}`, 'error');
+                closePasteDetail();
+            }
+        }
+
+        // Authentication
         async function signIn() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -1073,7 +1196,7 @@
                 const userCredential = await pasteAuth.createUserWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 
-                // Create user profile with default values
+                // Create user profile
                 const userData = {
                     email: email,
                     username: email.split('@')[0],
@@ -1143,7 +1266,6 @@
                 }
             } catch (error) {
                 console.error('Error checking admin status:', error);
-                showAlert('Error loading user data', 'error');
             }
         }
 
@@ -1185,7 +1307,7 @@
             }
         }
 
-        // Paste Management - FIXED VERSION
+        // Paste Management
         async function publishPaste() {
             if (!currentUser) {
                 showAlert('Please sign in to publish pastes', 'error');
@@ -1240,7 +1362,6 @@
                 showPage('home');
             } catch (error) {
                 showAlert(`Error publishing paste: ${error.message}`, 'error');
-                console.error('Paste error details:', error);
             }
         }
 
@@ -1261,7 +1382,7 @@
             } catch (error) {
                 console.error('Error loading pastes:', error);
                 document.getElementById('pastes-container').innerHTML = 
-                    '<div class="paste-card"><div class="paste-title">Error loading pastes</div></div>';
+                    '<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
             }
         }
 
@@ -1297,54 +1418,7 @@
             });
         }
 
-        async function showPasteDetail(pasteId) {
-            showPage('pasteDetail');
-            
-            try {
-                // Increment view count
-                await pasteDb.collection('pastes').doc(pasteId).update({
-                    views: firebase.firestore.FieldValue.increment(1)
-                });
-                
-                const doc = await pasteDb.collection('pastes').doc(pasteId).get();
-                const paste = doc.data();
-                const container = document.getElementById('paste-detail-content');
-                
-                let adminControls = '';
-                if (isAdmin) {
-                    adminControls = `
-                        <div class="btn-group mt-4">
-                            <button class="btn btn-success" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
-                                ${paste.isPinned ? '📌 Unpin Paste' : '📌 Pin Paste'}
-                            </button>
-                            <button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
-                                🗑️ Remove Paste
-                            </button>
-                            <button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
-                                ⚠️ Ban User
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                container.innerHTML = `
-                    <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-                        ${escapeHtml(paste.username || 'Unknown User')}
-                        ${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
-                    </div>
-                    <h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2rem;">
-                        ${escapeHtml(paste.title)}
-                    </h2>
-                    <div class="paste-views">👁️ ${paste.views || 0} views • ⏰ ${formatTime(paste.timestamp?.toDate())}</div>
-                    <div class="paste-content">${escapeHtml(paste.content)}</div>
-                    ${adminControls}
-                `;
-            } catch (error) {
-                showAlert(`Error loading paste: ${error.message}`, 'error');
-            }
-        }
-
-        // Chat Functions - FIXED VERSION
+        // Chat Functions
         function loadChatMessages() {
             chatDb.collection('messages')
                 .orderBy('timestamp', 'desc')
@@ -1736,47 +1810,6 @@
             }
         }
 
-        async function adminViewAllUsers() {
-            if (!isAdmin) return;
-            
-            try {
-                const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
-                const container = document.getElementById('admin-content');
-                
-                let html = '<h3>All Users:</h3><div class="pastes-grid">';
-                
-                snapshot.forEach(doc => {
-                    const user = doc.data();
-                    html += `
-                        <div class="paste-card">
-                            <div class="paste-username" onclick="showUserProfile('${doc.id}')">
-                                ${escapeHtml(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
-                                ${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
-                                ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
-                            </div>
-                            <div class="paste-title">${escapeHtml(user.email || 'No email')}</div>
-                            <div class="paste-views">
-                                📅 Joined: ${formatTime(user.createdAt?.toDate())}
-                            </div>
-                            <div class="btn-group mt-2">
-                                <button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
-                                    ${user.isBanned ? '🔓 Unban' : '⚠️ Ban'}
-                                </button>
-                                <button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
-                                    ${user.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-                container.innerHTML = html;
-            } catch (error) {
-                showAlert(`Error: ${error.message}`, 'error');
-            }
-        }
-
         async function adminPinPaste(pasteId, pinState) {
             if (!isAdmin) return;
             
@@ -1785,7 +1818,7 @@
                     isPinned: pinState
                 });
                 showAlert(`Paste ${pinState ? 'pinned' : 'unpinned'}`, 'success');
-                showPasteDetail(pasteId);
+                loadPasteDetailContent(pasteId);
             } catch (error) {
                 showAlert(`Error: ${error.message}`, 'error');
             }
@@ -1800,6 +1833,7 @@
                         isRemoved: true
                     });
                     showAlert('Paste removed', 'success');
+                    closePasteDetail();
                     showPage('home');
                 } catch (error) {
                     showAlert(`Error: ${error.message}`, 'error');
@@ -1876,6 +1910,47 @@
                 } catch (error) {
                     showAlert(`Error: ${error.message}`, 'error');
                 }
+            }
+        }
+
+        async function adminViewAllUsers() {
+            if (!isAdmin) return;
+            
+            try {
+                const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
+                const container = document.getElementById('admin-content');
+                
+                let html = '<h3>All Users:</h3><div class="pastes-grid">';
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    html += `
+                        <div class="paste-card">
+                            <div class="paste-username" onclick="showUserProfile('${doc.id}')">
+                                ${escapeHtml(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
+                                ${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
+                                ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                            </div>
+                            <div class="paste-title">${escapeHtml(user.email || 'No email')}</div>
+                            <div class="paste-views">
+                                📅 Joined: ${formatTime(user.createdAt?.toDate())}
+                            </div>
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
+                                    ${user.isBanned ? '🔓 Unban' : '⚠️ Ban'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
+                                    ${user.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
             }
         }
 
