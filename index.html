@@ -1,2075 +1,2072 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Norbin</title>
-<style>
-/* Black and White Theme */
-:root {
---bg-color: #000000;
---text-color: #ffffff;
---accent-color: #ffffff;
---card-bg: #111111;
---border-color: #333333;
---hover-color: #222222;
-}
-
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-transition: all 0.3s ease;
-}
-
-body {
-font-family: 'Arial', sans-serif;
-background-color: var(--bg-color);
-color: var(--text-color);
-line-height: 1.6;
-min-height: 100vh;
-overflow-x: hidden;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-width: 12px;
-height: 12px;
-}
-
-::-webkit-scrollbar-track {
-background: #000000;
-border: 1px solid var(--accent-color);
-}
-
-::-webkit-scrollbar-thumb {
-background: var(--accent-color);
-border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-background: #cccccc;
-}
-
-/* Navbar */
-.navbar {
-background-color: #000000;
-padding: 1rem 2rem;
-position: fixed;
-top: 0;
-width: 100%;
-z-index: 1000;
-border-bottom: 2px solid var(--accent-color);
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.hamburger-btn {
-background: none;
-border: none;
-color: var(--accent-color);
-font-size: 2rem;
-cursor: pointer;
-padding: 0.5rem;
-}
-
-.user-info {
-display: flex;
-align-items: center;
-gap: 1rem;
-}
-
-/* Slide Down Menu */
-.slide-down-menu {
-position: fixed;
-top: -100%;
-left: 0;
-width: 100%;
-background-color: #000000;
-z-index: 999;
-padding: 2rem;
-border-bottom: 2px solid var(--accent-color);
-transition: top 0.5s ease;
-}
-
-.slide-down-menu.active {
-top: 70px;
-}
-
-.menu-items {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 1rem;
-max-width: 1200px;
-margin: 0 auto;
-}
-
-.menu-btn {
-background: #111111;
-color: var(--accent-color);
-border: 2px solid var(--accent-color);
-padding: 1.5rem;
-text-align: center;
-font-size: 1.2rem;
-cursor: pointer;
-border-radius: 5px;
-transition: all 0.3s;
-}
-
-.menu-btn:hover {
-background: var(--accent-color);
-color: #000000;
-transform: translateY(-2px);
-}
-
-.hidden {
-display: none !important;
-}
-
-/* Main Content */
-.main-content {
-padding-top: 120px;
-max-width: 1400px;
-margin: 0 auto;
-padding: 120px 2rem 2rem;
-min-height: calc(100vh - 120px);
-}
-
-/* Logo and Search */
-.logo-container {
-text-align: center;
-margin-bottom: 2rem;
-}
-
-.logo {
-max-width: 300px;
-height: auto;
-margin: 1rem auto;
-border: 3px solid var(--accent-color);
-padding: 1rem;
-background: #000000;
-}
-
-.search-container {
-max-width: 800px;
-margin: 0 auto 3rem;
-}
-
-.search-bar {
-width: 100%;
-padding: 1rem 1.5rem;
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-background: #000000;
-color: var(--accent-color);
-font-size: 1.2rem;
-outline: none;
-}
-
-.search-bar::placeholder {
-color: #666;
-}
-
-.search-results {
-margin-top: 1rem;
-background: #111111;
-border: 1px solid var(--accent-color);
-border-radius: 5px;
-padding: 1rem;
-max-height: 400px;
-overflow-y: auto;
-}
-
-/* Recent Pastes */
-.section-title {
-color: var(--accent-color);
-font-size: 2rem;
-margin-bottom: 2rem;
-text-align: center;
-border-bottom: 2px solid var(--accent-color);
-padding-bottom: 1rem;
-}
-
-.pastes-grid {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-gap: 1.5rem;
-margin-top: 1rem;
-}
-
-.paste-card {
-background: #111111;
-border: 2px solid var(--accent-color);
-border-radius: 10px;
-padding: 1.5rem;
-cursor: pointer;
-transition: all 0.3s;
-}
-
-.paste-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-}
-
-.paste-username {
-color: var(--accent-color);
-font-size: 1rem;
-margin-bottom: 0.5rem;
-cursor: pointer;
-}
-
-.paste-title {
-font-size: 1.3rem;
-font-weight: bold;
-margin-bottom: 0.5rem;
-}
-
-.paste-views {
-color: #888888;
-font-size: 0.9rem;
-}
-
-.paste-timestamp {
-color: #666;
-font-size: 0.8rem;
-margin-top: 0.5rem;
-}
-
-.admin-badge {
-background: #ff0000;
-color: white;
-padding: 0.2rem 0.5rem;
-border-radius: 3px;
-font-size: 0.8rem;
-margin-left: 0.5rem;
-}
-
-.pinned-badge {
-background: #00aa00;
-color: white;
-padding: 0.2rem 0.5rem;
-border-radius: 3px;
-font-size: 0.8rem;
-margin-left: 0.5rem;
-}
-
-/* FULLSCREEN PASTE DETAIL */
-.paste-detail-container {
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background: #000000;
-z-index: 9999;
-padding: 20px;
-overflow-y: auto;
-display: none;
-}
-
-.paste-detail-container.active {
-display: block;
-}
-
-.paste-detail-header {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-background: rgba(0, 0, 0, 0.9);
-padding: 1rem 2rem;
-border-bottom: 2px solid var(--accent-color);
-z-index: 10000;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.paste-detail-content {
-margin-top: 80px;
-padding: 2rem;
-max-width: 1200px;
-margin-left: auto;
-margin-right: auto;
-}
-
-.back-btn {
-background: #111111;
-color: var(--accent-color);
-border: 2px solid var(--accent-color);
-padding: 0.8rem 1.5rem;
-cursor: pointer;
-border-radius: 5px;
-font-size: 1rem;
-transition: all 0.3s;
-}
-
-.back-btn:hover {
-background: var(--accent-color);
-color: #000000;
-}
-
-.paste-content {
-white-space: pre-wrap;
-font-family: 'Courier New', monospace;
-background: #000000;
-padding: 2rem;
-border-radius: 5px;
-border: 2px solid var(--accent-color);
-margin-top: 2rem;
-min-height: 200px;
-max-height: calc(100vh - 200px);
-overflow-y: auto;
-line-height: 1.6;
-font-size: 1.1rem;
-}
-
-/* Forms */
-.paste-form, .auth-form, .profile-form {
-max-width: 800px;
-margin: 0 auto;
-background: #111111;
-padding: 2rem;
-border-radius: 10px;
-border: 2px solid var(--accent-color);
-}
-
-.form-group {
-margin-bottom: 1.5rem;
-}
-
-.form-label {
-display: block;
-margin-bottom: 0.5rem;
-font-weight: bold;
-color: var(--accent-color);
-}
-
-.form-input, .form-textarea {
-width: 100%;
-padding: 0.8rem;
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-background: #000000;
-color: var(--accent-color);
-font-size: 1rem;
-outline: none;
-}
-
-.form-textarea {
-min-height: 300px;
-font-family: 'Courier New', monospace;
-resize: vertical;
-}
-
-.url-input-group {
-display: flex;
-gap: 1rem;
-margin-bottom: 1rem;
-}
-
-.url-input {
-flex: 1;
-padding: 0.8rem;
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-background: #000000;
-color: var(--accent-color);
-}
-
-/* Buttons */
-.btn {
-padding: 0.8rem 1.5rem;
-border: none;
-border-radius: 5px;
-font-size: 1rem;
-cursor: pointer;
-transition: all 0.3s;
-font-weight: bold;
-}
-
-.btn-primary {
-background: #000000;
-color: var(--accent-color);
-border: 2px solid var(--accent-color);
-}
-
-.btn-primary:hover {
-background: var(--accent-color);
-color: #000000;
-}
-
-.btn-secondary {
-background: #222222;
-color: var(--accent-color);
-border: 2px solid #666666;
-}
-
-.btn-secondary:hover {
-background: #333333;
-}
-
-.btn-danger {
-background: #ff0000;
-color: white;
-border: 2px solid #ff0000;
-}
-
-.btn-danger:hover {
-background: #cc0000;
-}
-
-.btn-success {
-background: #00aa00;
-color: white;
-border: 2px solid #00aa00;
-}
-
-.btn-success:hover {
-background: #008800;
-}
-
-.btn-group {
-display: flex;
-gap: 1rem;
-margin-top: 1rem;
-}
-
-/* Chat Page */
-.chat-container {
-max-width: 1000px;
-margin: 0 auto;
-background: #111111;
-border: 2px solid var(--accent-color);
-border-radius: 10px;
-height: 600px;
-display: flex;
-flex-direction: column;
-overflow: hidden;
-}
-
-.chat-header {
-background: #000000;
-padding: 1rem;
-border-bottom: 2px solid var(--accent-color);
-text-align: center;
-font-size: 1.2rem;
-color: var(--accent-color);
-}
-
-.chat-messages {
-flex: 1;
-overflow-y: auto;
-padding: 1rem;
-background: #0a0a0a;
-}
-
-.message {
-margin-bottom: 1rem;
-padding: 1rem;
-background: #111111;
-border-radius: 5px;
-border-left: 3px solid var(--accent-color);
-}
-
-.message-header {
-display: flex;
-justify-content: space-between;
-margin-bottom: 0.5rem;
-}
-
-.message-sender {
-font-weight: bold;
-color: var(--accent-color);
-}
-
-.message-time {
-color: #888888;
-font-size: 0.9rem;
-}
-
-.chat-input-container {
-padding: 1rem;
-background: #000000;
-border-top: 2px solid var(--accent-color);
-}
-
-.chat-input-wrapper {
-display: flex;
-gap: 1rem;
-}
-
-.chat-input {
-flex: 1;
-padding: 0.8rem;
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-background: #000000;
-color: var(--accent-color);
-font-size: 1rem;
-outline: none;
-}
-
-.send-btn {
-padding: 0.8rem 1.5rem;
-background: #000000;
-color: var(--accent-color);
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-cursor: pointer;
-font-weight: bold;
-}
-
-.send-btn:hover {
-background: var(--accent-color);
-color: #000000;
-}
-
-/* Hall of Autism */
-.hall-grid {
-display: grid;
-grid-template-columns: repeat(4, 1fr);
-gap: 2rem;
-margin-top: 2rem;
-}
-
-@media (max-width: 1200px) {
-.hall-grid {
-grid-template-columns: repeat(2, 1fr);
-}
-}
-
-@media (max-width: 768px) {
-.hall-grid {
-grid-template-columns: 1fr;
-}
-}
-
-.hall-box {
-background: #111111;
-border: 2px solid var(--accent-color);
-border-radius: 10px;
-padding: 1.5rem;
-text-align: center;
-transition: all 0.3s;
-}
-
-.hall-box:hover {
-transform: translateY(-5px);
-box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-}
-
-.hall-image {
-width: 100%;
-height: 200px;
-background: #000000;
-border: 2px solid var(--accent-color);
-margin-bottom: 1rem;
-border-radius: 5px;
-overflow: hidden;
-}
-
-.hall-image img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-
-.hall-name {
-font-size: 1.3rem;
-font-weight: bold;
-margin-bottom: 0.5rem;
-color: var(--accent-color);
-}
-
-.hall-description {
-color: #888888;
-font-size: 0.9rem;
-}
-
-/* Profile Page */
-.profile-banner {
-height: 300px;
-background: #000000;
-border-radius: 10px;
-margin-bottom: 2rem;
-position: relative;
-overflow: hidden;
-border: 2px solid var(--accent-color);
-}
-
-.profile-banner-img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-
-.profile-picture {
-width: 150px;
-height: 150px;
-background: #000000;
-position: absolute;
-bottom: -75px;
-left: 2rem;
-border: 3px solid var(--accent-color);
-border-radius: 10px;
-overflow: hidden;
-}
-
-.profile-picture-img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-
-/* Admin Panel */
-.admin-controls {
-background: #111111;
-border: 2px solid #ff0000;
-border-radius: 10px;
-padding: 2rem;
-margin-top: 2rem;
-}
-
-.admin-title {
-color: #ff0000;
-font-size: 1.5rem;
-margin-bottom: 1.5rem;
-border-bottom: 1px solid #ff0000;
-padding-bottom: 0.5rem;
-}
-
-.admin-stats {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 1rem;
-margin-bottom: 2rem;
-}
-
-.stat-box {
-background: #000000;
-border: 2px solid var(--accent-color);
-border-radius: 5px;
-padding: 1rem;
-text-align: center;
-}
-
-.stat-number {
-font-size: 2rem;
-font-weight: bold;
-color: var(--accent-color);
-}
-
-.stat-label {
-color: #888;
-font-size: 0.9rem;
-}
-
-.admin-actions {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 1rem;
-margin-bottom: 2rem;
-}
-
-/* Alerts */
-.alert-container {
-position: fixed;
-top: 20px;
-right: 20px;
-z-index: 9999;
-}
-
-.alert {
-padding: 1rem 2rem;
-margin-bottom: 1rem;
-border-radius: 5px;
-background: #111111;
-color: var(--accent-color);
-border: 2px solid var(--accent-color);
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-animation: slideIn 0.3s ease-out;
-}
-
-.alert.error {
-border-color: #ff0000;
-color: #ff0000;
-}
-
-.alert.success {
-border-color: #00aa00;
-color: #00aa00;
-}
-
-@keyframes slideIn {
-from { transform: translateX(100%); opacity: 0; }
-to { transform: translateX(0); opacity: 1; }
-}
-
-/* Utility */
-.text-center { text-align: center; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-5 { margin-top: 2rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 1rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.mb-5 { margin-bottom: 2rem; }
-.d-flex { display: flex; }
-.justify-between { justify-content: space-between; }
-.align-center { align-items: center; }
-.gap-2 { gap: 0.5rem; }
-.gap-3 { gap: 1rem; }
-
-/* Responsive */
-@media (max-width: 768px) {
-.main-content { padding: 120px 1rem 2rem; }
-.menu-items { grid-template-columns: 1fr; }
-.pastes-grid { grid-template-columns: 1fr; }
-.paste-form, .auth-form { padding: 1.5rem; }
-.btn-group { flex-direction: column; }
-.paste-detail-content { padding: 1rem; }
-.paste-content { padding: 1rem; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norbin - Paste & Chat</title>
+    <style>
+        /* Black and White Theme */
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #ffffff;
+            --card-bg: #111111;
+            --border-color: #333333;
+            --hover-color: #222222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+            border: 1px solid var(--accent-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cccccc;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #000000;
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Slide Down Menu */
+        .slide-down-menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            background-color: #000000;
+            z-index: 999;
+            padding: 2rem;
+            border-bottom: 2px solid var(--accent-color);
+            transition: top 0.5s ease;
+        }
+
+        .slide-down-menu.active {
+            top: 70px;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-btn {
+            background: #111111;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: var(--accent-color);
+            color: #000000;
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 120px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 2rem 2rem;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Logo and Search */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            max-width: 300px;
+            height: auto;
+            margin: 1rem auto;
+            border: 3px solid var(--accent-color);
+            padding: 1rem;
+            background: #000000;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            background: #000000;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            outline: none;
+        }
+
+        .search-bar::placeholder {
+            color: #666;
+        }
+
+        .search-results {
+            margin-top: 1rem;
+            background: #111111;
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Recent Pastes */
+        .section-title {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 1rem;
+        }
+
+        .pastes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .paste-card {
+            background: #111111;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .paste-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .paste-username {
+            color: var(--accent-color);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .paste-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .paste-views {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        .paste-timestamp {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .admin-badge {
+            background: #ff0000;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .pinned-badge {
+            background: #00aa00;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        /* FULLSCREEN PASTE DETAIL */
+        .paste-detail-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 9999;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .paste-detail-container.active {
+            display: block;
+        }
+
+        .paste-detail-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--accent-color);
+            z-index: 10000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .paste-detail-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-btn {
+            background: #111111;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-color);
+            color: #000000;
+        }
+
+        .paste-content {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            padding: 2rem;
+            border-radius: 5px;
+            border: 2px solid var(--accent-color);
+            margin-top: 2rem;
+            min-height: 200px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        /* Forms */
+        .paste-form, .auth-form, .profile-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #111111;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px solid var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            background: #000000;
+            color: var(--accent-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .form-textarea {
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            background: #000000;
+            color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            color: #000000;
+        }
+
+        .btn-secondary {
+            background: #222222;
+            color: var(--accent-color);
+            border: 2px solid #666666;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+        }
+
+        .btn-danger {
+            background: #ff0000;
+            color: white;
+            border: 2px solid #ff0000;
+        }
+
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+
+        .btn-success {
+            background: #00aa00;
+            color: white;
+            border: 2px solid #00aa00;
+        }
+
+        .btn-success:hover {
+            background: #008800;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Chat Page */
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #111111;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #000000;
+            padding: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #0a0a0a;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #111111;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .message-time {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            background: #000000;
+            border-top: 2px solid var(--accent-color);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            background: #000000;
+            color: var(--accent-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .send-btn {
+            padding: 0.8rem 1.5rem;
+            background: #000000;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-color);
+            color: #000000;
+        }
+
+        /* Hall of Autism */
+        .hall-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .hall-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hall-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hall-box {
+            background: #111111;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .hall-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .hall-image {
+            width: 100%;
+            height: 200px;
+            background: #000000;
+            border: 2px solid var(--accent-color);
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .hall-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hall-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .hall-description {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        /* Profile Page */
+        .profile-banner {
+            height: 300px;
+            background: #000000;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .profile-banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            background: #000000;
+            position: absolute;
+            bottom: -75px;
+            left: 2rem;
+            border: 3px solid var(--accent-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .profile-picture-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Admin Panel */
+        .admin-controls {
+            background: #111111;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .admin-title {
+            color: #ff0000;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ff0000;
+            padding-bottom: 0.5rem;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: #000000;
+            border: 2px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .admin-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Alerts */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .alert {
+            padding: 1rem 2rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            background: #111111;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert.error {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .alert.success {
+            border-color: #00aa00;
+            color: #00aa00;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Utility */
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mt-5 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-5 { margin-bottom: 2rem; }
+        .d-flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 1rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content { padding: 120px 1rem 2rem; }
+            .menu-items { grid-template-columns: 1fr; }
+            .pastes-grid { grid-template-columns: 1fr; }
+            .paste-form, .auth-form { padding: 1.5rem; }
+            .btn-group { flex-direction: column; }
+            .paste-detail-content { padding: 1rem; }
+            .paste-content { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
-<!-- Fullscreen Paste Detail -->
-<div id="paste-detail-container" class="paste-detail-container">
-<div class="paste-detail-header">
-<button class="back-btn" onclick="closePasteDetail()">← Back to Pastes</button>
-<div id="paste-detail-actions"></div>
-</div>
-<div id="paste-detail-content" class="paste-detail-content"></div>
-</div>
-
-<!-- Navigation -->
-<nav class="navbar">
-<button class="hamburger-btn" onclick="toggleMenu()">☰</button>
-<div class="user-info">
-<span id="usernameDisplay"></span>
-<button class="btn btn-primary" onclick="showPage('auth')" id="authBtn">Sign In</button>
-</div>
-</nav>
-
-<!-- Slide Down Menu -->
-<div class="slide-down-menu" id="slideDownMenu">
-<div class="menu-items">
-<button class="menu-btn" onclick="showPage('home')">🏠 Home</button>
-<button class="menu-btn" onclick="showPage('paste')">📝 Create Paste</button>
-<button class="menu-btn" onclick="showPage('chat')">💬 Global Chat</button>
-<button class="menu-btn" onclick="showPage('most-mentioned')">🔥 Most Mentioned</button>
-<button class="menu-btn" onclick="showPage('hall')">🎭 Hall of Autism</button>
-<button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">👤 My Account</button>
-<button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">⚙️ Admin Panel</button>
-</div>
-</div>
-
-<!-- Main Content -->
-<div class="main-content">
-<!-- Home Page -->
-<div id="home-page">
-<div class="logo-container">
-<img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';">
-</div>
-
-<div class="search-container">
-<input type="text"
-class="search-bar"
-id="searchBar"
-placeholder="🔍 Search pastes by title, username, or content..."
-oninput="handleSearch()">
-<div class="search-results hidden" id="searchResults">
-<div class="section-title">Search Results</div>
-<div id="searchResultsContent"></div>
-</div>
-</div>
-
-<h2 class="section-title">📜 Recent Pastes</h2>
-<div id="pastes-container" class="pastes-grid"></div>
-</div>
-
-<!-- Create Paste -->
-<div id="paste-page" class="hidden">
-<h2 class="section-title">📝 Create New Paste</h2>
-<div class="paste-form">
-<div class="form-group">
-<label class="form-label">Title</label>
-<input type="text" class="form-input" id="paste-title" placeholder="Enter paste title">
-</div>
-<div class="form-group">
-<label class="form-label">Content</label>
-<textarea class="form-textarea" id="paste-content" placeholder="Enter your paste content here..."></textarea>
-</div>
-<div class="btn-group">
-<button class="btn btn-primary" onclick="publishPaste()">Publish</button>
-<button class="btn btn-secondary" onclick="clearPasteForm()">Clear</button>
-</div>
-</div>
-</div>
-
-<!-- Global Chat -->
-<div id="chat-page" class="hidden">
-<h2 class="section-title">💬 Global Chat</h2>
-<div class="chat-container">
-<div class="chat-header">
-🌍 Live Global Chat • <span id="onlineCount">0</span> users online
-</div>
-<div class="chat-messages" id="chat-messages"></div>
-<div class="chat-input-container">
-<div class="chat-input-wrapper">
-<input type="text"
-class="chat-input"
-id="chat-input"
-placeholder="Type your message... (Press Enter to send)"
-onkeypress="if(event.key === 'Enter') sendChatMessage()">
-<button class="send-btn" onclick="sendChatMessage()">Send</button>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Most Mentioned -->
-<div id="most-mentioned-page" class="hidden">
-<h2 class="section-title">Most Mentioned Titles</h2>
-<div id="most-mentioned-container" class="pastes-grid"></div>
-</div>
-
-<!-- Hall of Autism -->
-<div id="hall-page" class="hidden">
-<h2 class="section-title">Hall of Autism</h2>
-<div class="hall-grid" id="hall-container"></div>
-</div>
-
-<!-- My Account -->
-<div id="myaccount-page" class="hidden">
-<h2 class="section-title">My Account</h2>
-<div class="profile-form">
-<div class="form-group">
-<div class="profile-banner">
-<div id="profile-banner-img" class="profile-banner-img"></div>
-<div class="profile-picture">
-<div id="profile-picture-img" class="profile-picture-img"></div>
-</div>
-</div>
-
-<div class="form-group">
-<label class="form-label">Display Name</label>
-<input type="text" class="form-input" id="display-name" placeholder="Enter display name">
-<button class="btn btn-primary mt-3" onclick="updateDisplayName()">Update Display Name</button>
-</div>
-
-<div class="form-group">
-<label class="form-label">Banner Image URL</label>
-<div class="url-input-group">
-<input type="text" class="url-input" id="banner-url" placeholder="https://example.com/banner.jpg">
-<button class="btn btn-primary" onclick="updateBanner()">Update</button>
-</div>
-</div>
-
-<div class="form-group">
-<label class="form-label">Profile Picture URL</label>
-<div class="url-input-group">
-<input type="text" class="url-input" id="profile-url" placeholder="https://example.com/profile.jpg">
-<button class="btn btn-primary" onclick="updateProfilePicture()">Update</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Admin Panel -->
-<div id="admin-page" class="hidden">
-<h2 class="section-title">⚙️ Admin Panel</h2>
-<div class="admin-controls">
-<div class="admin-title">Administrator Controls</div>
-
-<div class="admin-stats">
-<div class="stat-box">
-<div class="stat-number" id="totalUsers">0</div>
-<div class="stat-label">Total Users</div>
-</div>
-<div class="stat-box">
-<div class="stat-number" id="totalPastes">0</div>
-<div class="stat-label">Total Pastes</div>
-</div>
-<div class="stat-box">
-<div class="stat-number" id="bannedUsers">0</div>
-<div class="stat-label">Banned Users</div>
-</div>
-<div class="stat-box">
-<div class="stat-number" id="pinnedPastes">0</div>
-<div class="stat-label">Pinned Pastes</div>
-</div>
-</div>
-
-<div class="admin-actions">
-<button class="btn btn-danger" onclick="adminViewAllUsers()">👥 View All Users</button>
-<button class="btn btn-danger" onclick="adminViewAllPastes()">📄 View All Pastes</button>
-<button class="btn btn-danger" onclick="adminClearChat()">🗑️ Clear Chat</button>
-<button class="btn btn-danger" onclick="adminBackupData()">💾 Backup Data</button>
-</div>
-
-<div id="admin-content" class="mt-4"></div>
-</div>
-</div>
-
-<!-- User Profile -->
-<div id="user-profile-page" class="hidden">
-<button class="back-btn" onclick="showPage('home')">← Back</button>
-<div id="user-profile-content" class="paste-detail"></div>
-</div>
-
-<!-- Auth Page -->
-<div id="auth-page" class="hidden">
-<h2 class="section-title">🔐 Authentication</h2>
-<div class="auth-form">
-<div class="form-group">
-<label class="form-label">📧 Email</label>
-<input type="email" class="form-input" id="auth-email" placeholder="your@email.com">
-</div>
-<div class="form-group">
-<label class="form-label">🔑 Password</label>
-<input type="password" class="form-input" id="auth-password" placeholder="••••••••">
-</div>
-<div class="btn-group">
-<button class="btn btn-primary" onclick="signIn()">Sign In</button>
-<button class="btn btn-secondary" onclick="signUp()">Create Account</button>
-</div>
-<div id="auth-message" class="mt-3 text-center"></div>
-</div>
-</div>
-</div>
-
-<!-- Alert Container -->
-<div id="alert-container" class="alert-container"></div>
-
-<!-- Audio for Hall of Autism -->
-<audio id="hallMusic" autoplay loop style="display: none;">
-<source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
-</audio>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-<script>
-// Firebase Configuration
-const pasteDbConfig = {
-apiKey: "AIzaSyA1qaJnsRvWDvxNn9Nd1tmMVjvkF-WpUQY",
-authDomain: "norbin-c2fdb.firebaseapp.com",
-projectId: "norbin-c2fdb",
-storageBucket: "norbin-c2fdb.firebasestorage.app",
-messagingSenderId: "38678324468",
-appId: "1:38678324468:web:99301da909b4a563312aa1",
-measurementId: "G-XCBZJYZ2MJ"
-};
-
-const chatDbConfig = {
-apiKey: "AIzaSyByN2D1Q9IasxBI9qNostCzg13WbIFipUc",
-authDomain: "norbin-chat.firebaseapp.com",
-projectId: "norbin-chat",
-storageBucket: "norbin-chat.firebasestorage.app",
-messagingSenderId: "793931248044",
-appId: "1:793931248044:web:80a954c39e17efafd58a09",
-measurementId: "G-3TQ13WL0NV"
-};
-
-// Initialize Firebase Apps
-const pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
-const chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
-
-// Get Firebase Services
-const pasteAuth = pasteApp.auth();
-const pasteDb = pasteApp.firestore();
-const chatDb = chatApp.firestore();
-
-// Global State
-let currentUser = null;
-let isAdmin = false;
-let searchTimeout = null;
-
-// Alert System
-function showAlert(message, type = 'info') {
-const container = document.getElementById('alert-container');
-const alert = document.createElement('div');
-alert.className = `alert ${type}`;
-alert.textContent = message;
-container.appendChild(alert);
-
-setTimeout(() => {
-alert.remove();
-}, 5000);
-}
-
-// Initialize Hall of Autism
-function initializeHallOfAutism() {
-const hallContainer = document.getElementById('hall-container');
-hallContainer.innerHTML = '';
-
-const hallItems = [
-{ name: "Mihai Caradan", description: "Reason:Abandonating his friends for others even tho his friends were for him always
-Being toxic
-Being liar
-Mocking girls", image: "https://postimg.cc/BLxffvgG" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+2" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+3" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+4" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+5" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+6" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+7" },
-{ name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+8" }
-];
-
-hallItems.forEach(item => {
-const box = document.createElement('div');
-box.className = 'hall-box';
-box.innerHTML = `
-<div class="hall-image">
-<img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x300/000000/ffffff?text=Image+Error'">
-</div>
-<div class="hall-name">${item.name}</div>
-<div class="hall-description">${item.description}</div>
-`;
-hallContainer.appendChild(box);
-});
-
-// Auto-play music on Hall of Autism page
-if (!document.getElementById('hall-page').classList.contains('hidden')) {
-try {
-const hallMusic = document.getElementById('hallMusic');
-hallMusic.play().catch(e => {
-console.log("Music autoplay prevented");
-});
-} catch (e) {
-console.log("Music error:", e);
-}
-}
-}
-
-// Menu Functions
-function toggleMenu() {
-const menu = document.getElementById('slideDownMenu');
-menu.classList.toggle('active');
-}
-
-function showPage(pageId) {
-// Close menu
-document.getElementById('slideDownMenu').classList.remove('active');
-
-// Hide all pages
-document.querySelectorAll('[id$="-page"]').forEach(page => {
-page.classList.add('hidden');
-});
-
-// Show requested page
-const page = document.getElementById(pageId + '-page');
-if (page) {
-page.classList.remove('hidden');
-
-// Load data for specific pages
-switch(pageId) {
-case 'home':
-loadRecentPastes();
-break;
-case 'chat':
-loadChatMessages();
-break;
-case 'most-mentioned':
-loadMostMentioned();
-break;
-case 'hall':
-initializeHallOfAutism();
-break;
-case 'myaccount':
-loadUserProfileData();
-break;
-case 'admin':
-loadAdminStats();
-break;
-}
-}
-}
-
-// FULLSCREEN PASTE FUNCTIONS
-function showPasteDetail(pasteId) {
-const container = document.getElementById('paste-detail-container');
-container.classList.add('active');
-document.body.style.overflow = 'hidden';
-
-loadPasteDetailContent(pasteId);
-}
-
-function closePasteDetail() {
-const container = document.getElementById('paste-detail-container');
-container.classList.remove('active');
-document.body.style.overflow = 'auto';
-}
-
-async function loadPasteDetailContent(pasteId) {
-try {
-// Increment view count
-await pasteDb.collection('pastes').doc(pasteId).update({
-views: firebase.firestore.FieldValue.increment(1)
-});
-
-const doc = await pasteDb.collection('pastes').doc(pasteId).get();
-const paste = doc.data();
-const container = document.getElementById('paste-detail-content');
-const actionsContainer = document.getElementById('paste-detail-actions');
-
-let adminControls = '';
-if (isAdmin) {
-adminControls = `
-<div class="btn-group">
-<button class="btn btn-success" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
-${paste.isPinned ? '📌 Unpin Paste' : '📌 Pin Paste'}
-</button>
-<button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
-🗑️ Remove Paste
-</button>
-<button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
-⚠️ Ban User
-</button>
-</div>
-`;
-}
-
-actionsContainer.innerHTML = adminControls;
-
-container.innerHTML = `
-<div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-${escapeHtml(paste.username || 'Unknown User')}
-${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
-</div>
-<h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2.5rem;">
-${escapeHtml(paste.title)}
-</h2>
-<div class="paste-views" style="margin-bottom: 2rem;">
-👁️ ${paste.views || 0} views • ⏰ ${formatTime(paste.timestamp?.toDate())}
-</div>
-<div class="paste-content">${escapeHtml(paste.content)}</div>
-`;
-} catch (error) {
-showAlert(`Error loading paste: ${error.message}`, 'error');
-closePasteDetail();
-}
-}
-
-// Authentication
-async function signIn() {
-const email = document.getElementById('auth-email').value;
-const password = document.getElementById('auth-password').value;
-
-if (!email || !password) {
-showAlert('Please enter both email and password', 'error');
-return;
-}
-
-try {
-const userCredential = await pasteAuth.signInWithEmailAndPassword(email, password);
-currentUser = userCredential.user;
-await checkAdminStatus();
-updateUIForAuth();
-showAlert('Successfully signed in!', 'success');
-showPage('home');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-
-async function signUp() {
-const email = document.getElementById('auth-email').value;
-const password = document.getElementById('auth-password').value;
-
-if (!email || !password) {
-showAlert('Please enter both email and password', 'error');
-return;
-}
-
-if (password.length < 6) {
-showAlert('Password must be at least 6 characters', 'error');
-return;
-}
-
-try {
-const userCredential = await pasteAuth.createUserWithEmailAndPassword(email, password);
-currentUser = userCredential.user;
-
-// Create user profile
-const userData = {
-email: email,
-username: email.split('@')[0],
-displayName: email.split('@')[0],
-createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-isBanned: false,
-isAdmin: email === 'exoticslash3r@gmail.com',
-bannerUrl: '',
-profileUrl: '',
-lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-};
-
-await pasteDb.collection('users').doc(currentUser.uid).set(userData);
-
-await checkAdminStatus();
-updateUIForAuth();
-showAlert('Account created successfully!', 'success');
-showPage('home');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-
-function signOut() {
-pasteAuth.signOut().then(() => {
-currentUser = null;
-isAdmin = false;
-updateUIForAuth();
-showAlert('Signed out successfully', 'success');
-showPage('home');
-});
-}
-
-async function checkAdminStatus() {
-if (!currentUser) {
-isAdmin = false;
-return;
-}
-
-try {
-const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
-if (userDoc.exists) {
-const userData = userDoc.data();
-isAdmin = userData.isAdmin || currentUser.email === 'exoticslash3r@gmail.com';
-
-// Update admin status if needed
-if (currentUser.email === 'exoticslash3r@gmail.com' && !userData.isAdmin) {
-await pasteDb.collection('users').doc(currentUser.uid).update({
-isAdmin: true
-});
-}
-} else {
-// Create user document if it doesn't exist
-const userData = {
-email: currentUser.email,
-username: currentUser.email.split('@')[0],
-displayName: currentUser.email.split('@')[0],
-createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-isBanned: false,
-isAdmin: currentUser.email === 'exoticslash3r@gmail.com',
-bannerUrl: '',
-profileUrl: '',
-lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-};
-await pasteDb.collection('users').doc(currentUser.uid).set(userData);
-isAdmin = currentUser.email === 'exoticslash3r@gmail.com';
-}
-} catch (error) {
-console.error('Error checking admin status:', error);
-}
-}
-
-function updateUIForAuth() {
-const authBtn = document.getElementById('authBtn');
-const myAccountBtn = document.getElementById('myAccountBtn');
-const adminBtn = document.getElementById('adminBtn');
-const usernameDisplay = document.getElementById('usernameDisplay');
-
-if (currentUser) {
-authBtn.textContent = 'Sign Out';
-authBtn.onclick = signOut;
-myAccountBtn.classList.remove('hidden');
-
-// Load username
-pasteDb.collection('users').doc(currentUser.uid).get().then(doc => {
-if (doc.exists) {
-const userData = doc.data();
-usernameDisplay.textContent = userData.displayName || userData.username || currentUser.email.split('@')[0];
-} else {
-usernameDisplay.textContent = currentUser.email.split('@')[0];
-}
-}).catch(error => {
-usernameDisplay.textContent = currentUser.email.split('@')[0];
-});
-
-if (isAdmin) {
-adminBtn.classList.remove('hidden');
-showAlert('🔴 Admin privileges activated!', 'success');
-} else {
-adminBtn.classList.add('hidden');
-}
-} else {
-authBtn.textContent = 'Sign In';
-authBtn.onclick = () => showPage('auth');
-myAccountBtn.classList.add('hidden');
-adminBtn.classList.add('hidden');
-usernameDisplay.textContent = '';
-}
-}
-
-// Paste Management
-async function publishPaste() {
-if (!currentUser) {
-showAlert('Please sign in to publish pastes', 'error');
-showPage('auth');
-return;
-}
-
-const title = document.getElementById('paste-title').value.trim();
-const content = document.getElementById('paste-content').value.trim();
-
-if (!title || !content) {
-showAlert('Please fill in both title and content', 'error');
-return;
-}
-
-try {
-// Get or create user data
-const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
-let userData;
-
-if (userDoc.exists) {
-userData = userDoc.data();
-} else {
-// Create user document if it doesn't exist
-userData = {
-email: currentUser.email,
-username: currentUser.email.split('@')[0],
-displayName: currentUser.email.split('@')[0],
-createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-isBanned: false,
-isAdmin: currentUser.email === 'exoticslash3r@gmail.com'
-};
-await pasteDb.collection('users').doc(currentUser.uid).set(userData);
-}
-
-const pasteData = {
-title: title,
-content: content,
-username: userData.displayName || userData.username || currentUser.email.split('@')[0],
-userId: currentUser.uid,
-views: 0,
-timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-isPinned: false,
-isRemoved: false,
-lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-};
-
-await pasteDb.collection('pastes').add(pasteData);
-
-showAlert('Paste published successfully!', 'success');
-clearPasteForm();
-showPage('home');
-} catch (error) {
-showAlert(`Error publishing paste: ${error.message}`, 'error');
-}
-}
-
-function clearPasteForm() {
-document.getElementById('paste-title').value = '';
-document.getElementById('paste-content').value = '';
-}
-
-async function loadRecentPastes() {
-try {
-const snapshot = await pasteDb.collection('pastes')
-.where('isRemoved', '==', false)
-.orderBy('timestamp', 'desc')
-.limit(50)
-.get();
-
-displayPastes(snapshot, 'pastes-container');
-} catch (error) {
-console.error('Error loading pastes:', error);
-document.getElementById('pastes-container').innerHTML =
-'<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
-}
-}
-
-function displayPastes(snapshot, containerId) {
-const container = document.getElementById(containerId);
-container.innerHTML = '';
-
-if (snapshot.empty) {
-container.innerHTML = '<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
-return;
-}
-
-snapshot.forEach(doc => {
-const paste = doc.data();
-const pasteId = doc.id;
-
-const pasteCard = document.createElement('div');
-pasteCard.className = 'paste-card';
-pasteCard.onclick = () => showPasteDetail(pasteId);
-
-pasteCard.innerHTML = `
-<div class="paste-username" onclick="event.stopPropagation(); showUserProfile('${paste.userId}')">
-${escapeHtml(paste.username || 'Unknown User')}
-${paste.isPinned ? '<span class="pinned-badge">📌 PINNED</span>' : ''}
-${isAdmin ? `<span style="color: #ff6666; font-size: 0.8rem;">(${paste.userId?.substring(0, 6) || 'unknown'}...)</span>` : ''}
-</div>
-<div class="paste-title">${escapeHtml(paste.title)}</div>
-<div class="paste-views">👁️ ${paste.views || 0} views</div>
-<div class="paste-timestamp">⏰ ${formatTime(paste.timestamp?.toDate())}</div>
-`;
-
-container.appendChild(pasteCard);
-});
-}
-
-// Chat Functions
-function loadChatMessages() {
-chatDb.collection('messages')
-.orderBy('timestamp', 'desc')
-.limit(100)
-.onSnapshot(snapshot => {
-const container = document.getElementById('chat-messages');
-container.innerHTML = '';
-
-const messages = [];
-snapshot.forEach(doc => {
-messages.push({ id: doc.id, ...doc.data() });
-});
-
-// Sort by timestamp (newest first)
-messages.sort((a, b) => b.timestamp - a.timestamp);
-
-if (messages.length === 0) {
-container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #888;">No messages yet</div>';
-return;
-}
-
-messages.forEach(msg => {
-const messageDiv = document.createElement('div');
-messageDiv.className = 'message';
-
-messageDiv.innerHTML = `
-<div class="message-header">
-<div class="message-sender">${escapeHtml(msg.username || 'Unknown User')}:</div>
-<div class="message-time">${formatTime(msg.timestamp?.toDate())}</div>
-</div>
-<div>${escapeHtml(msg.message)}:</div>
-`;
-
-container.appendChild(messageDiv);
-});
-
-// Scroll to bottom
-container.scrollTop = container.scrollHeight;
-}, error => {
-console.error('Error loading chat:', error);
-});
-}
-
-async function sendChatMessage() {
-if (!currentUser) {
-showAlert('Please sign in to chat', 'error');
-showPage('auth');
-return;
-}
-
-const input = document.getElementById('chat-input');
-const message = input.value.trim();
-
-if (!message) return;
-
-try {
-// Get user data safely
-const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
-let username;
-
-if (userDoc.exists) {
-const userData = userDoc.data();
-username = userData.displayName || userData.username || currentUser.email.split('@')[0];
-} else {
-username = currentUser.email.split('@')[0];
-}
-
-await chatDb.collection('messages').add({
-message: message,
-username: username,
-userId: currentUser.uid,
-timestamp: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-input.value = '';
-} catch (error) {
-showAlert(`Error sending message: ${error.message}`, 'error');
-}
-}
-
-// Search Functionality
-function handleSearch() {
-const searchTerm = document.getElementById('searchBar').value.trim();
-const resultsDiv = document.getElementById('searchResults');
-
-if (searchTerm.length === 0) {
-resultsDiv.classList.add('hidden');
-return;
-}
-
-if (searchTimeout) clearTimeout(searchTimeout);
-
-searchTimeout = setTimeout(() => {
-performSearch(searchTerm);
-resultsDiv.classList.remove('hidden');
-}, 300);
-}
-
-async function performSearch(searchTerm) {
-const resultsContent = document.getElementById('searchResultsContent');
-resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;">Searching...</div>';
-
-try {
-const snapshot = await pasteDb.collection('pastes')
-.where('isRemoved', '==', false)
-.orderBy('timestamp', 'desc')
-.get();
-
-const results = [];
-const searchLower = searchTerm.toLowerCase();
-
-snapshot.forEach(doc => {
-const paste = doc.data();
-const pasteId = doc.id;
-
-const titleMatch = paste.title.toLowerCase().includes(searchLower);
-const contentMatch = paste.content.toLowerCase().includes(searchLower);
-const userMatch = (paste.username || '').toLowerCase().includes(searchLower);
-
-if (titleMatch || contentMatch || userMatch) {
-results.push({ id: pasteId, ...paste });
-}
-});
-
-displaySearchResults(results, resultsContent);
-} catch (error) {
-resultsContent.innerHTML = `<div style="text-align: center; padding: 2rem; color: #ff0000;">Error: ${error.message}</div>`;
-}
-}
-
-function displaySearchResults(results, container) {
-if (results.length === 0) {
-container.innerHTML = '<div style="text-align: center; padding: 2rem;">No results found</div>';
-return;
-}
-
-container.innerHTML = '';
-results.slice(0, 10).forEach(paste => {
-const result = document.createElement('div');
-result.className = 'paste-card';
-result.style.marginBottom = '1rem';
-result.onclick = () => showPasteDetail(paste.id);
-
-result.innerHTML = `
-<div class="paste-username">${escapeHtml(paste.username || 'Unknown User')}</div>
-<div class="paste-title">${escapeHtml(paste.title)}</div>
-<div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
-`;
-
-container.appendChild(result);
-});
-}
-
-// Most Mentioned
-async function loadMostMentioned() {
-try {
-const snapshot = await pasteDb.collection('pastes')
-.where('isRemoved', '==', false)
-.get();
-
-const titleCount = {};
-snapshot.forEach(doc => {
-const paste = doc.data();
-const title = paste.title.toLowerCase().trim();
-if (title) {
-titleCount[title] = (titleCount[title] || 0) + 1;
-}
-});
-
-const sortedTitles = Object.entries(titleCount)
-.sort((a, b) => b[1] - a[1])
-.slice(0, 20);
-
-const container = document.getElementById('most-mentioned-container');
-container.innerHTML = '';
-
-sortedTitles.forEach(([title, count], index) => {
-const card = document.createElement('div');
-card.className = 'paste-card';
-card.innerHTML = `
-<div style="font-size: 1.5rem; margin-bottom: 1rem;">#${index + 1}</div>
-<div class="paste-title">${escapeHtml(title)}</div>
-<div class="paste-views">🔥 Mentioned ${count} times</div>
-`;
-container.appendChild(card);
-});
-} catch (error) {
-console.error('Error loading most mentioned:', error);
-}
-}
-
-// Profile Functions
-async function loadUserProfileData() {
-if (!currentUser) return;
-
-try {
-const doc = await pasteDb.collection('users').doc(currentUser.uid).get();
-if (doc.exists) {
-const userData = doc.data();
-
-document.getElementById('display-name').value = userData.displayName || '';
-document.getElementById('banner-url').value = userData.bannerUrl || '';
-document.getElementById('profile-url').value = userData.profileUrl || '';
-
-if (userData.bannerUrl) {
-document.getElementById('profile-banner-img').style.backgroundImage = `url('${userData.bannerUrl}')`;
-}
-
-if (userData.profileUrl) {
-document.getElementById('profile-picture-img').style.backgroundImage = `url('${userData.profileUrl}')`;
-}
-}
-} catch (error) {
-console.error('Error loading profile data:', error);
-}
-}
-
-async function updateDisplayName() {
-if (!currentUser) return;
-
-const displayName = document.getElementById('display-name').value.trim();
-if (!displayName) {
-showAlert('Please enter a display name', 'error');
-return;
-}
-
-try {
-await pasteDb.collection('users').doc(currentUser.uid).update({
-displayName: displayName,
-updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-showAlert('Display name updated successfully!', 'success');
-document.getElementById('usernameDisplay').textContent = displayName;
-} catch (error) {
-showAlert(`Error updating display name: ${error.message}`, 'error');
-}
-}
-
-async function updateBanner() {
-if (!currentUser) return;
-
-const bannerUrl = document.getElementById('banner-url').value.trim();
-if (!bannerUrl) {
-showAlert('Please enter a banner URL', 'error');
-return;
-}
-
-try {
-await pasteDb.collection('users').doc(currentUser.uid).update({
-bannerUrl: bannerUrl,
-updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-showAlert('Banner updated successfully!', 'success');
-document.getElementById('profile-banner-img').style.backgroundImage = `url('${bannerUrl}')`;
-} catch (error) {
-showAlert(`Error updating banner: ${error.message}`, 'error');
-}
-}
-
-async function updateProfilePicture() {
-if (!currentUser) return;
-
-const profileUrl = document.getElementById('profile-url').value.trim();
-if (!profileUrl) {
-showAlert('Please enter a profile picture URL', 'error');
-return;
-}
-
-try {
-await pasteDb.collection('users').doc(currentUser.uid).update({
-profileUrl: profileUrl,
-updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-showAlert('Profile picture updated successfully!', 'success');
-document.getElementById('profile-picture-img').style.backgroundImage = `url('${profileUrl}')`;
-} catch (error) {
-showAlert(`Error updating profile picture: ${error.message}`, 'error');
-}
-}
-
-async function showUserProfile(userId) {
-showPage('userProfile');
-
-try {
-const userDoc = await pasteDb.collection('users').doc(userId).get();
-const pasteSnap = await pasteDb.collection('pastes')
-.where('userId', '==', userId)
-.where('isRemoved', '==', false)
-.orderBy('timestamp', 'desc')
-.limit(10)
-.get();
-
-const container = document.getElementById('user-profile-content');
-
-if (!userDoc.exists) {
-container.innerHTML = '<div style="text-align: center; padding: 3rem;">User not found</div>';
-return;
-}
-
-const userData = userDoc.data();
-let adminControls = '';
-
-if (isAdmin) {
-adminControls = `
-<div class="admin-controls mt-4">
-<div class="admin-title">Admin Controls</div>
-<div class="admin-actions">
-<button class="btn btn-danger" onclick="adminBanUser('${userId}', ${!userData.isBanned})">
-${userData.isBanned ? '🔓 Unban User' : '⚠️ Ban User'}
-</button>
-<button class="btn btn-danger" onclick="adminDeleteUserPosts('${userId}')">
-🗑️ Delete User's Posts
-</button>
-<button class="btn btn-danger" onclick="adminMakeAdmin('${userId}', ${!userData.isAdmin})">
-${userData.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
-</button>
-</div>
-</div>
-`;
-}
-
-let postsHtml = '';
-pasteSnap.forEach(doc => {
-const paste = doc.data();
-postsHtml += `
-<div class="paste-card mt-2" onclick="showPasteDetail('${doc.id}')">
-<div class="paste-title">${escapeHtml(paste.title)}</div>
-<div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
-</div>
-`;
-});
-
-container.innerHTML = `
-<div class="profile-banner" style="${userData.bannerUrl ? `background-image: url('${userData.bannerUrl}')` : ''}">
-<div class="profile-picture" style="${userData.profileUrl ? `background-image: url('${userData.profileUrl}')` : ''}"></div>
-</div>
-
-<h1 style="font-size: 2.5rem; margin-top: 5rem;">
-${escapeHtml(userData.displayName || userData.username || userData.email?.split('@')[0] || 'Unknown User')}
-${userData.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
-${userData.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
-</h1>
-
-<div class="paste-content mt-3">
-<p><strong>📧 Email:</strong> ${escapeHtml(userData.email || 'Not provided')}</p>
-<p><strong>📅 Member since:</strong> ${formatTime(userData.createdAt?.toDate())}</p>
-<p><strong>💬 Total posts:</strong> ${pasteSnap.size}</p>
-</div>
-
-<h3 class="mt-4">Recent Posts:</h3>
-${postsHtml || '<p>No posts yet</p>'}
-
-${adminControls}
-`;
-} catch (error) {
-showAlert(`Error loading profile: ${error.message}`, 'error');
-}
-}
-
-// Admin Functions
-async function loadAdminStats() {
-if (!isAdmin) {
-showAlert('Admin access required', 'error');
-showPage('home');
-return;
-}
-
-try {
-// Get stats
-const usersSnap = await pasteDb.collection('users').get();
-const pastesSnap = await pasteDb.collection('pastes').where('isRemoved', '==', false).get();
-const chatSnap = await chatDb.collection('messages').get();
-
-const totalUsers = usersSnap.size;
-const totalPastes = pastesSnap.size;
-const bannedUsers = usersSnap.docs.filter(doc => doc.data().isBanned).length;
-const pinnedPastes = pastesSnap.docs.filter(doc => doc.data().isPinned).length;
-
-document.getElementById('totalUsers').textContent = totalUsers;
-document.getElementById('totalPastes').textContent = totalPastes;
-document.getElementById('bannedUsers').textContent = bannedUsers;
-document.getElementById('pinnedPastes').textContent = pinnedPastes;
-
-} catch (error) {
-console.error('Error loading admin stats:', error);
-}
-}
-
-async function adminPinPaste(pasteId, pinState) {
-if (!isAdmin) return;
-
-try {
-await pasteDb.collection('pastes').doc(pasteId).update({
-isPinned: pinState
-});
-showAlert(`Paste ${pinState ? 'pinned' : 'unpinned'}`, 'success');
-loadPasteDetailContent(pasteId);
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-
-async function adminRemovePaste(pasteId) {
-if (!isAdmin) return;
-
-if (confirm('Are you sure you want to remove this paste?')) {
-try {
-await pasteDb.collection('pastes').doc(pasteId).update({
-isRemoved: true
-});
-showAlert('Paste removed', 'success');
-closePasteDetail();
-showPage('home');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-}
-
-async function adminBanUser(userId, banState = true) {
-if (!isAdmin) return;
-
-const action = banState ? 'ban' : 'unban';
-if (confirm(`Are you sure you want to ${action} this user?`)) {
-try {
-await pasteDb.collection('users').doc(userId).update({
-isBanned: banState
-});
-showAlert(`User ${banState ? 'banned' : 'unbanned'}`, 'success');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-}
-
-async function adminDeleteUserPosts(userId) {
-if (!isAdmin) return;
-
-if (confirm('Delete ALL posts by this user?')) {
-try {
-const snapshot = await pasteDb.collection('pastes')
-.where('userId', '==', userId)
-.get();
-
-const batch = pasteDb.batch();
-snapshot.forEach(doc => {
-batch.update(doc.ref, { isRemoved: true });
-});
-
-await batch.commit();
-showAlert('All user posts removed', 'success');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-}
-
-async function adminMakeAdmin(userId, makeAdmin) {
-if (!isAdmin) return;
-
-if (confirm(`${makeAdmin ? 'Make' : 'Remove'} admin privileges?`)) {
-try {
-await pasteDb.collection('users').doc(userId).update({
-isAdmin: makeAdmin
-});
-showAlert(`Admin privileges ${makeAdmin ? 'granted' : 'removed'}`, 'success');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-}
-
-async function adminClearChat() {
-if (!isAdmin) return;
-
-if (confirm('Clear ALL chat messages?')) {
-try {
-const snapshot = await chatDb.collection('messages').get();
-const batch = chatDb.batch();
-snapshot.forEach(doc => {
-batch.delete(doc.ref);
-});
-
-await batch.commit();
-showAlert('Chat cleared', 'success');
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-}
-
-async function adminViewAllUsers() {
-if (!isAdmin) return;
-
-try {
-const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
-const container = document.getElementById('admin-content');
-
-let html = '<h3>All Users:</h3><div class="pastes-grid">';
-
-snapshot.forEach(doc => {
-const user = doc.data();
-html += `
-<div class="paste-card">
-<div class="paste-username" onclick="showUserProfile('${doc.id}')">
-${escapeHtml(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
-${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
-${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
-</div>
-<div class="paste-title">${escapeHtml(user.email || 'No email')}</div>
-<div class="paste-views">
-📅 Joined: ${formatTime(user.createdAt?.toDate())}
-</div>
-<div class="btn-group mt-2">
-<button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
-${user.isBanned ? '🔓 Unban' : '⚠️ Ban'}
-</button>
-<button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
-${user.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
-</button>
-</div>
-</div>
-`;
-});
-
-html += '</div>';
-container.innerHTML = html;
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-
-async function adminViewAllPastes() {
-if (!isAdmin) return;
-
-try {
-const snapshot = await pasteDb.collection('pastes')
-.orderBy('timestamp', 'desc')
-.limit(100)
-.get();
-
-const container = document.getElementById('admin-content');
-container.innerHTML = '<h3>All Pastes:</h3><div class="pastes-grid">';
-
-snapshot.forEach(doc => {
-const paste = doc.data();
-container.innerHTML += `
-<div class="paste-card">
-<div class="paste-username" onclick="showUserProfile('${paste.userId}')">
-${escapeHtml(paste.username || 'Unknown User')}
-${paste.isPinned ? '<span class="pinned-badge">PINNED</span>' : ''}
-${paste.isRemoved ? '<span class="admin-badge">REMOVED</span>' : ''}
-</div>
-<div class="paste-title">${escapeHtml(paste.title)}</div>
-<div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
-<div class="btn-group mt-2">
-<button class="btn btn-success" onclick="adminPinPaste('${doc.id}', ${!paste.isPinned})">
-${paste.isPinned ? '📌 Unpin' : '📌 Pin'}
-</button>
-<button class="btn btn-danger" onclick="adminRemovePaste('${doc.id}')">
-🗑️ Remove
-</button>
-</div>
-</div>
-`;
-});
-
-container.innerHTML += '</div>';
-} catch (error) {
-showAlert(`Error: ${error.message}`, 'error');
-}
-}
-
-function adminBackupData() {
-if (!isAdmin) return;
-
-showAlert('Backup feature would export data here', 'success');
-}
-
-// Utility Functions
-function escapeHtml(text) {
-if (!text) return '';
-const div = document.createElement('div');
-div.textContent = text;
-return div.innerHTML;
-}
-
-function formatTime(date) {
-if (!date) return 'Unknown';
-
-const now = new Date();
-const diff = now - date;
-
-if (diff < 60000) return 'Just now';
-if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
-
-return date.toLocaleDateString();
-}
-
-// Initialize App
-document.addEventListener('DOMContentLoaded', () => {
-// Set logo
-const logo = document.querySelector('.logo');
-if (logo) {
-logo.src = "https://i.postimg.cc/x8ML5hVd/logo.jpg";
-logo.onerror = function() {
-this.src = 'https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';
-};
-}
-
-// Set up auth listener
-pasteAuth.onAuthStateChanged(async (user) => {
-currentUser = user;
-if (user) {
-await checkAdminStatus();
-} else {
-isAdmin = false;
-}
-updateUIForAuth();
-loadRecentPastes();
-});
-
-// Show home page
-showPage('home');
-
-// Close menu when clicking outside
-document.addEventListener('click', (event) => {
-const menu = document.getElementById('slideDownMenu');
-const hamburger = document.querySelector('.hamburger-btn');
-
-if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
-menu.classList.remove('active');
-}
-});
-
-// Enable music autoplay on user interaction
-document.body.addEventListener('click', function() {
-const hallMusic = document.getElementById('hallMusic');
-if (hallMusic && hallMusic.paused) {
-hallMusic.play().catch(e => console.log("Music play prevented"));
-}
-});
-});
-</script>
+    <!-- Fullscreen Paste Detail -->
+    <div id="paste-detail-container" class="paste-detail-container">
+        <div class="paste-detail-header">
+            <button class="back-btn" onclick="closePasteDetail()">← Back to Pastes</button>
+            <div id="paste-detail-actions"></div>
+        </div>
+        <div id="paste-detail-content" class="paste-detail-content"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <div class="user-info">
+            <span id="usernameDisplay"></span>
+            <button class="btn btn-primary" onclick="showPage('auth')" id="authBtn">Sign In</button>
+        </div>
+    </nav>
+
+    <!-- Slide Down Menu -->
+    <div class="slide-down-menu" id="slideDownMenu">
+        <div class="menu-items">
+            <button class="menu-btn" onclick="showPage('home')">🏠 Home</button>
+            <button class="menu-btn" onclick="showPage('paste')">📝 Create Paste</button>
+            <button class="menu-btn" onclick="showPage('chat')">💬 Global Chat</button>
+            <button class="menu-btn" onclick="showPage('most-mentioned')">🔥 Most Mentioned</button>
+            <button class="menu-btn" onclick="showPage('hall')">🎭 Hall of Autism</button>
+            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">👤 My Account</button>
+            <button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">⚙️ Admin Panel</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Home Page -->
+        <div id="home-page">
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/x8ML5hVd/logo.jpg" alt="Norbin Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';">
+            </div>
+            
+            <div class="search-container">
+                <input type="text" 
+                       class="search-bar" 
+                       id="searchBar" 
+                       placeholder="🔍 Search pastes by title, username, or content..."
+                       oninput="handleSearch()">
+                <div class="search-results hidden" id="searchResults">
+                    <div class="section-title">Search Results</div>
+                    <div id="searchResultsContent"></div>
+                </div>
+            </div>
+
+            <h2 class="section-title">📜 Recent Pastes</h2>
+            <div id="pastes-container" class="pastes-grid"></div>
+        </div>
+
+        <!-- Create Paste -->
+        <div id="paste-page" class="hidden">
+            <h2 class="section-title">📝 Create New Paste</h2>
+            <div class="paste-form">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="paste-title" placeholder="Enter paste title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea class="form-textarea" id="paste-content" placeholder="Enter your paste content here..."></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="publishPaste()">🚀 Publish</button>
+                    <button class="btn btn-secondary" onclick="clearPasteForm()">🗑️ Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Chat -->
+        <div id="chat-page" class="hidden">
+            <h2 class="section-title">💬 Global Chat</h2>
+            <div class="chat-container">
+                <div class="chat-header">
+                    🌍 Live Global Chat • <span id="onlineCount">0</span> users online
+                </div>
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" 
+                               class="chat-input" 
+                               id="chat-input" 
+                               placeholder="Type your message... (Press Enter to send)"
+                               onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                        <button class="send-btn" onclick="sendChatMessage()">📤 Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Mentioned -->
+        <div id="most-mentioned-page" class="hidden">
+            <h2 class="section-title">🔥 Most Mentioned Titles</h2>
+            <div id="most-mentioned-container" class="pastes-grid"></div>
+        </div>
+
+        <!-- Hall of Autism -->
+        <div id="hall-page" class="hidden">
+            <h2 class="section-title">🎭 Hall of Autism</h2>
+            <div class="hall-grid" id="hall-container"></div>
+        </div>
+
+        <!-- My Account -->
+        <div id="myaccount-page" class="hidden">
+            <h2 class="section-title">👤 My Account</h2>
+            <div class="profile-form">
+                <div class="form-group">
+                    <div class="profile-banner">
+                        <div id="profile-banner-img" class="profile-banner-img"></div>
+                        <div class="profile-picture">
+                            <div id="profile-picture-img" class="profile-picture-img"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-input" id="display-name" placeholder="Enter display name">
+                        <button class="btn btn-primary mt-3" onclick="updateDisplayName()">Update Display Name</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Banner Image URL</label>
+                        <div class="url-input-group">
+                            <input type="text" class="url-input" id="banner-url" placeholder="https://example.com/banner.jpg">
+                            <button class="btn btn-primary" onclick="updateBanner()">Update</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture URL</label>
+                        <div class="url-input-group">
+                            <input type="text" class="url-input" id="profile-url" placeholder="https://example.com/profile.jpg">
+                            <button class="btn btn-primary" onclick="updateProfilePicture()">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-page" class="hidden">
+            <h2 class="section-title">⚙️ Admin Panel</h2>
+            <div class="admin-controls">
+                <div class="admin-title">Administrator Controls</div>
+                
+                <div class="admin-stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalPastes">0</div>
+                        <div class="stat-label">Total Pastes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="bannedUsers">0</div>
+                        <div class="stat-label">Banned Users</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pinnedPastes">0</div>
+                        <div class="stat-label">Pinned Pastes</div>
+                    </div>
+                </div>
+
+                <div class="admin-actions">
+                    <button class="btn btn-danger" onclick="adminViewAllUsers()">👥 View All Users</button>
+                    <button class="btn btn-danger" onclick="adminViewAllPastes()">📄 View All Pastes</button>
+                    <button class="btn btn-danger" onclick="adminClearChat()">🗑️ Clear Chat</button>
+                    <button class="btn btn-danger" onclick="adminBackupData()">💾 Backup Data</button>
+                </div>
+
+                <div id="admin-content" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div id="user-profile-page" class="hidden">
+            <button class="back-btn" onclick="showPage('home')">← Back</button>
+            <div id="user-profile-content" class="paste-detail"></div>
+        </div>
+
+        <!-- Auth Page -->
+        <div id="auth-page" class="hidden">
+            <h2 class="section-title">🔐 Authentication</h2>
+            <div class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">📧 Email</label>
+                    <input type="email" class="form-input" id="auth-email" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔑 Password</label>
+                    <input type="password" class="form-input" id="auth-password" placeholder="••••••••">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="signIn()">🚀 Sign In</button>
+                    <button class="btn btn-secondary" onclick="signUp()">✨ Create Account</button>
+                </div>
+                <div id="auth-message" class="mt-3 text-center"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="alert-container"></div>
+
+    <!-- Audio for Hall of Autism -->
+    <audio id="hallMusic" autoplay loop style="display: none;">
+        <source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
+    </audio>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const pasteDbConfig = {
+            apiKey: "AIzaSyA1qaJnsRvWDvxNn9Nd1tmMVjvkF-WpUQY",
+            authDomain: "norbin-c2fdb.firebaseapp.com",
+            projectId: "norbin-c2fdb",
+            storageBucket: "norbin-c2fdb.firebasestorage.app",
+            messagingSenderId: "38678324468",
+            appId: "1:38678324468:web:99301da909b4a563312aa1",
+            measurementId: "G-XCBZJYZ2MJ"
+        };
+
+        const chatDbConfig = {
+            apiKey: "AIzaSyByN2D1Q9IasxBI9qNostCzg13WbIFipUc",
+            authDomain: "norbin-chat.firebaseapp.com",
+            projectId: "norbin-chat",
+            storageBucket: "norbin-chat.firebasestorage.app",
+            messagingSenderId: "793931248044",
+            appId: "1:793931248044:web:80a954c39e17efafd58a09",
+            measurementId: "G-3TQ13WL0NV"
+        };
+
+        // Initialize Firebase Apps
+        const pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
+        const chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
+
+        // Get Firebase Services
+        const pasteAuth = pasteApp.auth();
+        const pasteDb = pasteApp.firestore();
+        const chatDb = chatApp.firestore();
+
+        // Global State
+        let currentUser = null;
+        let isAdmin = false;
+        let searchTimeout = null;
+
+        // Alert System
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Initialize Hall of Autism
+        function initializeHallOfAutism() {
+            const hallContainer = document.getElementById('hall-container');
+            hallContainer.innerHTML = '';
+            
+            const hallItems = [
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+1" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+2" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+3" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+4" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+5" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+6" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+7" },
+                { name: "Noone", description: "Untitled", image: "https://via.placeholder.com/400x300/000000/ffffff?text=Image+8" }
+            ];
+            
+            hallItems.forEach(item => {
+                const box = document.createElement('div');
+                box.className = 'hall-box';
+                box.innerHTML = `
+                    <div class="hall-image">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x300/000000/ffffff?text=Image+Error'">
+                    </div>
+                    <div class="hall-name">${item.name}</div>
+                    <div class="hall-description">${item.description}</div>
+                `;
+                hallContainer.appendChild(box);
+            });
+            
+            // Auto-play music on Hall of Autism page
+            if (!document.getElementById('hall-page').classList.contains('hidden')) {
+                try {
+                    const hallMusic = document.getElementById('hallMusic');
+                    hallMusic.play().catch(e => {
+                        console.log("Music autoplay prevented");
+                    });
+                } catch (e) {
+                    console.log("Music error:", e);
+                }
+            }
+        }
+
+        // Menu Functions
+        function toggleMenu() {
+            const menu = document.getElementById('slideDownMenu');
+            menu.classList.toggle('active');
+        }
+
+        function showPage(pageId) {
+            // Close menu
+            document.getElementById('slideDownMenu').classList.remove('active');
+            
+            // Hide all pages
+            document.querySelectorAll('[id$="-page"]').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show requested page
+            const page = document.getElementById(pageId + '-page');
+            if (page) {
+                page.classList.remove('hidden');
+                
+                // Load data for specific pages
+                switch(pageId) {
+                    case 'home':
+                        loadRecentPastes();
+                        break;
+                    case 'chat':
+                        loadChatMessages();
+                        break;
+                    case 'most-mentioned':
+                        loadMostMentioned();
+                        break;
+                    case 'hall':
+                        initializeHallOfAutism();
+                        break;
+                    case 'myaccount':
+                        loadUserProfileData();
+                        break;
+                    case 'admin':
+                        loadAdminStats();
+                        break;
+                }
+            }
+        }
+
+        // FULLSCREEN PASTE FUNCTIONS
+        function showPasteDetail(pasteId) {
+            const container = document.getElementById('paste-detail-container');
+            container.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            loadPasteDetailContent(pasteId);
+        }
+
+        function closePasteDetail() {
+            const container = document.getElementById('paste-detail-container');
+            container.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function loadPasteDetailContent(pasteId) {
+            try {
+                // Increment view count
+                await pasteDb.collection('pastes').doc(pasteId).update({
+                    views: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                const doc = await pasteDb.collection('pastes').doc(pasteId).get();
+                const paste = doc.data();
+                const container = document.getElementById('paste-detail-content');
+                const actionsContainer = document.getElementById('paste-detail-actions');
+                
+                let adminControls = '';
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="adminPinPaste('${pasteId}', ${!paste.isPinned})">
+                                ${paste.isPinned ? '📌 Unpin Paste' : '📌 Pin Paste'}
+                            </button>
+                            <button class="btn btn-danger" onclick="adminRemovePaste('${pasteId}')">
+                                🗑️ Remove Paste
+                            </button>
+                            <button class="btn btn-danger" onclick="adminBanUser('${paste.userId}')">
+                                ⚠️ Ban User
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                actionsContainer.innerHTML = adminControls;
+                
+                container.innerHTML = `
+                    <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                        ${escapeHtml(paste.username || 'Unknown User')}
+                        ${paste.isPinned ? '<span class="pinned-badge">PINNED BY ADMIN</span>' : ''}
+                    </div>
+                    <h2 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 2.5rem;">
+                        ${escapeHtml(paste.title)}
+                    </h2>
+                    <div class="paste-views" style="margin-bottom: 2rem;">
+                        👁️ ${paste.views || 0} views • ⏰ ${formatTime(paste.timestamp?.toDate())}
+                    </div>
+                    <div class="paste-content">${escapeHtml(paste.content)}</div>
+                `;
+            } catch (error) {
+                showAlert(`Error loading paste: ${error.message}`, 'error');
+                closePasteDetail();
+            }
+        }
+
+        // Authentication
+        async function signIn() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email || !password) {
+                showAlert('Please enter both email and password', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await pasteAuth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                await checkAdminStatus();
+                updateUIForAuth();
+                showAlert('Successfully signed in!', 'success');
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function signUp() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email || !password) {
+                showAlert('Please enter both email and password', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                const userCredential = await pasteAuth.createUserWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Create user profile
+                const userData = {
+                    email: email,
+                    username: email.split('@')[0],
+                    displayName: email.split('@')[0],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isBanned: false,
+                    isAdmin: email === 'exoticslash3r@gmail.com',
+                    bannerUrl: '',
+                    profileUrl: '',
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await pasteDb.collection('users').doc(currentUser.uid).set(userData);
+                
+                await checkAdminStatus();
+                updateUIForAuth();
+                showAlert('Account created successfully!', 'success');
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function signOut() {
+            pasteAuth.signOut().then(() => {
+                currentUser = null;
+                isAdmin = false;
+                updateUIForAuth();
+                showAlert('Signed out successfully', 'success');
+                showPage('home');
+            });
+        }
+
+        async function checkAdminStatus() {
+            if (!currentUser) {
+                isAdmin = false;
+                return;
+            }
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    isAdmin = userData.isAdmin || currentUser.email === 'exoticslash3r@gmail.com';
+                    
+                    // Update admin status if needed
+                    if (currentUser.email === 'exoticslash3r@gmail.com' && !userData.isAdmin) {
+                        await pasteDb.collection('users').doc(currentUser.uid).update({
+                            isAdmin: true
+                        });
+                    }
+                } else {
+                    // Create user document if it doesn't exist
+                    const userData = {
+                        email: currentUser.email,
+                        username: currentUser.email.split('@')[0],
+                        displayName: currentUser.email.split('@')[0],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isBanned: false,
+                        isAdmin: currentUser.email === 'exoticslash3r@gmail.com',
+                        bannerUrl: '',
+                        profileUrl: '',
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await pasteDb.collection('users').doc(currentUser.uid).set(userData);
+                    isAdmin = currentUser.email === 'exoticslash3r@gmail.com';
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        function updateUIForAuth() {
+            const authBtn = document.getElementById('authBtn');
+            const myAccountBtn = document.getElementById('myAccountBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            
+            if (currentUser) {
+                authBtn.textContent = 'Sign Out';
+                authBtn.onclick = signOut;
+                myAccountBtn.classList.remove('hidden');
+                
+                // Load username
+                pasteDb.collection('users').doc(currentUser.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        usernameDisplay.textContent = userData.displayName || userData.username || currentUser.email.split('@')[0];
+                    } else {
+                        usernameDisplay.textContent = currentUser.email.split('@')[0];
+                    }
+                }).catch(error => {
+                    usernameDisplay.textContent = currentUser.email.split('@')[0];
+                });
+                
+                if (isAdmin) {
+                    adminBtn.classList.remove('hidden');
+                    showAlert('🔴 Admin privileges activated!', 'success');
+                } else {
+                    adminBtn.classList.add('hidden');
+                }
+            } else {
+                authBtn.textContent = 'Sign In';
+                authBtn.onclick = () => showPage('auth');
+                myAccountBtn.classList.add('hidden');
+                adminBtn.classList.add('hidden');
+                usernameDisplay.textContent = '';
+            }
+        }
+
+        // Paste Management
+        async function publishPaste() {
+            if (!currentUser) {
+                showAlert('Please sign in to publish pastes', 'error');
+                showPage('auth');
+                return;
+            }
+            
+            const title = document.getElementById('paste-title').value.trim();
+            const content = document.getElementById('paste-content').value.trim();
+            
+            if (!title || !content) {
+                showAlert('Please fill in both title and content', 'error');
+                return;
+            }
+            
+            try {
+                // Get or create user data
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                let userData;
+                
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                } else {
+                    // Create user document if it doesn't exist
+                    userData = {
+                        email: currentUser.email,
+                        username: currentUser.email.split('@')[0],
+                        displayName: currentUser.email.split('@')[0],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isBanned: false,
+                        isAdmin: currentUser.email === 'exoticslash3r@gmail.com'
+                    };
+                    await pasteDb.collection('users').doc(currentUser.uid).set(userData);
+                }
+                
+                const pasteData = {
+                    title: title,
+                    content: content,
+                    username: userData.displayName || userData.username || currentUser.email.split('@')[0],
+                    userId: currentUser.uid,
+                    views: 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    isPinned: false,
+                    isRemoved: false,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await pasteDb.collection('pastes').add(pasteData);
+                
+                showAlert('Paste published successfully!', 'success');
+                clearPasteForm();
+                showPage('home');
+            } catch (error) {
+                showAlert(`Error publishing paste: ${error.message}`, 'error');
+            }
+        }
+
+        function clearPasteForm() {
+            document.getElementById('paste-title').value = '';
+            document.getElementById('paste-content').value = '';
+        }
+
+        async function loadRecentPastes() {
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                displayPastes(snapshot, 'pastes-container');
+            } catch (error) {
+                console.error('Error loading pastes:', error);
+                document.getElementById('pastes-container').innerHTML = 
+                    '<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
+            }
+        }
+
+        function displayPastes(snapshot, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="paste-card"><div class="paste-title">No pastes yet. Be the first to create one!</div></div>';
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const paste = doc.data();
+                const pasteId = doc.id;
+                
+                const pasteCard = document.createElement('div');
+                pasteCard.className = 'paste-card';
+                pasteCard.onclick = () => showPasteDetail(pasteId);
+                
+                pasteCard.innerHTML = `
+                    <div class="paste-username" onclick="event.stopPropagation(); showUserProfile('${paste.userId}')">
+                        ${escapeHtml(paste.username || 'Unknown User')}
+                        ${paste.isPinned ? '<span class="pinned-badge">📌 PINNED</span>' : ''}
+                        ${isAdmin ? `<span style="color: #ff6666; font-size: 0.8rem;">(${paste.userId?.substring(0, 6) || 'unknown'}...)</span>` : ''}
+                    </div>
+                    <div class="paste-title">${escapeHtml(paste.title)}</div>
+                    <div class="paste-views">👁️ ${paste.views || 0} views</div>
+                    <div class="paste-timestamp">⏰ ${formatTime(paste.timestamp?.toDate())}</div>
+                `;
+                
+                container.appendChild(pasteCard);
+            });
+        }
+
+        // Chat Functions
+        function loadChatMessages() {
+            chatDb.collection('messages')
+                .orderBy('timestamp', 'desc')
+                .limit(100)
+                .onSnapshot(snapshot => {
+                    const container = document.getElementById('chat-messages');
+                    container.innerHTML = '';
+                    
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sort by timestamp (newest first)
+                    messages.sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    if (messages.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #888;">No messages yet</div>';
+                        return;
+                    }
+                    
+                    messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-header">
+                                <div class="message-sender">${escapeHtml(msg.username || 'Unknown User')}:</div>
+                                <div class="message-time">${formatTime(msg.timestamp?.toDate())}</div>
+                            </div>
+                            <div>${escapeHtml(msg.message)}:</div>
+                        `;
+                        
+                        container.appendChild(messageDiv);
+                    });
+                    
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+                }, error => {
+                    console.error('Error loading chat:', error);
+                });
+        }
+
+        async function sendChatMessage() {
+            if (!currentUser) {
+                showAlert('Please sign in to chat', 'error');
+                showPage('auth');
+                return;
+            }
+            
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                // Get user data safely
+                const userDoc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                let username;
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    username = userData.displayName || userData.username || currentUser.email.split('@')[0];
+                } else {
+                    username = currentUser.email.split('@')[0];
+                }
+                
+                await chatDb.collection('messages').add({
+                    message: message,
+                    username: username,
+                    userId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                input.value = '';
+            } catch (error) {
+                showAlert(`Error sending message: ${error.message}`, 'error');
+            }
+        }
+
+        // Search Functionality
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchBar').value.trim();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (searchTerm.length === 0) {
+                resultsDiv.classList.add('hidden');
+                return;
+            }
+            
+            if (searchTimeout) clearTimeout(searchTimeout);
+            
+            searchTimeout = setTimeout(() => {
+                performSearch(searchTerm);
+                resultsDiv.classList.remove('hidden');
+            }, 300);
+        }
+
+        async function performSearch(searchTerm) {
+            const resultsContent = document.getElementById('searchResultsContent');
+            resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;">Searching...</div>';
+            
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const results = [];
+                const searchLower = searchTerm.toLowerCase();
+                
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    const pasteId = doc.id;
+                    
+                    const titleMatch = paste.title.toLowerCase().includes(searchLower);
+                    const contentMatch = paste.content.toLowerCase().includes(searchLower);
+                    const userMatch = (paste.username || '').toLowerCase().includes(searchLower);
+                    
+                    if (titleMatch || contentMatch || userMatch) {
+                        results.push({ id: pasteId, ...paste });
+                    }
+                });
+                
+                displaySearchResults(results, resultsContent);
+            } catch (error) {
+                resultsContent.innerHTML = `<div style="text-align: center; padding: 2rem; color: #ff0000;">Error: ${error.message}</div>`;
+            }
+        }
+
+        function displaySearchResults(results, container) {
+            if (results.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem;">No results found</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            results.slice(0, 10).forEach(paste => {
+                const result = document.createElement('div');
+                result.className = 'paste-card';
+                result.style.marginBottom = '1rem';
+                result.onclick = () => showPasteDetail(paste.id);
+                
+                result.innerHTML = `
+                    <div class="paste-username">${escapeHtml(paste.username || 'Unknown User')}</div>
+                    <div class="paste-title">${escapeHtml(paste.title)}</div>
+                    <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
+                `;
+                
+                container.appendChild(result);
+            });
+        }
+
+        // Most Mentioned
+        async function loadMostMentioned() {
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .where('isRemoved', '==', false)
+                    .get();
+                
+                const titleCount = {};
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    const title = paste.title.toLowerCase().trim();
+                    if (title) {
+                        titleCount[title] = (titleCount[title] || 0) + 1;
+                    }
+                });
+                
+                const sortedTitles = Object.entries(titleCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 20);
+                
+                const container = document.getElementById('most-mentioned-container');
+                container.innerHTML = '';
+                
+                sortedTitles.forEach(([title, count], index) => {
+                    const card = document.createElement('div');
+                    card.className = 'paste-card';
+                    card.innerHTML = `
+                        <div style="font-size: 1.5rem; margin-bottom: 1rem;">#${index + 1}</div>
+                        <div class="paste-title">${escapeHtml(title)}</div>
+                        <div class="paste-views">🔥 Mentioned ${count} times</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading most mentioned:', error);
+            }
+        }
+
+        // Profile Functions
+        async function loadUserProfileData() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await pasteDb.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    
+                    document.getElementById('display-name').value = userData.displayName || '';
+                    document.getElementById('banner-url').value = userData.bannerUrl || '';
+                    document.getElementById('profile-url').value = userData.profileUrl || '';
+                    
+                    if (userData.bannerUrl) {
+                        document.getElementById('profile-banner-img').style.backgroundImage = `url('${userData.bannerUrl}')`;
+                    }
+                    
+                    if (userData.profileUrl) {
+                        document.getElementById('profile-picture-img').style.backgroundImage = `url('${userData.profileUrl}')`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+            }
+        }
+
+        async function updateDisplayName() {
+            if (!currentUser) return;
+            
+            const displayName = document.getElementById('display-name').value.trim();
+            if (!displayName) {
+                showAlert('Please enter a display name', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Display name updated successfully!', 'success');
+                document.getElementById('usernameDisplay').textContent = displayName;
+            } catch (error) {
+                showAlert(`Error updating display name: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateBanner() {
+            if (!currentUser) return;
+            
+            const bannerUrl = document.getElementById('banner-url').value.trim();
+            if (!bannerUrl) {
+                showAlert('Please enter a banner URL', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    bannerUrl: bannerUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Banner updated successfully!', 'success');
+                document.getElementById('profile-banner-img').style.backgroundImage = `url('${bannerUrl}')`;
+            } catch (error) {
+                showAlert(`Error updating banner: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateProfilePicture() {
+            if (!currentUser) return;
+            
+            const profileUrl = document.getElementById('profile-url').value.trim();
+            if (!profileUrl) {
+                showAlert('Please enter a profile picture URL', 'error');
+                return;
+            }
+            
+            try {
+                await pasteDb.collection('users').doc(currentUser.uid).update({
+                    profileUrl: profileUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('Profile picture updated successfully!', 'success');
+                document.getElementById('profile-picture-img').style.backgroundImage = `url('${profileUrl}')`;
+            } catch (error) {
+                showAlert(`Error updating profile picture: ${error.message}`, 'error');
+            }
+        }
+
+        async function showUserProfile(userId) {
+            showPage('userProfile');
+            
+            try {
+                const userDoc = await pasteDb.collection('users').doc(userId).get();
+                const pasteSnap = await pasteDb.collection('pastes')
+                    .where('userId', '==', userId)
+                    .where('isRemoved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+                
+                const container = document.getElementById('user-profile-content');
+                
+                if (!userDoc.exists) {
+                    container.innerHTML = '<div style="text-align: center; padding: 3rem;">User not found</div>';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                let adminControls = '';
+                
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="admin-controls mt-4">
+                            <div class="admin-title">Admin Controls</div>
+                            <div class="admin-actions">
+                                <button class="btn btn-danger" onclick="adminBanUser('${userId}', ${!userData.isBanned})">
+                                    ${userData.isBanned ? '🔓 Unban User' : '⚠️ Ban User'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminDeleteUserPosts('${userId}')">
+                                    🗑️ Delete User's Posts
+                                </button>
+                                <button class="btn btn-danger" onclick="adminMakeAdmin('${userId}', ${!userData.isAdmin})">
+                                    ${userData.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                let postsHtml = '';
+                pasteSnap.forEach(doc => {
+                    const paste = doc.data();
+                    postsHtml += `
+                        <div class="paste-card mt-2" onclick="showPasteDetail('${doc.id}')">
+                            <div class="paste-title">${escapeHtml(paste.title)}</div>
+                            <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = `
+                    <div class="profile-banner" style="${userData.bannerUrl ? `background-image: url('${userData.bannerUrl}')` : ''}">
+                        <div class="profile-picture" style="${userData.profileUrl ? `background-image: url('${userData.profileUrl}')` : ''}"></div>
+                    </div>
+                    
+                    <h1 style="font-size: 2.5rem; margin-top: 5rem;">
+                        ${escapeHtml(userData.displayName || userData.username || userData.email?.split('@')[0] || 'Unknown User')}
+                        ${userData.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
+                        ${userData.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                    </h1>
+                    
+                    <div class="paste-content mt-3">
+                        <p><strong>📧 Email:</strong> ${escapeHtml(userData.email || 'Not provided')}</p>
+                        <p><strong>📅 Member since:</strong> ${formatTime(userData.createdAt?.toDate())}</p>
+                        <p><strong>💬 Total posts:</strong> ${pasteSnap.size}</p>
+                    </div>
+                    
+                    <h3 class="mt-4">Recent Posts:</h3>
+                    ${postsHtml || '<p>No posts yet</p>'}
+                    
+                    ${adminControls}
+                `;
+            } catch (error) {
+                showAlert(`Error loading profile: ${error.message}`, 'error');
+            }
+        }
+
+        // Admin Functions
+        async function loadAdminStats() {
+            if (!isAdmin) {
+                showAlert('Admin access required', 'error');
+                showPage('home');
+                return;
+            }
+            
+            try {
+                // Get stats
+                const usersSnap = await pasteDb.collection('users').get();
+                const pastesSnap = await pasteDb.collection('pastes').where('isRemoved', '==', false).get();
+                const chatSnap = await chatDb.collection('messages').get();
+                
+                const totalUsers = usersSnap.size;
+                const totalPastes = pastesSnap.size;
+                const bannedUsers = usersSnap.docs.filter(doc => doc.data().isBanned).length;
+                const pinnedPastes = pastesSnap.docs.filter(doc => doc.data().isPinned).length;
+                
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalPastes').textContent = totalPastes;
+                document.getElementById('bannedUsers').textContent = bannedUsers;
+                document.getElementById('pinnedPastes').textContent = pinnedPastes;
+                
+            } catch (error) {
+                console.error('Error loading admin stats:', error);
+            }
+        }
+
+        async function adminPinPaste(pasteId, pinState) {
+            if (!isAdmin) return;
+            
+            try {
+                await pasteDb.collection('pastes').doc(pasteId).update({
+                    isPinned: pinState
+                });
+                showAlert(`Paste ${pinState ? 'pinned' : 'unpinned'}`, 'success');
+                loadPasteDetailContent(pasteId);
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function adminRemovePaste(pasteId) {
+            if (!isAdmin) return;
+            
+            if (confirm('Are you sure you want to remove this paste?')) {
+                try {
+                    await pasteDb.collection('pastes').doc(pasteId).update({
+                        isRemoved: true
+                    });
+                    showAlert('Paste removed', 'success');
+                    closePasteDetail();
+                    showPage('home');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminBanUser(userId, banState = true) {
+            if (!isAdmin) return;
+            
+            const action = banState ? 'ban' : 'unban';
+            if (confirm(`Are you sure you want to ${action} this user?`)) {
+                try {
+                    await pasteDb.collection('users').doc(userId).update({
+                        isBanned: banState
+                    });
+                    showAlert(`User ${banState ? 'banned' : 'unbanned'}`, 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminDeleteUserPosts(userId) {
+            if (!isAdmin) return;
+            
+            if (confirm('Delete ALL posts by this user?')) {
+                try {
+                    const snapshot = await pasteDb.collection('pastes')
+                        .where('userId', '==', userId)
+                        .get();
+                    
+                    const batch = pasteDb.batch();
+                    snapshot.forEach(doc => {
+                        batch.update(doc.ref, { isRemoved: true });
+                    });
+                    
+                    await batch.commit();
+                    showAlert('All user posts removed', 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminMakeAdmin(userId, makeAdmin) {
+            if (!isAdmin) return;
+            
+            if (confirm(`${makeAdmin ? 'Make' : 'Remove'} admin privileges?`)) {
+                try {
+                    await pasteDb.collection('users').doc(userId).update({
+                        isAdmin: makeAdmin
+                    });
+                    showAlert(`Admin privileges ${makeAdmin ? 'granted' : 'removed'}`, 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminClearChat() {
+            if (!isAdmin) return;
+            
+            if (confirm('Clear ALL chat messages?')) {
+                try {
+                    const snapshot = await chatDb.collection('messages').get();
+                    const batch = chatDb.batch();
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    showAlert('Chat cleared', 'success');
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function adminViewAllUsers() {
+            if (!isAdmin) return;
+            
+            try {
+                const snapshot = await pasteDb.collection('users').orderBy('createdAt', 'desc').get();
+                const container = document.getElementById('admin-content');
+                
+                let html = '<h3>All Users:</h3><div class="pastes-grid">';
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    html += `
+                        <div class="paste-card">
+                            <div class="paste-username" onclick="showUserProfile('${doc.id}')">
+                                ${escapeHtml(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
+                                ${user.isBanned ? '<span class="admin-badge">BANNED</span>' : ''}
+                                ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                            </div>
+                            <div class="paste-title">${escapeHtml(user.email || 'No email')}</div>
+                            <div class="paste-views">
+                                📅 Joined: ${formatTime(user.createdAt?.toDate())}
+                            </div>
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-danger" onclick="adminBanUser('${doc.id}', ${!user.isBanned})">
+                                    ${user.isBanned ? '🔓 Unban' : '⚠️ Ban'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
+                                    ${user.isAdmin ? '👑 Remove Admin' : '👑 Make Admin'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function adminViewAllPastes() {
+            if (!isAdmin) return;
+            
+            try {
+                const snapshot = await pasteDb.collection('pastes')
+                    .orderBy('timestamp', 'desc')
+                    .limit(100)
+                    .get();
+                
+                const container = document.getElementById('admin-content');
+                container.innerHTML = '<h3>All Pastes:</h3><div class="pastes-grid">';
+                
+                snapshot.forEach(doc => {
+                    const paste = doc.data();
+                    container.innerHTML += `
+                        <div class="paste-card">
+                            <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                                ${escapeHtml(paste.username || 'Unknown User')}
+                                ${paste.isPinned ? '<span class="pinned-badge">PINNED</span>' : ''}
+                                ${paste.isRemoved ? '<span class="admin-badge">REMOVED</span>' : ''}
+                            </div>
+                            <div class="paste-title">${escapeHtml(paste.title)}</div>
+                            <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-success" onclick="adminPinPaste('${doc.id}', ${!paste.isPinned})">
+                                    ${paste.isPinned ? '📌 Unpin' : '📌 Pin'}
+                                </button>
+                                <button class="btn btn-danger" onclick="adminRemovePaste('${doc.id}')">
+                                    🗑️ Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML += '</div>';
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function adminBackupData() {
+            if (!isAdmin) return;
+            
+            showAlert('Backup feature would export data here', 'success');
+        }
+
+        // Utility Functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(date) {
+            if (!date) return 'Unknown';
+            
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set logo
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.src = "https://i.postimg.cc/x8ML5hVd/logo.jpg";
+                logo.onerror = function() {
+                    this.src = 'https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';
+                };
+            }
+            
+            // Set up auth listener
+            pasteAuth.onAuthStateChanged(async (user) => {
+                currentUser = user;
+                if (user) {
+                    await checkAdminStatus();
+                } else {
+                    isAdmin = false;
+                }
+                updateUIForAuth();
+                loadRecentPastes();
+            });
+            
+            // Show home page
+            showPage('home');
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (event) => {
+                const menu = document.getElementById('slideDownMenu');
+                const hamburger = document.querySelector('.hamburger-btn');
+                
+                if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // Enable music autoplay on user interaction
+            document.body.addEventListener('click', function() {
+                const hallMusic = document.getElementById('hallMusic');
+                if (hallMusic && hallMusic.paused) {
+                    hallMusic.play().catch(e => console.log("Music play prevented"));
+                }
+            });
+        });
+    </script>
 </body>
 </html>
