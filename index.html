@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Norbin - Paste & Chat</title>
+    <title>Norbin</title>
     <style>
         /* Black and White Theme */
         :root {
@@ -804,8 +804,8 @@
                     <textarea class="form-textarea" id="paste-content" placeholder="Enter your paste content here..."></textarea>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="publishPaste()">🚀 Publish</button>
-                    <button class="btn btn-secondary" onclick="clearPasteForm()">🗑️ Clear</button>
+                    <button class="btn btn-primary" onclick="publishPaste()">Publish</button>
+                    <button class="btn btn-secondary" onclick="clearPasteForm()">Clear</button>
                 </div>
             </div>
         </div>
@@ -825,7 +825,7 @@
                                id="chat-input" 
                                placeholder="Type your message... (Press Enter to send)"
                                onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                        <button class="send-btn" onclick="sendChatMessage()">📤 Send</button>
+                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
                     </div>
                 </div>
             </div>
@@ -833,19 +833,19 @@
 
         <!-- Most Mentioned -->
         <div id="most-mentioned-page" class="hidden">
-            <h2 class="section-title">🔥 Most Mentioned Titles</h2>
+            <h2 class="section-title">Most Mentioned Titles</h2>
             <div id="most-mentioned-container" class="pastes-grid"></div>
         </div>
 
         <!-- Hall of Autism -->
         <div id="hall-page" class="hidden">
-            <h2 class="section-title">🎭 Hall of Autism</h2>
+            <h2 class="section-title">Hall of Autism</h2>
             <div class="hall-grid" id="hall-container"></div>
         </div>
 
         <!-- My Account -->
         <div id="myaccount-page" class="hidden">
-            <h2 class="section-title">👤 My Account</h2>
+            <h2 class="section-title">My Account</h2>
             <div class="profile-form">
                 <div class="form-group">
                     <div class="profile-banner">
@@ -935,8 +935,8 @@
                     <input type="password" class="form-input" id="auth-password" placeholder="••••••••">
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="signIn()">🚀 Sign In</button>
-                    <button class="btn btn-secondary" onclick="signUp()">✨ Create Account</button>
+                    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
+                    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
                 </div>
                 <div id="auth-message" class="mt-3 text-center"></div>
             </div>
