@@ -1,26 +1,696 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Image Display</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norbin :: SITE SEIZED</title>
     <style>
+        /* RESET & BASE STYLES */
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            background: black;
+            background: #000;
+            color: #ccc;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
         }
         
-        img {
-            width: 100vw;
-            height: 100vh;
-            object-fit: contain;
-            display: block;
+        /* MATRIX BACKGROUND EFFECT */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* HEADER */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #c00;
+            margin-bottom: 40px;
+            background: rgba(10, 10, 10, 0.95);
+        }
+        
+        .header h1 {
+            color: #f00;
+            font-size: 4rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            animation: glitch 3s infinite;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        .subtitle {
+            color: #ff4444;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+        }
+        
+        /* SEIZURE BANNER */
+        .seizure-banner {
+            background: linear-gradient(90deg, #800000, #a00000, #800000);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid white;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .seizure-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        /* AGENCY SECTION */
+        .agencies {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin: 50px 0;
+            padding: 30px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #444;
+        }
+        
+        .agency {
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .agency-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 3px solid #c00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .agency-logo::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px dashed #c00;
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .agency-logo img {
+            max-width: 80%;
+            max-height: 80%;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        
+        .agency-name {
+            color: #ff6666;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+        
+        /* CONTENT SECTIONS */
+        .section {
+            background: rgba(15, 15, 15, 0.95);
+            padding: 30px;
+            margin: 30px 0;
+            border-left: 5px solid #c00;
+            position: relative;
+        }
+        
+        .section h2 {
+            color: #ff5555;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        
+        .section p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .section ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .section li {
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+        
+        /* TERMINAL DISPLAY */
+        .terminal-container {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin: 40px 0;
+            font-family: 'Courier New', monospace;
+            min-height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .terminal-header {
+            color: #0f0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 5px;
+        }
+        
+        .terminal-line {
+            color: #0f0;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* WARNING BOXES */
+        .warning {
+            background: rgba(200, 0, 0, 0.2);
+            border: 2px solid #f00;
+            padding: 25px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .warning h3 {
+            color: #ff9999;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .red-alert {
+            color: #f00;
+            text-align: center;
+            font-size: 1.5rem;
+            animation: blink 1s infinite;
+            margin: 20px 0;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* DOMAIN INFO */
+        .domain-info {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 20px;
+            margin: 30px 0;
+            border: 1px solid #666;
+        }
+        
+        .domain-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #444;
+        }
+        
+        .domain-label {
+            color: #888;
+            width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .domain-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        /* FOOTER */
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .agency-logo {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+        
+        /* DATA BREACH TABLE */
+        .breach-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .breach-table th {
+            background: #333;
+            color: #fff;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #555;
+        }
+        
+        .breach-table td {
+            padding: 10px;
+            border: 1px solid #555;
+            color: #ccc;
+        }
+        
+        .breach-table tr:nth-child(even) {
+            background: rgba(50, 50, 50, 0.5);
+        }
+        
+        /* ACCESS LOG */
+        .access-log {
+            background: #111;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 3px solid #0f0;
+            font-family: monospace;
+            color: #0f0;
+        }
+        
+        /* COUNTDOWN */
+        .countdown {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #f00;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
         }
     </style>
 </head>
 <body>
-    <img src="https://cyberscoop.com/wp-content/uploads/sites/3/2023/12/Screenshot-2023-12-19-at-10.24.25%E2%80%AFAM.png">
+    <!-- Matrix Background Effect -->
+    <canvas id="matrixCanvas" class="matrix-bg"></canvas>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>NORBIN</h1>
+            <div class="subtitle">SITE SEIZED BY FEDERAL AUTHORITIES</div>
+        </div>
+        
+        <!-- Seizure Banner -->
+        <div class="seizure-banner">
+            ⚠️ THIS DOMAIN HAS BEEN SEIZED BY FEDERAL LAW ENFORCEMENT ⚠️
+        </div>
+        
+        <!-- Agency Section -->
+        <div class="agencies">
+            <div class="agency">
+                <div class="agency-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Seal_of_the_Federal_Bureau_of_Investigation.svg/240px-Seal_of_the_Federal_Bureau_of_Investigation.svg.png" alt="FBI">
+                </div>
+                <div class="agency-name">FEDERAL BUREAU OF INVESTIGATION</div>
+                <div>Cyber Division</div>
+            </div>
+            
+            <div class="agency">
+                <div class="agency-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Seal_of_the_Central_Intelligence_Agency.svg/240px-Seal_of_the_Central_Intelligence_Agency.svg.png" alt="CIA">
+                </div>
+                <div class="agency-name">CENTRAL INTELLIGENCE AGENCY</div>
+                <div>Cyber Operations Center</div>
+            </div>
+            
+            <div class="agency">
+                <div class="agency-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Seal_of_the_United_States_Department_of_Justice.svg/240px-Seal_of_the_United_States_Department_of_Justice.svg.png" alt="DOJ">
+                </div>
+                <div class="agency-name">DEPARTMENT OF JUSTICE</div>
+                <div>Computer Crime Section</div>
+            </div>
+        </div>
+        
+        <!-- Main Seizure Notice -->
+        <div class="section">
+            <h2>SITE SEIZURE NOTICE</h2>
+            <p>The website <strong>https://norbin.vercel.app</strong> (operating under the alias "Norbin Leaks") has been permanently seized by federal authorities.</p>
+            <p>This action is part of Operation "SILENTBREACH," a multi-agency task force targeting illegal information trafficking networks.</p>
+            
+            <div class="warning">
+                <h3>CRIMINAL CHARGES</h3>
+                <p>The operators of Norbin have been indicted on the following charges:</p>
+                <ul>
+                    <li>Conspiracy to Commit Computer Intrusion (18 U.S.C. § 1030)</li>
+                    <li>Theft of Government Property (18 U.S.C. § 641)</li>
+                    <li>Unauthorized Access to Protected Computers (18 U.S.C. § 1030(a)(2))</li>
+                    <li>Aggravated Identity Theft (18 U.S.C. § 1028A)</li>
+                    <li>Money Laundering (18 U.S.C. § 1956)</li>
+                    <li>Espionage Act Violations (18 U.S.C. § 792-799)</li>
+                    <li>RICO Conspiracy (18 U.S.C. § 1962)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Domain Information -->
+        <div class="domain-info">
+            <h2>DOMAIN SEIZURE DETAILS</h2>
+            <div class="domain-row">
+                <div class="domain-label">Seized Domain:</div>
+                <div class="domain-value">https://norbin.vercel.app</div>
+            </div>
+            <div class="domain-row">
+                <div class="domain-label">Previous Alias:</div>
+                <div class="domain-value">Norbin Leaks / NORBIN Intelligence</div>
+            </div>
+            <div class="domain-row">
+                <div class="domain-label">Seizure Date:</div>
+                <div class="domain-value">January 15, 2024 - 02:47 UTC</div>
+            </div>
+            <div class="domain-row">
+                <div class="domain-label">Seizing Authority:</div>
+                <div class="domain-value">U.S. District Court for Eastern District of Virginia</div>
+            </div>
+            <div class="domain-row">
+                <div class="domain-label">Case Number:</div>
+                <div class="domain-value">24-CR-117-EVA</div>
+            </div>
+            <div class="domain-row">
+                <div class="domain-label">Investigating Agent:</div>
+                <div class="domain-value">SA Michael Vance, FBI Cyber Division</div>
+            </div>
+        </div>
+        
+        <!-- Terminal Display -->
+        <div class="terminal-container">
+            <div class="terminal-header">FBI CYBER COMMAND - OPERATION SILENTBREACH</div>
+            <div id="terminalOutput"></div>
+        </div>
+        
+        <!-- Data Breach Information -->
+        <div class="section">
+            <h2>DATA BREACH SUMMARY</h2>
+            <p>Norbin was responsible for the unauthorized distribution of:</p>
+            
+            <table class="breach-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Records Compromised</th>
+                        <th>Entities Affected</th>
+                        <th>Classification Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Government Documents</td>
+                        <td>47,892 files</td>
+                        <td>DoD, State Dept, NSA</td>
+                        <td>TOP SECRET//SCI</td>
+                    </tr>
+                    <tr>
+                        <td>Corporate Data</td>
+                        <td>12.4 TB</td>
+                        <td>Fortune 500 Companies</td>
+                        <td>PROPRIETARY</td>
+                    </tr>
+                    <tr>
+                        <td>Personal Information</td>
+                        <td>2.1 million records</td>
+                        <td>Government Employees</td>
+                        <td>PII/PHI</td>
+                    </tr>
+                    <tr>
+                        <td>Financial Records</td>
+                        <td>890 GB</td>
+                        <td>International Banks</td>
+                        <td>CONFIDENTIAL</td>
+                    </tr>
+                    <tr>
+                        <td>Source Code</td>
+                        <td>7.8 TB</td>
+                        <td>Defense Contractors</td>
+                        <td>EXPORT CONTROLLED</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Access Warning -->
+        <div class="warning">
+            <h3>⚠️ YOUR ACCESS HAS BEEN LOGGED ⚠️</h3>
+            <div class="red-alert">
+                ALL VISITORS TO THIS DOMAIN ARE SUBJECT TO INVESTIGATION
+            </div>
+            <p>Your connection to this seized domain has been recorded. The following information has been captured:</p>
+            
+            <div class="access-log">
+                <div>> Connection from: <span id="userLocation">Resolving...</span></div>
+                <div>> Timestamp: <span id="currentTime">Loading...</span></div>
+                <div>> User Agent: <span id="userAgent">Loading...</span></div>
+                <div>> Referrer: <span id="referrer">Direct Access</span></div>
+                <div>> Session ID: NORBIN-SI-<span id="sessionId">XXXXX</span></div>
+                <div>> Status: LOGGED FOR INVESTIGATION</div>
+            </div>
+        </div>
+        
+        <!-- Countdown -->
+        <div class="countdown">
+            SESSION TERMINATES IN: <span id="countdownTimer">05:00</span>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="section">
+            <h2>INVESTIGATION CONTACT</h2>
+            <p>This investigation is ongoing. If you have information regarding Norbin operations or its operators, contact:</p>
+            <ul>
+                <li>FBI Cyber Division: 1-855-FBI-CYBER</li>
+                <li>DOJ Computer Crime Section: (202) 514-1026</li>
+                <li>Secure Tip Submission: https://tips.fbi.gov</li>
+            </ul>
+            <p><strong>Case Reference:</strong> UNITED STATES v. NORBIN OPERATORS et al.</p>
+            <p><strong>Presiding Judge:</strong> Hon. Evelyn R. Dawson</p>
+            <p><strong>Next Court Date:</strong> February 28, 2024</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>This seizure notice will remain active until the conclusion of legal proceedings.</p>
+            <p>Unauthorized access attempts will be prosecuted to the fullest extent of the law.</p>
+            <p style="color: #444; margin-top: 20px;">FBI • CIA • DOJ • HSI • INTERPOL</p>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Background Effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "01";
+        const charArray = chars.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        // Terminal Simulation
+        const terminalLines = [
+            "> Initializing FBI Cyber Command Interface...",
+            "> Connecting to NORBIN infrastructure...",
+            "> Authentication bypassed using warrant KX-117...",
+            "> Executing domain seizure script...",
+            "> [✓] https://norbin.vercel.app seized",
+            "> [✓] Database preserved as evidence",
+            "> [✓] User logs captured (2.1M entries)",
+            "> [✓] Bitcoin wallets traced",
+            "> [✓] Operator identities identified",
+            "> Deploying seizure notice...",
+            "> Operation SILENTBREACH completed successfully",
+            "> All visitors are now being logged",
+            "> Connection logs forwarded to NSA/FBI joint task force",
+            "> Maintaining surveillance on all related infrastructure",
+            "> System ready for forensic analysis"
+        ];
+        
+        function displayTerminal() {
+            const terminal = document.getElementById('terminalOutput');
+            let index = 0;
+            
+            function addLine() {
+                if (index < terminalLines.length) {
+                    const line = document.createElement('div');
+                    line.className = 'terminal-line';
+                    line.textContent = terminalLines[index];
+                    line.style.animationDelay = (index * 0.3) + 's';
+                    terminal.appendChild(line);
+                    index++;
+                    setTimeout(addLine, 300);
+                }
+            }
+            
+            addLine();
+        }
+        
+        // User Information Display
+        function updateUserInfo() {
+            // Get user agent
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 50) + '...';
+            
+            // Generate session ID
+            document.getElementById('sessionId').textContent = Math.random().toString(36).substr(2, 8).toUpperCase();
+            
+            // Update time
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toUTCString();
+                document.getElementById('currentTime').textContent = timeString;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Get referrer
+            const referrer = document.referrer || 'Direct Access';
+            document.getElementById('referrer').textContent = referrer;
+        }
+        
+        // Countdown Timer
+        function startCountdown() {
+            let timeLeft = 300; // 5 minutes in seconds
+            const timerElement = document.getElementById('countdownTimer');
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    timerElement.textContent = "00:00";
+                    timerElement.style.color = "#f00";
+                    timerElement.style.animation = "blink 0.5s infinite";
+                }
+            }
+            
+            updateTimer();
+        }
+        
+        // Initialize everything
+        window.addEventListener('load', () => {
+            // Start Matrix animation
+            setInterval(drawMatrix, 35);
+            
+            // Start terminal simulation
+            setTimeout(displayTerminal, 1000);
+            
+            // Update user information
+            updateUserInfo();
+            
+            // Start countdown
+            startCountdown();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
