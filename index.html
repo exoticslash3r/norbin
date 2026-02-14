@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Norbin</title>
     <style>
-        /* YOUR EXACT CSS - Keep exactly as you had it */
         :root {
             --bg-color: #000000;
             --text-color: #ffffff;
@@ -107,6 +106,10 @@
 
         .doxbin-table tbody tr:hover {
             background: var(--hover-color);
+        }
+
+        .doxbin-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .paste-link {
@@ -1362,14 +1365,12 @@
     </style>
 </head>
 <body>
-    <!-- Timeout Overlay -->
     <div id="timeout-overlay" class="timeout-overlay">
         <div class="timeout-message">YOU HAVE BEEN TIMED OUT</div>
         <div class="timeout-details" id="timeout-details"></div>
         <div style="color: #888; font-size: 0.9rem;">You will be redirected when the timeout expires</div>
     </div>
 
-    <!-- Fullscreen Paste Detail -->
     <div id="paste-detail-container" class="paste-detail-container">
         <div class="paste-detail-header">
             <button class="back-btn" onclick="closePasteDetail()">← Back to Pastes</button>
@@ -1378,7 +1379,6 @@
         <div id="paste-detail-content" class="paste-detail-content"></div>
     </div>
 
-    <!-- Raw Paste View -->
     <div id="raw-paste-container" class="raw-paste-container">
         <div class="raw-paste-header">
             <button class="back-btn" onclick="closeRawPaste()">← Back to Paste</button>
@@ -1387,7 +1387,6 @@
         <div id="raw-paste-content" class="raw-paste-content"></div>
     </div>
 
-    <!-- Navigation -->
     <nav class="navbar">
         <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
         <div class="user-info">
@@ -1396,7 +1395,6 @@
         </div>
     </nav>
 
-    <!-- Slide Down Menu -->
     <div class="slide-down-menu" id="slideDownMenu">
         <div class="menu-items">
             <button class="menu-btn" onclick="showPage('home')">Home</button>
@@ -1411,9 +1409,7 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Home Page -->
         <div id="home-page">
             <div class="logo-container">
                 <img src="https://i.postimg.cc/htgc18kf/(7).jpg" alt="Norbin Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x100/000000/ffffff?text=NORBIN+LOGO';">
@@ -1468,7 +1464,6 @@
             <div id="pagination-info" class="pagination-info"></div>
         </div>
 
-        <!-- Create Paste Page -->
         <div id="paste-page" class="hidden">
             <div class="create-paste-container">
                 <h2 class="create-paste-title">Create Paste</h2>
@@ -1496,7 +1491,6 @@
             </div>
         </div>
 
-        <!-- Global Chat -->
         <div id="chat-page" class="hidden">
             <h2 class="section-title">Global Chat</h2>
             <div class="chat-container">
@@ -1511,19 +1505,16 @@
             </div>
         </div>
 
-        <!-- Most Mentioned -->
         <div id="most-mentioned-page" class="hidden">
             <h2 class="section-title">Most Mentioned Titles</h2>
             <div id="most-mentioned-container" class="pastes-grid"></div>
         </div>
 
-        <!-- Hall of Autism -->
         <div id="hall-page" class="hidden">
             <h2 class="section-title">Hall of Autism</h2>
             <div class="hall-grid" id="hall-container"></div>
         </div>
 
-        <!-- My Account -->
         <div id="myaccount-page" class="hidden">
             <h2 class="section-title">My Account</h2>
             <div class="profile-form">
@@ -1557,7 +1548,6 @@
             </div>
         </div>
 
-        <!-- VIP Features -->
         <div id="vip-page" class="hidden">
             <h2 class="section-title">VIP Features</h2>
             <div class="profile-form">
@@ -1570,7 +1560,6 @@
             </div>
         </div>
 
-        <!-- Tag Manager -->
         <div id="tagMaker-page" class="hidden">
             <h2 class="section-title">Tag Manager</h2>
             <div class="tag-form">
@@ -1587,7 +1576,6 @@
             </div>
         </div>
 
-        <!-- Admin Panel -->
         <div id="admin-page" class="hidden">
             <h2 class="section-title">Admin Panel</h2>
             <div class="admin-controls">
@@ -1630,7 +1618,6 @@
             </div>
         </div>
 
-        <!-- User Profile Page -->
         <div id="user-profile-page" class="hidden">
             <div class="profile-header">
                 <div id="profile-banner" class="profile-header-banner"></div>
@@ -1651,7 +1638,6 @@
             <div id="user-pastes-container" class="user-pastes-grid"></div>
         </div>
 
-        <!-- Auth Page -->
         <div id="auth-page" class="hidden">
             <h2 class="section-title">Authentication</h2>
             <div class="auth-form">
@@ -1672,22 +1658,17 @@
         </div>
     </div>
 
-    <!-- Alert Container -->
     <div id="alert-container" class="alert-container"></div>
 
-    <!-- Audio for Hall of Autism -->
     <audio id="hallMusic" loop style="display: none;">
         <source src="https://jumpshare.com/share/TQW46hI41f8SrHjqZkva" type="audio/mpeg">
     </audio>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <script>
-        // ==================== SECURE FIREBASE CONFIG ====================
-        // Your actual API keys - now properly secured
         const pasteDbConfig = {
             apiKey: "AIzaSyA1qaJnsRvWDvxNn9Nd1tmMVjvkF-WpUQY",
             authDomain: "norbin-c2fdb.firebaseapp.com",
@@ -1706,43 +1687,25 @@
             appId: "1:793931248044:web:80a954c39e17efafd58a09"
         };
 
-        // Initialize Firebase
-        let pasteApp, chatApp;
-        try {
-            pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
-            chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
-            console.log("Firebase initialized successfully");
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Firebase initialization failed. Please check your configuration.</div>';
-            throw error;
-        }
+        let pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
+        let chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
 
-        // Get Firebase Services
         const pasteAuth = pasteApp.auth();
         const pasteDb = pasteApp.firestore();
         const chatDb = chatApp.firestore();
 
-        // ==================== SECURITY FIXES ====================
-        // CRITICAL: No client-side role variables that can be modified!
-        // All role checks must go through Firebase server
-        
-        // Global State - NO role variables here!
         let currentUser = null;
         let currentUserData = null;
         let searchTimeout = null;
         let timeoutInterval = null;
         let currentPasteId = null;
         
-        // Pagination Variables
         let currentPage = 1;
         const itemsPerPage = 15;
         let totalPastes = 0;
         let totalPages = 0;
         let allPastesCache = [];
-        let uniquePasteIds = new Set();
 
-        // Rate Limiting
         const rateLimiter = {
             attempts: {},
             maxAttempts: 10,
@@ -1757,8 +1720,45 @@
             }
         };
 
-        // ==================== SECURE ROLE CHECK FUNCTIONS ====================
-        // All role checks go to Firebase - CANNOT be bypassed in console!
+        function sanitizeHTML(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function validateInput(input, type = 'text', maxLength = 1000) {
+            if (!input || typeof input !== 'string') return false;
+            if (input.length > maxLength) return false;
+            if (/<script|javascript:|onerror=|onload=|onclick=|onmouseover=/i.test(input)) return false;
+            
+            switch(type) {
+                case 'email':
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+                case 'password':
+                    return input.length >= 6;
+                case 'title':
+                    return /^[a-zA-Z0-9\s\-_,.!?()\[\]]+$/.test(input) && input.length <= 100;
+                case 'url':
+                    return /^https?:\/\/.+/.test(input) && input.length <= 500;
+                default:
+                    return true;
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function toggleMenu() {
+            document.getElementById('slideDownMenu').classList.toggle('active');
+        }
+
         async function isAdmin() {
             if (!currentUser) return false;
             try {
@@ -1824,52 +1824,6 @@
             }
         }
 
-        // ==================== SECURITY FUNCTIONS ====================
-        function sanitizeHTML(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function escapeHtml(text) {
-            return sanitizeHTML(text);
-        }
-
-        function validateInput(input, type = 'text', maxLength = 1000) {
-            if (!input || typeof input !== 'string') return false;
-            if (input.length > maxLength) return false;
-            if (/<script|javascript:|onerror=|onload=|onclick=|onmouseover=/i.test(input)) return false;
-            
-            switch(type) {
-                case 'email':
-                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
-                case 'password':
-                    return input.length >= 6;
-                case 'title':
-                    return /^[a-zA-Z0-9\s\-_,.!?()\[\]]+$/.test(input) && input.length <= 100;
-                case 'url':
-                    return /^https?:\/\/.+/.test(input) && input.length <= 500;
-                default:
-                    return true;
-            }
-        }
-
-        // ==================== ALERT SYSTEM ====================
-        function showAlert(message, type = 'info') {
-            const container = document.getElementById('alert-container');
-            const alert = document.createElement('div');
-            alert.className = `alert ${type}`;
-            alert.textContent = message;
-            container.appendChild(alert);
-            setTimeout(() => alert.remove(), 5000);
-        }
-
-        // ==================== MENU FUNCTIONS ====================
-        function toggleMenu() {
-            document.getElementById('slideDownMenu').classList.toggle('active');
-        }
-
         async function showPage(pageId) {
             document.getElementById('slideDownMenu').classList.remove('active');
             document.querySelectorAll('[id$="-page"]').forEach(page => page.classList.add('hidden'));
@@ -1878,7 +1832,6 @@
             if (page) {
                 page.classList.remove('hidden');
                 
-                // Check permissions before showing certain pages
                 if (pageId === 'admin') {
                     if (!(await isAdmin()) && !(await isManager()) && !(await isOwner())) {
                         showAlert('Access denied', 'error');
@@ -1901,7 +1854,6 @@
                     }
                 }
                 
-                // Load page data
                 switch(pageId) {
                     case 'home':
                         loadPinnedPastes();
@@ -1932,7 +1884,6 @@
             }
         }
 
-        // ==================== PASTE FUNCTIONS ====================
         async function publishPaste() {
             if (!currentUser) {
                 showAlert('Please sign in to publish pastes', 'error');
@@ -2002,7 +1953,6 @@
             document.getElementById('verify-human').checked = false;
         }
 
-        // ==================== AUTHENTICATION ====================
         async function signIn() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -2103,7 +2053,6 @@
                 if (doc.exists) {
                     currentUserData = doc.data();
                     
-                    // Check timeout
                     if (currentUserData.timeoutUntil) {
                         const timeoutUntil = currentUserData.timeoutUntil.toDate();
                         if (timeoutUntil > new Date()) {
@@ -2111,7 +2060,6 @@
                         }
                     }
                     
-                    // Check ban
                     if (currentUserData.isBanned) {
                         showAlert('Your account has been banned', 'error');
                         signOut();
@@ -2139,7 +2087,6 @@
                 usernameDisplay.textContent = displayName;
                 usernameDisplay.style.color = currentUserData.usernameColor || '#ffffff';
 
-                // Check roles from Firebase (not from variables!)
                 const owner = await isOwner();
                 const vip = await isVIP();
                 
@@ -2151,7 +2098,6 @@
                     usernameDisplay.className = 'username-display';
                 }
 
-                // Show/hide buttons based on Firebase checks
                 if (await isAdmin() || await isManager() || await isOwner()) {
                     adminBtn.classList.remove('hidden');
                 } else {
@@ -2181,7 +2127,6 @@
             }
         }
 
-        // ==================== PASTE DETAIL ====================
         function showPasteDetail(pasteId) {
             const container = document.getElementById('paste-detail-container');
             container.classList.add('active');
@@ -2213,7 +2158,6 @@
                 const container = document.getElementById('paste-detail-content');
                 const actionsContainer = document.getElementById('paste-detail-actions');
 
-                // Check admin permissions from Firebase
                 const admin = await isAdmin();
                 const manager = await isManager();
                 const owner = await isOwner();
@@ -2305,7 +2249,6 @@
             }
         }
 
-        // ==================== COMMENTS ====================
         async function loadComments(pasteId) {
             try {
                 const commentsList = document.getElementById('comments-list');
@@ -2359,7 +2302,6 @@
                     else if (userRole === 'manager') roleBadge = '<span class="badge badge-manager">Manager</span>';
                     else if (userRole === 'vip') roleBadge = '<span class="badge badge-vip">VIP</span>';
 
-                    // Check delete permissions from Firebase
                     let deleteButton = '';
                     if (currentUser) {
                         const admin = await isAdmin();
@@ -2440,7 +2382,6 @@
                 const commentDoc = await pasteDb.collection('comments').doc(commentId).get();
                 const comment = commentDoc.data();
 
-                // Check permissions from Firebase
                 const admin = await isAdmin();
                 const manager = await isManager();
                 const owner = await isOwner();
@@ -2458,9 +2399,6 @@
             }
         }
 
-        // ==================== ADMIN FUNCTIONS ====================
-        // ALL admin functions check permissions from Firebase first!
-        
         async function adminPinPaste(pasteId, pinState) {
             if (!(await isAdmin()) && !(await isManager()) && !(await isOwner())) {
                 showAlert('Access denied', 'error');
@@ -2745,8 +2683,7 @@
             adminViewAllUsers();
         }
 
-        async function adminBackupData() {
-            if (!(await isAdmin()) && !(await isManager()) && !(await isOwner())) return;
+        function adminBackupData() {
             showAlert('Backup feature would export data here', 'success');
         }
 
@@ -2769,7 +2706,6 @@
             }
         }
 
-        // ==================== TIMEOUT ====================
         function showTimeoutNotification(timeoutUntil) {
             const overlay = document.getElementById('timeout-overlay');
             const details = document.getElementById('timeout-details');
@@ -2824,7 +2760,6 @@
             document.getElementById('timeout-email').value = userId;
         }
 
-        // ==================== PASTE DISPLAY ====================
         async function loadPinnedPastes() {
             try {
                 const snapshot = await pasteDb.collection('pastes')
@@ -2841,9 +2776,14 @@
                     return;
                 }
 
+                const processedIds = new Set();
+
                 for (const doc of snapshot.docs) {
-                    const paste = doc.data();
                     const pasteId = doc.id;
+                    if (processedIds.has(pasteId)) continue;
+                    processedIds.add(pasteId);
+                    
+                    const paste = doc.data();
                     const userRole = await getUserRole(paste.userId);
 
                     const row = document.createElement('tr');
@@ -2899,14 +2839,14 @@
                     .get();
 
                 allPastesCache = [];
-                uniquePasteIds.clear();
+                const processedIds = new Set();
 
                 for (const doc of snapshot.docs) {
-                    const paste = doc.data();
                     const pasteId = doc.id;
-
-                    if (uniquePasteIds.has(pasteId)) continue;
-                    uniquePasteIds.add(pasteId);
+                    if (processedIds.has(pasteId)) continue;
+                    processedIds.add(pasteId);
+                    
+                    const paste = doc.data();
 
                     let commentCount = 0;
                     try {
@@ -2950,7 +2890,12 @@
                 return;
             }
 
+            const processedIds = new Set();
+
             for (const paste of pagePastes) {
+                if (processedIds.has(paste.id)) continue;
+                processedIds.add(paste.id);
+                
                 const userRole = await getUserRole(paste.userId);
 
                 const row = document.createElement('tr');
@@ -3057,7 +3002,6 @@
             document.getElementById('pastes-container').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ==================== SEARCH ====================
         function performSearchNow() {
             const searchTerm = document.getElementById('searchBar').value.trim();
             if (searchTerm) performSearch(searchTerm);
@@ -3075,13 +3019,18 @@
 
                 const results = [];
                 const searchLower = searchTerm.toLowerCase();
+                const processedIds = new Set();
 
                 snapshot.forEach(doc => {
+                    const pasteId = doc.id;
+                    if (processedIds.has(pasteId)) return;
+                    processedIds.add(pasteId);
+                    
                     const paste = doc.data();
                     if (paste.title.toLowerCase().includes(searchLower) ||
                         paste.content.toLowerCase().includes(searchLower) ||
                         (paste.username || '').toLowerCase().includes(searchLower)) {
-                        results.push({ id: doc.id, ...paste });
+                        results.push({ id: pasteId, ...paste });
                     }
                 });
 
@@ -3100,7 +3049,12 @@
                 return;
             }
 
+            const processedIds = new Set();
+
             for (const paste of results.slice(0, 50)) {
+                if (processedIds.has(paste.id)) continue;
+                processedIds.add(paste.id);
+                
                 const userRole = await getUserRole(paste.userId);
 
                 const row = document.createElement('tr');
@@ -3147,7 +3101,6 @@
             }
         }
 
-        // ==================== CHAT ====================
         function loadChatMessages() {
             chatDb.collection('messages')
                 .orderBy('timestamp', 'desc')
@@ -3157,7 +3110,15 @@
                     container.innerHTML = '';
 
                     const messages = [];
-                    snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+                    const processedIds = new Set();
+                    
+                    snapshot.forEach(doc => {
+                        const msgId = doc.id;
+                        if (processedIds.has(msgId)) return;
+                        processedIds.add(msgId);
+                        messages.push({ id: msgId, ...doc.data() });
+                    });
+                    
                     messages.sort((a, b) => a.timestamp - b.timestamp);
 
                     if (messages.length === 0) {
@@ -3216,7 +3177,6 @@
             }
         }
 
-        // ==================== MOST MENTIONED ====================
         async function loadMostMentioned() {
             try {
                 const snapshot = await pasteDb.collection('pastes').where('isRemoved', '==', false).get();
@@ -3249,7 +3209,6 @@
             }
         }
 
-        // ==================== HALL OF AUTISM ====================
         function initializeHallOfAutism() {
             const hallContainer = document.getElementById('hall-container');
             hallContainer.innerHTML = '';
@@ -3283,7 +3242,6 @@
             }
         }
 
-        // ==================== USER PROFILE ====================
         async function showUserProfile(userId) {
             showPage('userProfile');
 
@@ -3352,11 +3310,17 @@
                     return;
                 }
 
+                const processedIds = new Set();
+
                 snapshot.forEach(doc => {
+                    const pasteId = doc.id;
+                    if (processedIds.has(pasteId)) return;
+                    processedIds.add(pasteId);
+                    
                     const paste = doc.data();
                     const pasteCard = document.createElement('div');
                     pasteCard.className = 'user-paste-card';
-                    pasteCard.onclick = () => showPasteDetail(doc.id);
+                    pasteCard.onclick = () => showPasteDetail(pasteId);
                     pasteCard.innerHTML = `
                         <div class="user-paste-title">${sanitizeHTML(paste.title)}</div>
                         <div style="color: #888; font-size: 0.9rem; margin: 0.5rem 0; max-height: 60px; overflow: hidden;">
@@ -3467,7 +3431,6 @@
             }
         }
 
-        // ==================== VIP FUNCTIONS ====================
         async function loadVIPFeatures() {
             if (!(await isVIP()) && !(await isOwner())) {
                 showPage('home');
@@ -3493,7 +3456,6 @@
             }
         }
 
-        // ==================== TAG FUNCTIONS ====================
         async function loadTags() {
             if (!(await isTagMaker()) && !(await isManager()) && !(await isAdmin()) && !(await isOwner())) {
                 showPage('home');
@@ -3587,7 +3549,6 @@
             }
         }
 
-        // ==================== UTILITY FUNCTIONS ====================
         function formatTime(date) {
             if (!date) return 'Unknown';
             const now = new Date();
@@ -3661,9 +3622,7 @@
             document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Set up auth listener
             pasteAuth.onAuthStateChanged(async (user) => {
                 currentUser = user;
                 if (user) {
@@ -3676,10 +3635,8 @@
                 loadPinnedPastes();
             });
 
-            // Show home page
             showPage('home');
 
-            // Close menu when clicking outside
             document.addEventListener('click', (event) => {
                 const menu = document.getElementById('slideDownMenu');
                 const hamburger = document.querySelector('.hamburger-btn');
@@ -3688,7 +3645,6 @@
                 }
             });
 
-            // Check for paste ID in URL
             const urlParams = new URLSearchParams(window.location.search);
             const pasteId = urlParams.get('paste');
             if (pasteId && /^[a-zA-Z0-9]{20,}$/.test(pasteId)) {
