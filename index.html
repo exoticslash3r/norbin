@@ -14,7 +14,7 @@
             --hover-color: #222222;
             --table-header-bg: #000000;
             --table-row-alt: #000000;
-            --table-border: #2aa2a;
+            --table-border: #333333;
             --link-color: #4dabf7;
         }
 
@@ -22,7 +22,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: all 0.3s ease;
         }
 
         body {
@@ -246,9 +245,9 @@
         }
 
         .pagination-btn {
-            background: var(--table-header-bg);
-            color: var(--accent-color);
-            border: 1px solid var(--table-border);
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
             width: 36px;
             height: 36px;
             border-radius: 2px;
@@ -261,8 +260,8 @@
         }
 
         .pagination-btn:hover:not(:disabled) {
-            background: var(--hover-color);
-            border-color: var(--link-color);
+            background: #222222;
+            border-color: #ffffff;
         }
 
         .pagination-btn:disabled {
@@ -277,9 +276,9 @@
         }
 
         .page-number {
-            background: var(--table-header-bg);
-            color: var(--accent-color);
-            border: 1px solid var(--table-border);
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
             width: 36px;
             height: 36px;
             border-radius: 2px;
@@ -293,14 +292,27 @@
         }
 
         .page-number:hover {
-            background: var(--hover-color);
-            border-color: var(--link-color);
+            background: #222222;
+            border-color: #ffffff;
         }
 
         .page-number.active {
-            background: var(--link-color);
-            color: white;
-            border-color: var(--link-color);
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        .page-ellipsis {
+            color: #888;
+            font-size: 1rem;
+            margin: 0 0.5rem;
+        }
+
+        .pagination-info {
+            text-align: center;
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
         }
 
         .timeout-overlay {
@@ -1373,7 +1385,7 @@
 
     <div id="paste-detail-container" class="paste-detail-container">
         <div class="paste-detail-header">
-            <button class="back-btn" onclick="closePasteDetail()">← Back to Pastes</button>
+            <button class="back-btn" id="backFromPasteBtn">← Back to Pastes</button>
             <div id="paste-detail-actions"></div>
         </div>
         <div id="paste-detail-content" class="paste-detail-content"></div>
@@ -1381,31 +1393,31 @@
 
     <div id="raw-paste-container" class="raw-paste-container">
         <div class="raw-paste-header">
-            <button class="back-btn" onclick="closeRawPaste()">← Back to Paste</button>
-            <button class="btn btn-primary" onclick="copyRawPaste()">Copy Raw</button>
+            <button class="back-btn" id="backFromRawBtn">← Back to Paste</button>
+            <button class="btn btn-primary" id="copyRawBtn">Copy Raw</button>
         </div>
         <div id="raw-paste-content" class="raw-paste-content"></div>
     </div>
 
     <nav class="navbar">
-        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <button class="hamburger-btn" id="hamburgerBtn">☰</button>
         <div class="user-info">
             <span id="usernameDisplay" class="username-display"></span>
-            <button class="btn btn-primary btn-small" onclick="showPage('auth')" id="authBtn">Sign In</button>
+            <button class="btn btn-primary btn-small" id="authBtn">Sign In</button>
         </div>
     </nav>
 
     <div class="slide-down-menu" id="slideDownMenu">
         <div class="menu-items">
-            <button class="menu-btn" onclick="showPage('home')">Home</button>
-            <button class="menu-btn" onclick="showPage('paste')">Create Paste</button>
-            <button class="menu-btn" onclick="showPage('chat')">Global Chat</button>
-            <button class="menu-btn" onclick="showPage('most-mentioned')">Most Mentioned</button>
-            <button class="menu-btn" onclick="showPage('hall')">Hall of Autism</button>
-            <button class="menu-btn hidden" id="myAccountBtn" onclick="showPage('myaccount')">My Account</button>
-            <button class="menu-btn hidden" id="adminBtn" onclick="showPage('admin')">Admin Panel</button>
-            <button class="menu-btn hidden" id="tagMakerBtn" onclick="showPage('tagMaker')">Tag Manager</button>
-            <button class="menu-btn hidden" id="vipBtn" onclick="showPage('vip')">VIP Features</button>
+            <button class="menu-btn" id="homeBtn">Home</button>
+            <button class="menu-btn" id="createPasteBtn">Create Paste</button>
+            <button class="menu-btn" id="chatBtn">Global Chat</button>
+            <button class="menu-btn" id="mostMentionedBtn">Most Mentioned</button>
+            <button class="menu-btn" id="hallBtn">Hall of Autism</button>
+            <button class="menu-btn hidden" id="myAccountBtn">My Account</button>
+            <button class="menu-btn hidden" id="adminBtn">Admin Panel</button>
+            <button class="menu-btn hidden" id="tagMakerBtn">Tag Manager</button>
+            <button class="menu-btn hidden" id="vipBtn">VIP Features</button>
         </div>
     </div>
 
@@ -1417,8 +1429,8 @@
 
             <div class="search-container">
                 <div class="search-wrapper">
-                    <input type="text" class="search-bar" id="searchBar" placeholder="Search pastes by title, username, or content..." onkeypress="if(event.key === 'Enter') performSearchNow()">
-                    <button class="search-btn" onclick="performSearchNow()">Search</button>
+                    <input type="text" class="search-bar" id="searchBar" placeholder="Search pastes by title, username, or content...">
+                    <button class="search-btn" id="searchBtn">Search</button>
                 </div>
             </div>
 
@@ -1457,9 +1469,9 @@
             </div>
 
             <div id="pagination-container" class="pagination-container hidden">
-                <button class="pagination-btn" id="prev-page-btn" onclick="changePage(currentPage - 1)" disabled>←</button>
+                <button class="pagination-btn" id="prev-page-btn" disabled>←</button>
                 <div class="pagination-pages" id="page-numbers"></div>
-                <button class="pagination-btn" id="next-page-btn" onclick="changePage(currentPage + 1)" disabled>→</button>
+                <button class="pagination-btn" id="next-page-btn" disabled>→</button>
             </div>
             <div id="pagination-info" class="pagination-info"></div>
         </div>
@@ -1484,8 +1496,8 @@
                         </label>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-primary" onclick="publishPaste()">Create Paste</button>
-                        <button class="btn btn-secondary" onclick="clearPasteForm()">Clear</button>
+                        <button class="btn btn-primary" id="publishPasteBtn">Create Paste</button>
+                        <button class="btn btn-secondary" id="clearPasteBtn">Clear</button>
                     </div>
                 </div>
             </div>
@@ -1498,8 +1510,8 @@
                 <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
-                        <input type="text" class="chat-input" id="chat-input" placeholder="Type your message... (Press Enter to send)" onkeypress="if(event.key === 'Enter') sendChatMessage()" maxlength="500">
-                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Type your message... (Press Enter to send)" maxlength="500">
+                        <button class="send-btn" id="sendChatBtn">Send</button>
                     </div>
                 </div>
             </div>
@@ -1528,20 +1540,20 @@
                     <div class="form-group">
                         <label class="form-label">Display Name</label>
                         <input type="text" class="form-input" id="display-name" placeholder="Enter display name" maxlength="50">
-                        <button class="btn btn-primary mt-3" onclick="updateDisplayName()">Update Display Name</button>
+                        <button class="btn btn-primary mt-3" id="updateDisplayNameBtn">Update Display Name</button>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Banner Image URL</label>
                         <div class="url-input-group">
                             <input type="url" class="url-input" id="banner-url" placeholder="https://example.com/banner.jpg">
-                            <button class="btn btn-primary" onclick="updateBanner()">Update</button>
+                            <button class="btn btn-primary" id="updateBannerBtn">Update</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Profile Picture URL</label>
                         <div class="url-input-group">
                             <input type="url" class="url-input" id="profile-url" placeholder="https://example.com/profile.jpg">
-                            <button class="btn btn-primary" onclick="updateProfilePicture()">Update</button>
+                            <button class="btn btn-primary" id="updateProfileBtn">Update</button>
                         </div>
                     </div>
                 </div>
@@ -1554,7 +1566,7 @@
                 <div class="form-group">
                     <label class="form-label">Custom Username Color</label>
                     <input type="color" class="form-input" id="username-color" value="#ffffff" style="height: 40px; padding: 0;">
-                    <button class="btn btn-gold mt-3" onclick="updateUsernameColor()">Update Color</button>
+                    <button class="btn btn-gold mt-3" id="updateColorBtn">Update Color</button>
                     <p class="mt-2" style="color: #888; font-size: 0.8rem;">Note: VIP users can customize their username color.</p>
                 </div>
             </div>
@@ -1567,7 +1579,7 @@
                     <label class="form-label">Create New Tag</label>
                     <input type="text" class="form-input" id="tag-name" placeholder="Enter tag name" maxlength="30">
                     <input type="color" class="form-input mt-2" id="tag-color" value="#ffffff" style="height: 40px; padding: 0;">
-                    <button class="btn btn-primary mt-3" onclick="createTag()">Create Tag</button>
+                    <button class="btn btn-primary mt-3" id="createTagBtn">Create Tag</button>
                 </div>
             </div>
             <div class="tag-container">
@@ -1587,12 +1599,12 @@
                     <div class="stat-box"><div class="stat-number" id="pinnedPastes">0</div><div class="stat-label">Pinned Pastes</div></div>
                 </div>
                 <div class="admin-actions">
-                    <button class="btn btn-danger btn-small" onclick="adminViewAllUsers()">View All Users</button>
-                    <button class="btn btn-danger btn-small" onclick="adminViewAllPastes()">View All Pastes</button>
-                    <button class="btn btn-danger btn-small" onclick="adminClearChat()">Clear Chat</button>
-                    <button class="btn btn-danger btn-small" onclick="adminBackupData()">Backup Data</button>
-                    <button class="btn btn-danger btn-small" onclick="showTimeoutForm()">Timeout User</button>
-                    <button class="btn btn-danger btn-small" onclick="adminManageRoles()">Manage Roles</button>
+                    <button class="btn btn-danger btn-small" id="viewAllUsersBtn">View All Users</button>
+                    <button class="btn btn-danger btn-small" id="viewAllPastesBtn">View All Pastes</button>
+                    <button class="btn btn-danger btn-small" id="clearChatBtn">Clear Chat</button>
+                    <button class="btn btn-danger btn-small" id="backupDataBtn">Backup Data</button>
+                    <button class="btn btn-danger btn-small" id="showTimeoutFormBtn">Timeout User</button>
+                    <button class="btn btn-danger btn-small" id="manageRolesBtn">Manage Roles</button>
                 </div>
                 <div id="admin-content" class="mt-4"></div>
                 <div id="timeout-form" class="timeout-form hidden mt-4">
@@ -1611,14 +1623,15 @@
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-danger" onclick="adminTimeoutUser()">Timeout User</button>
-                        <button class="btn btn-secondary" onclick="hideTimeoutForm()">Cancel</button>
+                        <button class="btn btn-danger" id="timeoutUserBtn">Timeout User</button>
+                        <button class="btn btn-secondary" id="cancelTimeoutBtn">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="user-profile-page" class="hidden">
+            <button class="back-btn" id="backFromProfileBtn">← Back to Pastes</button>
             <div class="profile-header">
                 <div id="profile-banner" class="profile-header-banner"></div>
                 <div class="profile-header-content">
@@ -1630,9 +1643,9 @@
                 </div>
             </div>
             <div class="profile-stats">
-                <div class="stat-item"><div class="stat-value" id="paste-count">0</div><div class="stat-label">Pastes</div></div>
-                <div class="stat-item"><div class="stat-value" id="follows-count">0</div><div class="stat-label">Followers</div></div>
-                <div class="stat-item"><div class="stat-value" id="following-count">0</div><div class="stat-label">Following</div></div>
+                <div class="stat-item"><div class="stat-value" id="profile-paste-count">0</div><div class="stat-label">Pastes</div></div>
+                <div class="stat-item"><div class="stat-value" id="profile-follows-count">0</div><div class="stat-label">Followers</div></div>
+                <div class="stat-item"><div class="stat-value" id="profile-following-count">0</div><div class="stat-label">Following</div></div>
             </div>
             <h3 class="section-title">User's Pastes</h3>
             <div id="user-pastes-container" class="user-pastes-grid"></div>
@@ -1650,8 +1663,8 @@
                     <input type="password" class="form-input" id="auth-password" placeholder="••••••••" minlength="6">
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
-                    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
+                    <button class="btn btn-primary" id="signInBtn">Sign In</button>
+                    <button class="btn btn-secondary" id="signUpBtn">Create Account</button>
                 </div>
                 <div id="auth-message" class="mt-3 text-center"></div>
             </div>
@@ -1687,8 +1700,8 @@
             appId: "1:793931248044:web:80a954c39e17efafd58a09"
         };
 
-        let pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
-        let chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
+        const pasteApp = firebase.initializeApp(pasteDbConfig, "pasteApp");
+        const chatApp = firebase.initializeApp(chatDbConfig, "chatApp");
 
         const pasteAuth = pasteApp.auth();
         const pasteDb = pasteApp.firestore();
@@ -1696,15 +1709,14 @@
 
         let currentUser = null;
         let currentUserData = null;
-        let searchTimeout = null;
         let timeoutInterval = null;
         let currentPasteId = null;
-        
         let currentPage = 1;
         const itemsPerPage = 15;
         let totalPastes = 0;
         let totalPages = 0;
         let allPastesCache = [];
+        let currentProfileUserId = null;
 
         const rateLimiter = {
             attempts: {},
@@ -1725,6 +1737,10 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function escapeHtml(text) {
+            return sanitizeHTML(text);
         }
 
         function validateInput(input, type = 'text', maxLength = 1000) {
@@ -1757,6 +1773,10 @@
 
         function toggleMenu() {
             document.getElementById('slideDownMenu').classList.toggle('active');
+        }
+
+        function hideMenu() {
+            document.getElementById('slideDownMenu').classList.remove('active');
         }
 
         async function isAdmin() {
@@ -1825,7 +1845,7 @@
         }
 
         async function showPage(pageId) {
-            document.getElementById('slideDownMenu').classList.remove('active');
+            hideMenu();
             document.querySelectorAll('[id$="-page"]').forEach(page => page.classList.add('hidden'));
             
             const page = document.getElementById(pageId + '-page');
@@ -1939,7 +1959,9 @@
                 });
 
                 showAlert('Paste published successfully!', 'success');
-                clearPasteForm();
+                document.getElementById('paste-title').value = '';
+                document.getElementById('paste-content').value = '';
+                document.getElementById('verify-human').checked = false;
                 showPage('home');
                 loadPaginationData();
             } catch (error) {
@@ -2080,7 +2102,6 @@
 
             if (currentUser && currentUserData) {
                 authBtn.textContent = 'Sign Out';
-                authBtn.onclick = signOut;
                 myAccountBtn.classList.remove('hidden');
 
                 const displayName = currentUserData.displayName || currentUserData.username || currentUser.email.split('@')[0];
@@ -2117,7 +2138,6 @@
                 }
             } else {
                 authBtn.textContent = 'Sign In';
-                authBtn.onclick = () => showPage('auth');
                 myAccountBtn.classList.add('hidden');
                 adminBtn.classList.add('hidden');
                 vipBtn.classList.add('hidden');
@@ -2128,8 +2148,7 @@
         }
 
         function showPasteDetail(pasteId) {
-            const container = document.getElementById('paste-detail-container');
-            container.classList.add('active');
+            document.getElementById('paste-detail-container').classList.add('active');
             document.body.style.overflow = 'hidden';
             currentPasteId = pasteId;
             loadPasteDetailContent(pasteId);
@@ -2200,7 +2219,7 @@
 
                 container.innerHTML = `
                     <div style="margin-bottom: 1.5rem;">
-                        <a href="javascript:void(0)" class="paste-link" onclick="showUserProfile('${paste.userId}')">
+                        <a href="#" class="paste-link" onclick="showUserProfile('${paste.userId}'); return false;">
                             ${sanitizeHTML(paste.username || 'Anonymous')}
                         </a>
                         ${userRoleBadge}
@@ -2210,19 +2229,19 @@
                         ${sanitizeHTML(paste.title)}
                     </h1>
                     <div style="color: #888; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                        <span style="margin-right: 1rem;" class="views-count" onclick="showPasteDetail('${pasteId}')" style="cursor: pointer;">${paste.views || 0} views</span>
-                        <span style="margin-right: 1rem;" class="comments-count" onclick="scrollToComments()" style="cursor: pointer;">${commentCount} comments</span>
+                        <span style="margin-right: 1rem;" class="views-count" onclick="showPasteDetail('${pasteId}'); return false;">${paste.views || 0} views</span>
+                        <span style="margin-right: 1rem;" class="comments-count" onclick="scrollToComments(); return false;">${commentCount} comments</span>
                         <span style="margin-right: 1rem;">${formatTime(paste.timestamp?.toDate())}</span>
                     </div>
                     <div class="btn-group mb-3">
-                        <button class="btn btn-primary" onclick="showRawPaste('${pasteId}')">View Full Paste Raw</button>
-                        <button class="btn btn-secondary" onclick="scrollToComments()">View Comments</button>
+                        <button class="btn btn-primary" onclick="showRawPaste('${pasteId}'); return false;">View Full Paste Raw</button>
+                        <button class="btn btn-secondary" onclick="scrollToComments(); return false;">View Comments</button>
                     </div>
                     <div class="share-section">
                         <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent-color);">Share this paste:</h3>
                         <div class="share-link-container">
                             <input type="text" class="share-link" value="${sanitizeHTML(shareLink)}" readonly id="share-link-${pasteId}">
-                            <button class="copy-btn" onclick="copyShareLink('${pasteId}')">Copy Link</button>
+                            <button class="copy-btn" onclick="copyShareLink('${pasteId}'); return false;">Copy Link</button>
                         </div>
                     </div>
                     <div class="paste-content" data-paste-id="${pasteId}">${sanitizeHTML(paste.content)}</div>
@@ -2231,11 +2250,11 @@
                         ${currentUser ? `
                             <div class="comment-form">
                                 <textarea id="comment-input" placeholder="Add a comment..." maxlength="1000"></textarea>
-                                <button class="btn btn-primary" onclick="postComment('${pasteId}')">Post Comment</button>
+                                <button class="btn btn-primary" onclick="postComment('${pasteId}'); return false;">Post Comment</button>
                             </div>
                         ` : `
                             <div style="text-align: center; padding: 1rem; background: var(--table-row-alt); border-radius: 2px;">
-                                <a href="javascript:void(0)" onclick="showPage('auth')" style="color: var(--link-color); text-decoration: none;">Sign in to comment</a>
+                                <a href="#" onclick="showPage('auth'); return false;" style="color: var(--link-color); text-decoration: none;">Sign in to comment</a>
                             </div>
                         `}
                         <div id="comments-list" class="comments-list"></div>
@@ -2308,7 +2327,7 @@
                         const manager = await isManager();
                         const owner = await isOwner();
                         if (currentUser.uid === comment.userId || admin || manager || owner) {
-                            deleteButton = `<button class="btn btn-danger btn-small" onclick="deleteComment('${commentId}')">Delete</button>`;
+                            deleteButton = `<button class="btn btn-danger btn-small" onclick="deleteComment('${commentId}'); return false;">Delete</button>`;
                         }
                     }
 
@@ -2522,7 +2541,7 @@
                     const user = doc.data();
                     html += `
                         <div class="paste-card">
-                            <div class="paste-username" onclick="showUserProfile('${doc.id}')">
+                            <div class="paste-username" onclick="showUserProfile('${doc.id}'); return false;">
                                 ${sanitizeHTML(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown User')}
                                 ${user.isBanned ? '<span class="badge badge-admin">BANNED</span>' : ''}
                                 ${user.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : ''}
@@ -2537,25 +2556,25 @@
                                 ${user.timeoutUntil ? `<br>Timeout until: ${formatTime(user.timeoutUntil?.toDate())}` : ''}
                             </div>
                             <div class="btn-group mt-2">
-                                ${(await isAdmin() || await isManager() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="adminBanUser('${doc.id}')">
+                                ${(await isAdmin() || await isManager() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="adminBanUser('${doc.id}'); return false;">
                                     ${user.isBanned ? 'Unban' : 'Ban'}
                                 </button>` : ''}
-                                ${(await isAdmin()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin})">
+                                ${(await isAdmin()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeAdmin('${doc.id}', ${!user.isAdmin}); return false;">
                                     ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
                                 </button>` : ''}
-                                ${(await isAdmin() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeManager('${doc.id}', ${!user.isManager})">
+                                ${(await isAdmin() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeManager('${doc.id}', ${!user.isManager}); return false;">
                                     ${user.isManager ? 'Remove Manager' : 'Make Manager'}
                                 </button>` : ''}
-                                ${(await isAdmin() || await isOwner() || await isManager()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeVIP('${doc.id}', ${!user.isVIP})">
+                                ${(await isAdmin() || await isOwner() || await isManager()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeVIP('${doc.id}', ${!user.isVIP}); return false;">
                                     ${user.isVIP ? 'Remove VIP' : 'Make VIP'}
                                 </button>` : ''}
-                                ${(await isAdmin() || await isOwner() || await isManager()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeTagMaker('${doc.id}', ${!user.isTagMaker})">
+                                ${(await isAdmin() || await isOwner() || await isManager()) ? `<button class="btn btn-danger btn-small" onclick="adminMakeTagMaker('${doc.id}', ${!user.isTagMaker}); return false;">
                                     ${user.isTagMaker ? 'Remove Tag Maker' : 'Make Tag Maker'}
                                 </button>` : ''}
-                                ${(await isAdmin() || await isManager() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="showTimeoutUserForm('${doc.id}')">
+                                ${(await isAdmin() || await isManager() || await isOwner()) ? `<button class="btn btn-danger btn-small" onclick="showTimeoutUserForm('${doc.id}'); return false;">
                                     Timeout
                                 </button>` : ''}
-                                ${(await isAdmin() || await isManager() || await isOwner()) && user.timeoutUntil ? `<button class="btn btn-success btn-small" onclick="adminUntimeoutUser('${doc.id}')">
+                                ${(await isAdmin() || await isManager() || await isOwner()) && user.timeoutUntil ? `<button class="btn btn-success btn-small" onclick="adminUntimeoutUser('${doc.id}'); return false;">
                                     Un-timeout
                                 </button>` : ''}
                             </div>
@@ -2657,7 +2676,7 @@
                     const paste = doc.data();
                     container.innerHTML += `
                         <div class="paste-card">
-                            <div class="paste-username" onclick="showUserProfile('${paste.userId}')">
+                            <div class="paste-username" onclick="showUserProfile('${paste.userId}'); return false;">
                                 ${sanitizeHTML(paste.username || 'Unknown User')}
                                 ${paste.isPinned ? '<span class="badge badge-pinned">PINNED</span>' : ''}
                                 ${paste.isRemoved ? '<span class="badge badge-admin">REMOVED</span>' : ''}
@@ -2665,8 +2684,8 @@
                             <div class="paste-title">${sanitizeHTML(paste.title)}</div>
                             <div class="paste-views">${paste.views || 0} views • ${formatTime(paste.timestamp?.toDate())}</div>
                             <div class="btn-group mt-2">
-                                <button class="btn btn-success btn-small" onclick="adminPinPaste('${doc.id}', true)">Pin</button>
-                                <button class="btn btn-danger btn-small" onclick="adminRemovePaste('${doc.id}')">Remove</button>
+                                <button class="btn btn-success btn-small" onclick="adminPinPaste('${doc.id}', true); return false;">Pin</button>
+                                <button class="btn btn-danger btn-small" onclick="adminRemovePaste('${doc.id}'); return false;">Remove</button>
                             </div>
                         </div>
                     `;
@@ -2790,31 +2809,59 @@
                     
                     const titleCell = document.createElement('td');
                     const titleLink = document.createElement('a');
-                    titleLink.href = 'javascript:void(0)';
+                    titleLink.href = '#';
                     titleLink.className = 'paste-title-link';
                     titleLink.textContent = sanitizeHTML(paste.title);
-                    titleLink.onclick = () => showPasteDetail(pasteId);
+                    titleLink.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
                     titleCell.appendChild(titleLink);
-                    titleCell.innerHTML += '<span class="badge badge-pinned">PINNED</span>';
+                    const pinnedBadge = document.createElement('span');
+                    pinnedBadge.className = 'badge badge-pinned';
+                    pinnedBadge.textContent = 'PINNED';
+                    titleCell.appendChild(pinnedBadge);
 
                     const commentsCell = document.createElement('td');
-                    commentsCell.innerHTML = `<span class="comments-count" onclick="showPasteDetail('${pasteId}')">${paste.commentCount || 0}</span>`;
+                    const commentsSpan = document.createElement('span');
+                    commentsSpan.className = 'comments-count';
+                    commentsSpan.textContent = paste.commentCount || 0;
+                    commentsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
+                    commentsCell.appendChild(commentsSpan);
 
                     const viewsCell = document.createElement('td');
-                    viewsCell.innerHTML = `<span class="views-count" onclick="showPasteDetail('${pasteId}')">${paste.views || 0}</span>`;
+                    const viewsSpan = document.createElement('span');
+                    viewsSpan.className = 'views-count';
+                    viewsSpan.textContent = paste.views || 0;
+                    viewsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
+                    viewsCell.appendChild(viewsSpan);
 
                     const userCell = document.createElement('td');
                     const userLink = document.createElement('a');
-                    userLink.href = 'javascript:void(0)';
+                    userLink.href = '#';
                     userLink.className = 'paste-link';
                     userLink.textContent = sanitizeHTML(paste.username || 'Anonymous');
-                    userLink.onclick = () => showUserProfile(paste.userId);
+                    userLink.onclick = function(e) { e.preventDefault(); showUserProfile(paste.userId); };
                     userCell.appendChild(userLink);
 
-                    if (userRole === 'manager') userCell.innerHTML += ' <span class="badge badge-manager">Manager</span>';
-                    else if (userRole === 'admin') userCell.innerHTML += ' <span class="badge badge-admin">Admin</span>';
-                    else if (userRole === 'vip') userCell.innerHTML += ' <span class="badge badge-vip">VIP</span>';
-                    else if (userRole === 'owner') userCell.innerHTML += ' <span class="badge badge-owner">Owner</span>';
+                    if (userRole === 'manager') {
+                        const managerBadge = document.createElement('span');
+                        managerBadge.className = 'badge badge-manager';
+                        managerBadge.textContent = 'Manager';
+                        userCell.appendChild(managerBadge);
+                    } else if (userRole === 'admin') {
+                        const adminBadge = document.createElement('span');
+                        adminBadge.className = 'badge badge-admin';
+                        adminBadge.textContent = 'Admin';
+                        userCell.appendChild(adminBadge);
+                    } else if (userRole === 'vip') {
+                        const vipBadge = document.createElement('span');
+                        vipBadge.className = 'badge badge-vip';
+                        vipBadge.textContent = 'VIP';
+                        userCell.appendChild(vipBadge);
+                    } else if (userRole === 'owner') {
+                        const ownerBadge = document.createElement('span');
+                        ownerBadge.className = 'badge badge-owner';
+                        ownerBadge.textContent = 'Owner';
+                        userCell.appendChild(ownerBadge);
+                    }
 
                     const dateCell = document.createElement('td');
                     dateCell.textContent = formatTime(paste.timestamp?.toDate());
@@ -2902,33 +2949,61 @@
                 
                 const titleCell = document.createElement('td');
                 const titleLink = document.createElement('a');
-                titleLink.href = 'javascript:void(0)';
+                titleLink.href = '#';
                 titleLink.className = 'paste-title-link';
                 titleLink.textContent = sanitizeHTML(paste.title);
-                titleLink.onclick = () => showPasteDetail(paste.id);
+                titleLink.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
                 titleCell.appendChild(titleLink);
                 if (paste.isPinned) {
-                    titleCell.innerHTML += ' <span class="badge badge-pinned">PINNED</span>';
+                    const pinnedBadge = document.createElement('span');
+                    pinnedBadge.className = 'badge badge-pinned';
+                    pinnedBadge.textContent = 'PINNED';
+                    titleCell.appendChild(pinnedBadge);
                 }
 
                 const commentsCell = document.createElement('td');
-                commentsCell.innerHTML = `<span class="comments-count" onclick="showPasteDetail('${paste.id}')">${paste.commentCount || 0}</span>`;
+                const commentsSpan = document.createElement('span');
+                commentsSpan.className = 'comments-count';
+                commentsSpan.textContent = paste.commentCount || 0;
+                commentsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+                commentsCell.appendChild(commentsSpan);
 
                 const viewsCell = document.createElement('td');
-                viewsCell.innerHTML = `<span class="views-count" onclick="showPasteDetail('${paste.id}')">${paste.views || 0}</span>`;
+                const viewsSpan = document.createElement('span');
+                viewsSpan.className = 'views-count';
+                viewsSpan.textContent = paste.views || 0;
+                viewsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+                viewsCell.appendChild(viewsSpan);
 
                 const userCell = document.createElement('td');
                 const userLink = document.createElement('a');
-                userLink.href = 'javascript:void(0)';
+                userLink.href = '#';
                 userLink.className = 'paste-link';
                 userLink.textContent = sanitizeHTML(paste.username || 'Anonymous');
-                userLink.onclick = () => showUserProfile(paste.userId);
+                userLink.onclick = function(e) { e.preventDefault(); showUserProfile(paste.userId); };
                 userCell.appendChild(userLink);
 
-                if (userRole === 'manager') userCell.innerHTML += ' <span class="badge badge-manager">Manager</span>';
-                else if (userRole === 'admin') userCell.innerHTML += ' <span class="badge badge-admin">Admin</span>';
-                else if (userRole === 'vip') userCell.innerHTML += ' <span class="badge badge-vip">VIP</span>';
-                else if (userRole === 'owner') userCell.innerHTML += ' <span class="badge badge-owner">Owner</span>';
+                if (userRole === 'manager') {
+                    const managerBadge = document.createElement('span');
+                    managerBadge.className = 'badge badge-manager';
+                    managerBadge.textContent = 'Manager';
+                    userCell.appendChild(managerBadge);
+                } else if (userRole === 'admin') {
+                    const adminBadge = document.createElement('span');
+                    adminBadge.className = 'badge badge-admin';
+                    adminBadge.textContent = 'Admin';
+                    userCell.appendChild(adminBadge);
+                } else if (userRole === 'vip') {
+                    const vipBadge = document.createElement('span');
+                    vipBadge.className = 'badge badge-vip';
+                    vipBadge.textContent = 'VIP';
+                    userCell.appendChild(vipBadge);
+                } else if (userRole === 'owner') {
+                    const ownerBadge = document.createElement('span');
+                    ownerBadge.className = 'badge badge-owner';
+                    ownerBadge.textContent = 'Owner';
+                    userCell.appendChild(ownerBadge);
+                }
 
                 const dateCell = document.createElement('td');
                 dateCell.textContent = formatTime(paste.timestamp?.toDate());
@@ -2959,7 +3034,7 @@
                     const btn = document.createElement('button');
                     btn.className = `page-number ${pageNum === currentPage ? 'active' : ''}`;
                     btn.textContent = pageNum;
-                    btn.onclick = () => changePage(pageNum);
+                    btn.onclick = function() { changePage(pageNum); };
                     pageNumbersContainer.appendChild(btn);
                 };
 
@@ -2969,7 +3044,10 @@
                 let endPage = Math.min(totalPages - 1, currentPage + 1);
 
                 if (startPage > 2) {
-                    pageNumbersContainer.innerHTML += '<span class="page-ellipsis">...</span>';
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
                 }
 
                 for (let i = startPage; i <= endPage; i++) {
@@ -2977,7 +3055,10 @@
                 }
 
                 if (endPage < totalPages - 1) {
-                    pageNumbersContainer.innerHTML += '<span class="page-ellipsis">...</span>';
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
                 }
 
                 if (totalPages > 1) {
@@ -3061,33 +3142,61 @@
                 
                 const titleCell = document.createElement('td');
                 const titleLink = document.createElement('a');
-                titleLink.href = 'javascript:void(0)';
+                titleLink.href = '#';
                 titleLink.className = 'paste-title-link';
                 titleLink.textContent = sanitizeHTML(paste.title);
-                titleLink.onclick = () => showPasteDetail(paste.id);
+                titleLink.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
                 titleCell.appendChild(titleLink);
                 if (paste.isPinned) {
-                    titleCell.innerHTML += ' <span class="badge badge-pinned">PINNED</span>';
+                    const pinnedBadge = document.createElement('span');
+                    pinnedBadge.className = 'badge badge-pinned';
+                    pinnedBadge.textContent = 'PINNED';
+                    titleCell.appendChild(pinnedBadge);
                 }
 
                 const commentsCell = document.createElement('td');
-                commentsCell.innerHTML = `<span class="comments-count" onclick="showPasteDetail('${paste.id}')">${paste.commentCount || 0}</span>`;
+                const commentsSpan = document.createElement('span');
+                commentsSpan.className = 'comments-count';
+                commentsSpan.textContent = paste.commentCount || 0;
+                commentsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+                commentsCell.appendChild(commentsSpan);
 
                 const viewsCell = document.createElement('td');
-                viewsCell.innerHTML = `<span class="views-count" onclick="showPasteDetail('${paste.id}')">${paste.views || 0}</span>`;
+                const viewsSpan = document.createElement('span');
+                viewsSpan.className = 'views-count';
+                viewsSpan.textContent = paste.views || 0;
+                viewsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+                viewsCell.appendChild(viewsSpan);
 
                 const userCell = document.createElement('td');
                 const userLink = document.createElement('a');
-                userLink.href = 'javascript:void(0)';
+                userLink.href = '#';
                 userLink.className = 'paste-link';
                 userLink.textContent = sanitizeHTML(paste.username || 'Anonymous');
-                userLink.onclick = () => showUserProfile(paste.userId);
+                userLink.onclick = function(e) { e.preventDefault(); showUserProfile(paste.userId); };
                 userCell.appendChild(userLink);
 
-                if (userRole === 'manager') userCell.innerHTML += ' <span class="badge badge-manager">Manager</span>';
-                else if (userRole === 'admin') userCell.innerHTML += ' <span class="badge badge-admin">Admin</span>';
-                else if (userRole === 'vip') userCell.innerHTML += ' <span class="badge badge-vip">VIP</span>';
-                else if (userRole === 'owner') userCell.innerHTML += ' <span class="badge badge-owner">Owner</span>';
+                if (userRole === 'manager') {
+                    const managerBadge = document.createElement('span');
+                    managerBadge.className = 'badge badge-manager';
+                    managerBadge.textContent = 'Manager';
+                    userCell.appendChild(managerBadge);
+                } else if (userRole === 'admin') {
+                    const adminBadge = document.createElement('span');
+                    adminBadge.className = 'badge badge-admin';
+                    adminBadge.textContent = 'Admin';
+                    userCell.appendChild(adminBadge);
+                } else if (userRole === 'vip') {
+                    const vipBadge = document.createElement('span');
+                    vipBadge.className = 'badge badge-vip';
+                    vipBadge.textContent = 'VIP';
+                    userCell.appendChild(vipBadge);
+                } else if (userRole === 'owner') {
+                    const ownerBadge = document.createElement('span');
+                    ownerBadge.className = 'badge badge-owner';
+                    ownerBadge.textContent = 'Owner';
+                    userCell.appendChild(ownerBadge);
+                }
 
                 const dateCell = document.createElement('td');
                 dateCell.textContent = formatTime(paste.timestamp?.toDate());
@@ -3243,13 +3352,14 @@
         }
 
         async function showUserProfile(userId) {
+            currentProfileUserId = userId;
             showPage('userProfile');
 
             try {
                 const userDoc = await pasteDb.collection('users').doc(userId).get();
                 if (!userDoc.exists) {
                     document.getElementById('user-profile-page').innerHTML = `
-                        <button class="back-btn" onclick="showPage('home')">← Back to Pastes</button>
+                        <button class="back-btn" onclick="showPage('home'); return false;">← Back to Pastes</button>
                         <div style="text-align: center; padding: 3rem;"><h2>User not found</h2></div>
                     `;
                     return;
@@ -3282,9 +3392,9 @@
                 if (userData.isVIP) badges.innerHTML += '<span class="badge badge-vip">VIP</span>';
                 if (userData.isTagMaker) badges.innerHTML += '<span class="badge badge-tagmaker">Tag Maker</span>';
 
-                document.getElementById('paste-count').textContent = userData.pasteCount || 0;
-                document.getElementById('follows-count').textContent = userData.followers?.length || 0;
-                document.getElementById('following-count').textContent = userData.following?.length || 0;
+                document.getElementById('profile-paste-count').textContent = userData.pasteCount || 0;
+                document.getElementById('profile-follows-count').textContent = userData.followers?.length || 0;
+                document.getElementById('profile-following-count').textContent = userData.following?.length || 0;
 
                 await loadUserPastes(userId);
             } catch (error) {
@@ -3320,7 +3430,7 @@
                     const paste = doc.data();
                     const pasteCard = document.createElement('div');
                     pasteCard.className = 'user-paste-card';
-                    pasteCard.onclick = () => showPasteDetail(pasteId);
+                    pasteCard.onclick = function() { showPasteDetail(pasteId); };
                     pasteCard.innerHTML = `
                         <div class="user-paste-title">${sanitizeHTML(paste.title)}</div>
                         <div style="color: #888; font-size: 0.9rem; margin: 0.5rem 0; max-height: 60px; overflow: hidden;">
@@ -3486,7 +3596,7 @@
                             </div>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-danger btn-small" onclick="deleteTag('${doc.id}')">Delete</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteTag('${doc.id}'); return false;">Delete</button>
                         </div>
                     `;
                     container.appendChild(tagElement);
@@ -3564,20 +3674,9 @@
 
         function copyShareLink(linkId) {
             const shareLinkInput = document.getElementById(`share-link-${linkId}`);
-            const copyBtn = document.querySelector(`[onclick="copyShareLink('${linkId}')"]`);
-
             if (shareLinkInput) {
                 shareLinkInput.select();
                 document.execCommand('copy');
-                if (copyBtn) {
-                    const originalText = copyBtn.textContent;
-                    copyBtn.textContent = 'Copied!';
-                    copyBtn.classList.add('copied');
-                    setTimeout(() => {
-                        copyBtn.textContent = originalText;
-                        copyBtn.classList.remove('copied');
-                    }, 2000);
-                }
                 showAlert('Link copied!', 'success');
             }
         }
@@ -3623,6 +3722,52 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('hamburgerBtn').addEventListener('click', toggleMenu);
+            document.getElementById('backFromPasteBtn').addEventListener('click', closePasteDetail);
+            document.getElementById('backFromRawBtn').addEventListener('click', closeRawPaste);
+            document.getElementById('backFromProfileBtn').addEventListener('click', () => showPage('home'));
+            document.getElementById('copyRawBtn').addEventListener('click', copyRawPaste);
+            document.getElementById('authBtn').addEventListener('click', () => {
+                if (currentUser) signOut();
+                else showPage('auth');
+            });
+            document.getElementById('homeBtn').addEventListener('click', () => showPage('home'));
+            document.getElementById('createPasteBtn').addEventListener('click', () => showPage('paste'));
+            document.getElementById('chatBtn').addEventListener('click', () => showPage('chat'));
+            document.getElementById('mostMentionedBtn').addEventListener('click', () => showPage('most-mentioned'));
+            document.getElementById('hallBtn').addEventListener('click', () => showPage('hall'));
+            document.getElementById('myAccountBtn').addEventListener('click', () => showPage('myaccount'));
+            document.getElementById('adminBtn').addEventListener('click', () => showPage('admin'));
+            document.getElementById('tagMakerBtn').addEventListener('click', () => showPage('tagMaker'));
+            document.getElementById('vipBtn').addEventListener('click', () => showPage('vip'));
+            document.getElementById('searchBtn').addEventListener('click', performSearchNow);
+            document.getElementById('searchBar').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearchNow();
+            });
+            document.getElementById('publishPasteBtn').addEventListener('click', publishPaste);
+            document.getElementById('clearPasteBtn').addEventListener('click', clearPasteForm);
+            document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+            document.getElementById('signInBtn').addEventListener('click', signIn);
+            document.getElementById('signUpBtn').addEventListener('click', signUp);
+            document.getElementById('updateDisplayNameBtn').addEventListener('click', updateDisplayName);
+            document.getElementById('updateBannerBtn').addEventListener('click', updateBanner);
+            document.getElementById('updateProfileBtn').addEventListener('click', updateProfilePicture);
+            document.getElementById('updateColorBtn').addEventListener('click', updateUsernameColor);
+            document.getElementById('createTagBtn').addEventListener('click', createTag);
+            document.getElementById('viewAllUsersBtn').addEventListener('click', adminViewAllUsers);
+            document.getElementById('viewAllPastesBtn').addEventListener('click', adminViewAllPastes);
+            document.getElementById('clearChatBtn').addEventListener('click', adminClearChat);
+            document.getElementById('backupDataBtn').addEventListener('click', adminBackupData);
+            document.getElementById('showTimeoutFormBtn').addEventListener('click', showTimeoutForm);
+            document.getElementById('manageRolesBtn').addEventListener('click', adminManageRoles);
+            document.getElementById('timeoutUserBtn').addEventListener('click', adminTimeoutUser);
+            document.getElementById('cancelTimeoutBtn').addEventListener('click', hideTimeoutForm);
+            document.getElementById('prev-page-btn').addEventListener('click', () => changePage(currentPage - 1));
+            document.getElementById('next-page-btn').addEventListener('click', () => changePage(currentPage + 1));
+
             pasteAuth.onAuthStateChanged(async (user) => {
                 currentUser = user;
                 if (user) {
@@ -3639,7 +3784,7 @@
 
             document.addEventListener('click', (event) => {
                 const menu = document.getElementById('slideDownMenu');
-                const hamburger = document.querySelector('.hamburger-btn');
+                const hamburger = document.getElementById('hamburgerBtn');
                 if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
                     menu.classList.remove('active');
                 }
