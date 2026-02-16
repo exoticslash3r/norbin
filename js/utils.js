@@ -83,27 +83,23 @@ const Utils = {
         console.log('Showing page:', pageId);
         this.hideMenu();
         
-        // Special permission checks for protected pages
-        if (pageId === 'admin') {
-            const hasAccess = await this.checkAdminAccess();
-            if (!hasAccess) {
-                this.showAlert('Access denied: Admin privileges required', 'error');
-                pageId = 'home';
-            }
-        }
+        // Only block access to protected admin pages
+        // Regular pages like home, paste, chat, hall should be accessible to everyone
+        const protectedPages = ['admin', 'vip', 'tagMaker'];
         
-        if (pageId === 'vip') {
-            const hasAccess = await this.checkVIPAccess();
-            if (!hasAccess) {
-                this.showAlert('Access denied: VIP privileges required', 'error');
-                pageId = 'home';
+        if (protectedPages.includes(pageId)) {
+            let hasAccess = false;
+            
+            if (pageId === 'admin') {
+                hasAccess = await this.checkAdminAccess();
+            } else if (pageId === 'vip') {
+                hasAccess = await this.checkVIPAccess();
+            } else if (pageId === 'tagMaker') {
+                hasAccess = await this.checkTagMakerAccess();
             }
-        }
-        
-        if (pageId === 'tagMaker') {
-            const hasAccess = await this.checkTagMakerAccess();
+            
             if (!hasAccess) {
-                this.showAlert('Access denied: Tag Maker privileges required', 'error');
+                this.showAlert(`Access denied: ${pageId} privileges required`, 'error');
                 pageId = 'home';
             }
         }
@@ -144,6 +140,14 @@ const Utils = {
                     console.error('Hall not loaded');
                 }
             }
+            else if (pageId === 'paste') {
+                console.log('Showing create paste page');
+                // No data to load for create paste
+            }
+            else if (pageId === 'auth') {
+                console.log('Showing auth page');
+                // No data to load for auth
+            }
             else if (pageId === 'admin') {
                 if (window.Admin) {
                     console.log('Loading admin panel');
@@ -163,10 +167,17 @@ const Utils = {
                 }
             }
             else if (pageId === 'myaccount') {
-                if (window.Profile) {
+                if (window.Profile && Auth.getCurrentUser()) {
                     console.log('Loading my account');
                     Profile.loadUserProfileData();
+                } else if (!Auth.getCurrentUser()) {
+                    this.showAlert('Please sign in first', 'error');
+                    this.showPage('auth');
                 }
+            }
+            else if (pageId === 'userProfile') {
+                // This is handled by Profile.showUserProfile directly
+                console.log('Showing user profile');
             }
         } else {
             console.error('Page not found:', pageId);
@@ -183,4 +194,4 @@ const Utils = {
 
 // Make Utils globally available
 window.Utils = Utils;
-console.log('Utils loaded with security checks');
+console.log('Utils loaded with security checks - normal users can view pastes');
