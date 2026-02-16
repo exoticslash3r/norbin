@@ -1,17 +1,4 @@
-# Firebase config
 config.js
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
 .DS_Store
-Thumbs.db
-desktop.ini
-
-# Logs
+node_modules/
 *.log
-npm-debug.log*
