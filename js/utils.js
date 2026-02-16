@@ -40,6 +40,25 @@ const Utils = {
         this.hideMenu();
         document.querySelectorAll('[id$="-page"]').forEach(page => page.classList.add('hidden'));
         document.getElementById(pageId + '-page').classList.remove('hidden');
+        
+        if (pageId === 'chat' && window.Chat) {
+            Chat.loadMessages();
+        }
+        if (pageId === 'hall' && window.Hall) {
+            Hall.initialize();
+        }
+        if (pageId === 'admin' && window.Admin && Auth.getCurrentUser()) {
+            Admin.loadAdminStats();
+        }
+        if (pageId === 'vip' && window.VIP) {
+            VIP.loadFeatures();
+        }
+        if (pageId === 'tagMaker' && window.Tags) {
+            Tags.loadTags();
+        }
+        if (pageId === 'myaccount' && window.Profile) {
+            Profile.loadUserProfileData();
+        }
     },
 
     escapeHtml: function(text) {
