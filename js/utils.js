@@ -83,10 +83,24 @@ const Utils = {
         console.log('Showing page:', pageId);
         this.hideMenu();
         
-        // Only block access to protected admin pages
-        // Regular pages like home, paste, chat, hall should be accessible to everyone
+        // All users can see these pages - NO RESTRICTIONS
+        const publicPages = ['home', 'paste', 'chat', 'hall', 'auth', 'userProfile'];
+        
+        // These pages require login but are still public once logged in
+        const loginRequiredPages = ['myaccount'];
+        
+        // These pages require special permissions
         const protectedPages = ['admin', 'vip', 'tagMaker'];
         
+        // Check if page requires login
+        if (loginRequiredPages.includes(pageId)) {
+            if (!Auth.getCurrentUser()) {
+                this.showAlert('Please sign in first', 'error');
+                pageId = 'auth';
+            }
+        }
+        
+        // Check if page is protected (admin only)
         if (protectedPages.includes(pageId)) {
             let hasAccess = false;
             
@@ -114,39 +128,31 @@ const Utils = {
         if (page) {
             page.classList.remove('hidden');
             
-            // Load page-specific data
+            // Load page-specific data - ALL USERS CAN LOAD THESE
             if (pageId === 'home') {
                 if (window.Pastes) {
                     console.log('Loading home data');
                     Pastes.loadPaginationData();
                     Pastes.loadPinnedPastes();
-                } else {
-                    console.error('Pastes not loaded');
                 }
             }
             else if (pageId === 'chat') {
                 if (window.Chat) {
                     console.log('Loading chat');
                     Chat.loadMessages();
-                } else {
-                    console.error('Chat not loaded');
                 }
             }
             else if (pageId === 'hall') {
                 if (window.Hall) {
                     console.log('Loading hall of autism');
                     Hall.initialize();
-                } else {
-                    console.error('Hall not loaded');
                 }
             }
             else if (pageId === 'paste') {
                 console.log('Showing create paste page');
-                // No data to load for create paste
             }
             else if (pageId === 'auth') {
                 console.log('Showing auth page');
-                // No data to load for auth
             }
             else if (pageId === 'admin') {
                 if (window.Admin) {
@@ -170,17 +176,8 @@ const Utils = {
                 if (window.Profile && Auth.getCurrentUser()) {
                     console.log('Loading my account');
                     Profile.loadUserProfileData();
-                } else if (!Auth.getCurrentUser()) {
-                    this.showAlert('Please sign in first', 'error');
-                    this.showPage('auth');
                 }
             }
-            else if (pageId === 'userProfile') {
-                // This is handled by Profile.showUserProfile directly
-                console.log('Showing user profile');
-            }
-        } else {
-            console.error('Page not found:', pageId);
         }
     },
 
@@ -192,6 +189,5 @@ const Utils = {
     }
 };
 
-// Make Utils globally available
 window.Utils = Utils;
-console.log('Utils loaded with security checks - normal users can view pastes');
+console.log('Utils loaded - ALL users can see pastes');
