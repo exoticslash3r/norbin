@@ -1,6 +1,5 @@
-// Comments Module
-const Comments = (function() {
-    async function loadComments(pasteId) {
+const Comments = {
+    loadComments: async function(pasteId) {
         try {
             const commentsList = document.getElementById('comments-list');
             if (!commentsList) return;
@@ -82,9 +81,9 @@ const Comments = (function() {
         } catch (error) {
             console.error('Error loading comments:', error);
         }
-    }
+    },
 
-    async function postComment(pasteId) {
+    postComment: async function(pasteId) {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) {
             Utils.showAlert('Please sign in', 'error');
@@ -116,13 +115,13 @@ const Comments = (function() {
 
             commentInput.value = '';
             Utils.showAlert('Comment posted', 'success');
-            loadComments(pasteId);
+            this.loadComments(pasteId);
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function deleteComment(commentId) {
+    deleteComment: async function(commentId) {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
 
@@ -147,16 +146,11 @@ const Comments = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    function scrollToComments() {
+    scrollToComments: function() {
         document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
     }
+};
 
-    return {
-        loadComments,
-        postComment,
-        deleteComment,
-        scrollToComments
-    };
-})();
+window.Comments = Comments;
