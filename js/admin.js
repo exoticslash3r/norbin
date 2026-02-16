@@ -59,6 +59,88 @@ const Admin = {
             const isBanned = userDoc.data().isBanned || false;
             await db.collection('users').doc(userId).update({ isBanned: !isBanned });
             Utils.showAlert(`User ${isBanned ? 'unbanned' : 'banned'}`, 'success');
+            this.viewAllUsers();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    },
+
+    makeVIP: async function(userId, makeVIP) {
+        const isAdmin = await Auth.checkRole('admin');
+        const isOwner = await Auth.checkRole('owner');
+        const isManager = await Auth.checkRole('manager');
+
+        if (!isAdmin && !isOwner && !isManager) {
+            Utils.showAlert('Access denied', 'error');
+            return;
+        }
+
+        if (!confirm(`${makeVIP ? 'Grant' : 'Remove'} VIP status?`)) return;
+
+        try {
+            await db.collection('users').doc(userId).update({ isVIP: makeVIP });
+            Utils.showAlert(`VIP ${makeVIP ? 'granted' : 'removed'}`, 'success');
+            this.viewAllUsers();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    },
+
+    makeManager: async function(userId, makeManager) {
+        const isAdmin = await Auth.checkRole('admin');
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!isAdmin && !isOwner) {
+            Utils.showAlert('Access denied', 'error');
+            return;
+        }
+
+        if (!confirm(`${makeManager ? 'Grant' : 'Remove'} manager status?`)) return;
+
+        try {
+            await db.collection('users').doc(userId).update({ isManager: makeManager });
+            Utils.showAlert(`Manager ${makeManager ? 'granted' : 'removed'}`, 'success');
+            this.viewAllUsers();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    },
+
+    makeAdmin: async function(userId, makeAdmin) {
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!isOwner) {
+            Utils.showAlert('Only owner can grant admin', 'error');
+            return;
+        }
+
+        if (!confirm(`${makeAdmin ? 'Grant' : 'Remove'} admin status?`)) return;
+
+        try {
+            await db.collection('users').doc(userId).update({ isAdmin: makeAdmin });
+            Utils.showAlert(`Admin ${makeAdmin ? 'granted' : 'removed'}`, 'success');
+            this.viewAllUsers();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    },
+
+    makeTagMaker: async function(userId, makeTagMaker) {
+        const isAdmin = await Auth.checkRole('admin');
+        const isOwner = await Auth.checkRole('owner');
+        const isManager = await Auth.checkRole('manager');
+
+        if (!isAdmin && !isOwner && !isManager) {
+            Utils.showAlert('Access denied', 'error');
+            return;
+        }
+
+        if (!confirm(`${makeTagMaker ? 'Grant' : 'Remove'} tag maker status?`)) return;
+
+        try {
+            await db.collection('users').doc(userId).update({ isTagMaker: makeTagMaker });
+            Utils.showAlert(`Tag Maker ${makeTagMaker ? 'granted' : 'removed'}`, 'success');
+            this.viewAllUsers();
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
@@ -120,6 +202,24 @@ const Admin = {
         }
     },
 
+    untimeoutUser: async function(userId) {
+        const isAdmin = await Auth.checkRole('admin');
+        const isManager = await Auth.checkRole('manager');
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!isAdmin && !isManager && !isOwner) return;
+
+        if (!confirm('Remove timeout?')) return;
+
+        try {
+            await db.collection('users').doc(userId).update({ timeoutUntil: null });
+            Utils.showAlert('Timeout removed', 'success');
+            this.viewAllUsers();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    },
+
     loadAdminStats: async function() {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
@@ -157,13 +257,17 @@ const Admin = {
             const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
             const container = document.getElementById('admin-content');
 
-            let html = '<h3 style="font-size: 1.2rem; margin-bottom: 1rem;">All Users:</h3><div class="pastes-grid">';
+            let html = '<h3 style="font-size: 1.2rem; margin-bottom: 1rem;">All Users:</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">';
 
             for (const doc of snapshot.docs) {
                 const user = doc.data();
+                const isCurrentUserAdmin = await Auth.checkRole('admin');
+                const isCurrentUserOwner = await Auth.checkRole('owner');
+                const isCurrentUserManager = await Auth.checkRole('manager');
+
                 html += `
-                    <div class="paste-card">
-                        <div class="paste-username" onclick="Profile.showUserProfile('${doc.id}'); return false;">
+                    <div style="background: var(--table-row-alt); border: 1px solid var(--table-border); border-radius: 2px; padding: 1rem;">
+                        <div style="font-weight: bold; margin-bottom: 0.5rem; cursor: pointer;" onclick="Profile.showUserProfile('${doc.id}'); return false;">
                             ${Utils.sanitizeHTML(user.displayName || user.username || user.email?.split('@')[0] || 'Unknown')}
                             ${user.isBanned ? '<span class="badge badge-admin">BANNED</span>' : ''}
                             ${user.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : ''}
@@ -172,15 +276,35 @@ const Admin = {
                             ${user.isTagMaker ? '<span class="badge badge-tagmaker">TAG MAKER</span>' : ''}
                             ${user.isOwner ? '<span class="badge badge-owner">OWNER</span>' : ''}
                         </div>
-                        <div class="paste-title">${Utils.sanitizeHTML(user.email || 'No email')}</div>
-                        <div class="paste-views">
+                        <div style="color: #888; font-size: 0.9rem; margin-bottom: 0.5rem;">${Utils.sanitizeHTML(user.email || 'No email')}</div>
+                        <div style="color: #888; font-size: 0.8rem; margin-bottom: 1rem;">
                             Joined: ${Utils.formatTime(user.createdAt?.toDate())}
                             ${user.timeoutUntil ? `<br>Timeout until: ${Utils.formatTime(user.timeoutUntil?.toDate())}` : ''}
                         </div>
-                        <div class="btn-group mt-2">
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button class="btn btn-danger btn-small" onclick="Admin.banUser('${doc.id}'); return false;">
                                 ${user.isBanned ? 'Unban' : 'Ban'}
                             </button>
+                            ${(isCurrentUserAdmin || isCurrentUserOwner || isCurrentUserManager) ? `
+                                <button class="btn btn-gold btn-small" onclick="Admin.makeVIP('${doc.id}', ${!user.isVIP}); return false;">
+                                    ${user.isVIP ? 'Remove VIP' : 'Make VIP'}
+                                </button>
+                            ` : ''}
+                            ${(isCurrentUserAdmin || isCurrentUserOwner) ? `
+                                <button class="btn btn-warning btn-small" onclick="Admin.makeManager('${doc.id}', ${!user.isManager}); return false;">
+                                    ${user.isManager ? 'Remove Manager' : 'Make Manager'}
+                                </button>
+                            ` : ''}
+                            ${isCurrentUserOwner ? `
+                                <button class="btn btn-danger btn-small" onclick="Admin.makeAdmin('${doc.id}', ${!user.isAdmin}); return false;">
+                                    ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                                </button>
+                            ` : ''}
+                            ${(isCurrentUserAdmin || isCurrentUserOwner || isCurrentUserManager) ? `
+                                <button class="btn btn-primary btn-small" onclick="Admin.makeTagMaker('${doc.id}', ${!user.isTagMaker}); return false;">
+                                    ${user.isTagMaker ? 'Remove Tag Maker' : 'Make Tag Maker'}
+                                </button>
+                            ` : ''}
                             <button class="btn btn-danger btn-small" onclick="Admin.showTimeoutForm('${doc.id}'); return false;">Timeout</button>
                             ${user.timeoutUntil ? `<button class="btn btn-success btn-small" onclick="Admin.untimeoutUser('${doc.id}'); return false;">Un-timeout</button>` : ''}
                         </div>
@@ -190,23 +314,6 @@ const Admin = {
 
             html += '</div>';
             container.innerHTML = html;
-        } catch (error) {
-            Utils.showAlert(error.message, 'error');
-        }
-    },
-
-    untimeoutUser: async function(userId) {
-        const isAdmin = await Auth.checkRole('admin');
-        const isManager = await Auth.checkRole('manager');
-        const isOwner = await Auth.checkRole('owner');
-
-        if (!isAdmin && !isManager && !isOwner) return;
-
-        if (!confirm('Remove timeout?')) return;
-
-        try {
-            await db.collection('users').doc(userId).update({ timeoutUntil: null });
-            Utils.showAlert('Timeout removed', 'success');
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
@@ -265,16 +372,77 @@ const Admin = {
     },
 
     viewAllPastes: async function() {
-        Utils.showAlert('Feature coming soon', 'info');
+        const isAdmin = await Auth.checkRole('admin');
+        const isManager = await Auth.checkRole('manager');
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!isAdmin && !isManager && !isOwner) {
+            Utils.showAlert('Access denied', 'error');
+            return;
+        }
+
+        try {
+            const snapshot = await db.collection('pastes').orderBy('timestamp', 'desc').limit(100).get();
+            const container = document.getElementById('admin-content');
+
+            let html = '<h3 style="font-size: 1.2rem; margin-bottom: 1rem;">All Pastes:</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">';
+
+            snapshot.forEach(doc => {
+                const paste = doc.data();
+                html += `
+                    <div style="background: var(--table-row-alt); border: 1px solid var(--table-border); border-radius: 2px; padding: 1rem;">
+                        <div style="font-weight: bold; margin-bottom: 0.5rem; cursor: pointer;" onclick="Profile.showUserProfile('${paste.userId}'); return false;">
+                            ${Utils.sanitizeHTML(paste.username || 'Unknown User')}
+                            ${paste.isPinned ? '<span class="badge badge-pinned">PINNED</span>' : ''}
+                            ${paste.isRemoved ? '<span class="badge badge-admin">REMOVED</span>' : ''}
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 0.5rem; cursor: pointer;" onclick="Pastes.showPasteDetail('${doc.id}'); return false;">
+                            ${Utils.sanitizeHTML(paste.title)}
+                        </div>
+                        <div style="color: #888; font-size: 0.8rem; margin-bottom: 1rem;">
+                            ${paste.views || 0} views • ${Utils.formatTime(paste.timestamp?.toDate())}
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-success btn-small" onclick="Admin.pinPaste('${doc.id}', true); return false;">Pin</button>
+                            ${paste.isPinned ? `<button class="btn btn-warning btn-small" onclick="Admin.pinPaste('${doc.id}', false); return false;">Unpin</button>` : ''}
+                            <button class="btn btn-danger btn-small" onclick="Admin.removePaste('${doc.id}'); return false;">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
     },
 
     clearChat: async function() {
-        if (!confirm('Clear all messages?')) return;
-        Utils.showAlert('Feature coming soon', 'info');
+        const isAdmin = await Auth.checkRole('admin');
+        const isManager = await Auth.checkRole('manager');
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!isAdmin && !isManager && !isOwner) {
+            Utils.showAlert('Access denied', 'error');
+            return;
+        }
+
+        if (!confirm('Clear all chat messages?')) return;
+
+        try {
+            const snapshot = await chatDb.collection('messages').get();
+            const batch = chatDb.batch();
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            Utils.showAlert('Chat cleared', 'success');
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
     },
 
     backupData: function() {
-        Utils.showAlert('Backup feature', 'info');
+        Utils.showAlert('Backup feature coming soon', 'info');
     },
 
     manageRoles: function() {
