@@ -5,23 +5,28 @@ const Pastes = {
     totalPages: 0,
     allPastesCache: [],
     currentPasteId: null,
+    loadedPasteIds: new Set(), // Track loaded paste IDs to prevent duplicates
 
     loadPaginationData: async function() {
         try {
             console.log('Loading pagination data...');
-            // Simple query without complex ordering to avoid index issues
             const snapshot = await db.collection('pastes')
                 .where('isRemoved', '==', false)
                 .get();
 
             this.allPastesCache = [];
-            const processedIds = new Set();
+            this.loadedPasteIds.clear(); // Reset the set
 
             for (const doc of snapshot.docs) {
                 const pasteId = doc.id;
-                if (processedIds.has(pasteId)) continue;
-                processedIds.add(pasteId);
                 
+                // Skip if we've already loaded this paste
+                if (this.loadedPasteIds.has(pasteId)) {
+                    console.log('Skipping duplicate paste:', pasteId);
+                    continue;
+                }
+                
+                this.loadedPasteIds.add(pasteId);
                 const paste = doc.data();
 
                 // Get comment count
@@ -57,28 +62,37 @@ const Pastes = {
             await this.displayPaginationPastes();
             this.updatePaginationUI();
             
-            console.log(`Loaded ${this.totalPastes} pastes`);
+            console.log(`Loaded ${this.totalPastes} unique pastes`);
         } catch (error) {
             console.error('Error loading pagination data:', error);
-            document.getElementById('all-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pastes</td></tr>';
+            if (error.code === 'permission-denied') {
+                document.getElementById('all-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Unable to load pastes: Permission denied. Please check Firebase Rules.</td></tr>';
+            } else {
+                document.getElementById('all-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pastes: ' + error.message + '</td></tr>';
+            }
         }
     },
 
     loadPinnedPastes: async function() {
         try {
             console.log('Loading pinned pastes...');
-            // Get all non-removed pastes
             const allPastes = await db.collection('pastes')
                 .where('isRemoved', '==', false)
                 .get();
             
-            // Filter pinned ones in memory
             const pinnedPastes = [];
+            const processedIds = new Set();
             
             for (const doc of allPastes.docs) {
+                const pasteId = doc.id;
+                
+                // Skip duplicates
+                if (processedIds.has(pasteId)) continue;
+                processedIds.add(pasteId);
+                
                 const paste = doc.data();
                 if (paste.isPinned) {
-                    // Get user role for each paste
+                    // Get user role
                     const userDoc = await db.collection('users').doc(paste.userId).get();
                     let userRole = 'user';
                     
@@ -94,7 +108,7 @@ const Pastes = {
                     let commentCount = 0;
                     try {
                         const commentsSnapshot = await db.collection('comments')
-                            .where('pasteId', '==', doc.id)
+                            .where('pasteId', '==', pasteId)
                             .where('isRemoved', '==', false)
                             .get();
                         commentCount = commentsSnapshot.size;
@@ -103,7 +117,7 @@ const Pastes = {
                     }
 
                     pinnedPastes.push({
-                        id: doc.id,
+                        id: pasteId,
                         ...paste,
                         userRole: userRole,
                         commentCount: commentCount
@@ -111,7 +125,7 @@ const Pastes = {
                 }
             }
             
-            // Sort by timestamp (newest first)
+            // Sort by timestamp
             pinnedPastes.sort((a, b) => {
                 const timeA = a.timestamp?.toDate?.() || new Date(0);
                 const timeB = b.timestamp?.toDate?.() || new Date(0);
@@ -119,7 +133,7 @@ const Pastes = {
             });
 
             this.displayPinnedPastes(pinnedPastes);
-            console.log(`Loaded ${pinnedPastes.length} pinned pastes`);
+            console.log(`Loaded ${pinnedPastes.length} unique pinned pastes`);
         } catch (error) {
             console.error('Error loading pinned pastes:', error);
             document.getElementById('pinned-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pinned pastes</td></tr>';
@@ -240,7 +254,13 @@ const Pastes = {
             return;
         }
 
+        const processedIds = new Set();
+
         for (const paste of pagePastes) {
+            // Skip duplicates
+            if (processedIds.has(paste.id)) continue;
+            processedIds.add(paste.id);
+            
             // Get user role
             let userRole = 'user';
             try {
@@ -497,7 +517,7 @@ const Pastes = {
             const container = document.getElementById('paste-detail-content');
             const actionsContainer = document.getElementById('paste-detail-actions');
 
-            // Check admin status for controls (doesn't block viewing)
+            // Check admin status for controls
             const isAdmin = Auth.getCurrentUser() ? await Auth.checkRole('admin') : false;
             const isManager = Auth.getCurrentUser() ? await Auth.checkRole('manager') : false;
             const isOwner = Auth.getCurrentUser() ? await Auth.checkRole('owner') : false;
@@ -520,7 +540,7 @@ const Pastes = {
             const baseUrl = window.location.origin + window.location.pathname;
             const shareLink = `${baseUrl}?paste=${pasteId}`;
 
-            // Get user role for badge
+            // Get user role
             const userDoc = await db.collection('users').doc(paste.userId).get();
             let userRole = 'user';
             let userRoleBadge = '';
@@ -550,7 +570,6 @@ const Pastes = {
                 commentCount = 0;
             }
 
-            // Show the paste - THIS IS VISIBLE TO EVERYONE
             container.innerHTML = `
                 <div style="margin-bottom: 1.5rem;">
                     <a href="#" class="paste-link" onclick="Profile.showUserProfile('${paste.userId}'); return false;">
@@ -603,7 +622,6 @@ const Pastes = {
             document.body.style.overflow = 'hidden';
             this.currentPasteId = pasteId;
             
-            // Update URL
             const url = new URL(window.location);
             url.searchParams.set('paste', pasteId);
             window.history.pushState({}, '', url);
@@ -611,7 +629,11 @@ const Pastes = {
             console.log('Paste displayed successfully');
         } catch (error) {
             console.error('Error showing paste:', error);
-            Utils.showAlert('Error loading paste: ' + error.message, 'error');
+            if (error.code === 'permission-denied') {
+                Utils.showAlert('Unable to load paste: Permission denied. Please check Firebase Rules.', 'error');
+            } else {
+                Utils.showAlert('Error loading paste: ' + error.message, 'error');
+            }
         }
     },
 
@@ -620,7 +642,6 @@ const Pastes = {
         document.body.style.overflow = 'auto';
         this.currentPasteId = null;
         
-        // Remove from URL
         const url = new URL(window.location);
         url.searchParams.delete('paste');
         window.history.pushState({}, '', url);
@@ -682,4 +703,4 @@ const Pastes = {
 };
 
 window.Pastes = Pastes;
-console.log('Pastes.js loaded - ALL users can see pastes');
+console.log('Pastes.js loaded with deduplication');
