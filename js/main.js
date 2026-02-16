@@ -125,3 +125,14 @@ window.showTimeoutForm = () => Admin.showTimeoutForm();
 window.manageRoles = () => Admin.manageRoles();
 window.timeoutUser = () => Admin.timeoutUser();
 window.hideTimeoutForm = () => Admin.hideTimeoutForm();
+// Add these with your other event listeners
+document.getElementById('updateColorBtn').addEventListener('click', () => VIP.updateUsernameColor());
+
+// Update the showPage function to handle VIP page
+const originalShowPage = Utils.showPage;
+Utils.showPage = function(pageId) {
+    originalShowPage(pageId);
+    if (pageId === 'vip') {
+        VIP.loadFeatures();
+    }
+};
