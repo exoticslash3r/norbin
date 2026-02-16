@@ -97,4 +97,116 @@ const Profile = (function() {
     }
 
     async function loadUserProfileData() {
-        const currentUser = Auth
+        const currentUser = Auth.getCurrentUser();
+        const currentUserData = Auth.getCurrentUserData();
+
+        if (!currentUser) return;
+
+        try {
+            document.getElementById('display-name').value = currentUserData?.displayName || '';
+            document.getElementById('banner-url').value = currentUserData?.bannerUrl || '';
+            document.getElementById('profile-url').value = currentUserData?.profileUrl || '';
+
+            if (currentUserData?.bannerUrl) {
+                document.getElementById('profile-banner-img').style.backgroundImage = `url('${Utils.sanitizeHTML(currentUserData.bannerUrl)}')`;
+            }
+            if (currentUserData?.profileUrl) {
+                document.getElementById('profile-picture-img').style.backgroundImage = `url('${Utils.sanitizeHTML(currentUserData.profileUrl)}')`;
+            }
+        } catch (error) {
+            console.error('Error loading profile data:', error);
+        }
+    }
+
+    async function updateDisplayName() {
+        const currentUser = Auth.getCurrentUser();
+        if (!currentUser) return;
+
+        const displayName = document.getElementById('display-name').value.trim();
+        if (!displayName) {
+            Utils.showAlert('Enter a display name', 'error');
+            return;
+        }
+
+        try {
+            await db.collection('users').doc(currentUser.uid).update({
+                displayName: Utils.sanitizeHTML(displayName)
+            });
+            Utils.showAlert('Display name updated', 'success');
+            Auth.updateUI();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    }
+
+    async function updateBanner() {
+        const currentUser = Auth.getCurrentUser();
+        if (!currentUser) return;
+
+        const bannerUrl = document.getElementById('banner-url').value.trim();
+        if (!bannerUrl) {
+            Utils.showAlert('Enter a banner URL', 'error');
+            return;
+        }
+
+        try {
+            await db.collection('users').doc(currentUser.uid).update({
+                bannerUrl: Utils.sanitizeHTML(bannerUrl)
+            });
+            Utils.showAlert('Banner updated', 'success');
+            document.getElementById('profile-banner-img').style.backgroundImage = `url('${Utils.sanitizeHTML(bannerUrl)}')`;
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    }
+
+    async function updateProfilePicture() {
+        const currentUser = Auth.getCurrentUser();
+        if (!currentUser) return;
+
+        const profileUrl = document.getElementById('profile-url').value.trim();
+        if (!profileUrl) {
+            Utils.showAlert('Enter a profile picture URL', 'error');
+            return;
+        }
+
+        try {
+            await db.collection('users').doc(currentUser.uid).update({
+                profileUrl: Utils.sanitizeHTML(profileUrl)
+            });
+            Utils.showAlert('Profile picture updated', 'success');
+            document.getElementById('profile-picture-img').style.backgroundImage = `url('${Utils.sanitizeHTML(profileUrl)}')`;
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    }
+
+    async function updateUsernameColor() {
+        const currentUser = Auth.getCurrentUser();
+        const isVip = await Auth.checkRole('vip');
+        const isOwner = await Auth.checkRole('owner');
+
+        if (!currentUser || (!isVip && !isOwner)) return;
+
+        const color = document.getElementById('username-color').value;
+
+        try {
+            await db.collection('users').doc(currentUser.uid).update({
+                usernameColor: color
+            });
+            Utils.showAlert('Color updated', 'success');
+            Auth.updateUI();
+        } catch (error) {
+            Utils.showAlert(error.message, 'error');
+        }
+    }
+
+    return {
+        showUserProfile,
+        loadUserProfileData,
+        updateDisplayName,
+        updateBanner,
+        updateProfilePicture,
+        updateUsernameColor
+    };
+})();
