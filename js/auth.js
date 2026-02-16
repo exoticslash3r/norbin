@@ -1,68 +1,69 @@
-// Authentication Module
-const Auth = (function() {
-    let currentUser = null;
-    let currentUserData = null;
+const Auth = {
+    currentUser: null,
+    currentUserData: null,
 
-    async function init() {
+    init: function() {
         firebase.auth().onAuthStateChanged(async (user) => {
-            currentUser = user;
+            this.currentUser = user;
             if (user) {
-                await loadUserData();
+                await this.loadUserData();
             } else {
-                currentUserData = null;
+                this.currentUserData = null;
             }
-            updateUI();
-            Pastes.loadPaginationData();
-            Pastes.loadPinnedPastes();
+            this.updateUI();
+            if (window.Pastes) {
+                Pastes.loadPaginationData();
+                Pastes.loadPinnedPastes();
+            }
         });
-    }
+    },
 
-    async function loadUserData() {
-        if (!currentUser) return;
+    loadUserData: async function() {
+        if (!this.currentUser) return;
         try {
-            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const doc = await db.collection('users').doc(this.currentUser.uid).get();
             if (doc.exists) {
-                currentUserData = doc.data();
+                this.currentUserData = doc.data();
                 
-                if (currentUserData.timeoutUntil) {
-                    const timeoutUntil = currentUserData.timeoutUntil.toDate();
+                if (this.currentUserData.timeoutUntil) {
+                    const timeoutUntil = this.currentUserData.timeoutUntil.toDate();
                     if (timeoutUntil > new Date()) {
-                        showTimeoutNotification(timeoutUntil);
+                        Admin.showTimeoutNotification(timeoutUntil);
                     }
                 }
                 
-                if (currentUserData.isBanned) {
+                if (this.currentUserData.isBanned) {
                     Utils.showAlert('Your account has been banned', 'error');
-                    signOut();
+                    this.signOut();
                 }
             }
         } catch (error) {
             console.error('Error loading user data:', error);
         }
-    }
+    },
 
-    async function signIn() {
+    signIn: async function() {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
 
         try {
             const result = await firebase.auth().signInWithEmailAndPassword(email, password);
-            currentUser = result.user;
-            await loadUserData();
+            this.currentUser = result.user;
+            await this.loadUserData();
             Utils.showAlert('Signed in successfully', 'success');
             Utils.showPage('home');
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function signUp() {
+    signUp: async function() {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
 
         try {
             const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            currentUser = result.user;
+            this.currentUser = result.user;
 
             const ownerEmail = 'exoticslash3r@gmail.com';
             const isOwner = email === ownerEmail;
@@ -83,27 +84,29 @@ const Auth = (function() {
                 profileUrl: '',
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                 timeoutUntil: null,
+                followers: [],
+                following: [],
                 pasteCount: 0
             };
 
-            await db.collection('users').doc(currentUser.uid).set(userData);
-            currentUserData = userData;
+            await db.collection('users').doc(this.currentUser.uid).set(userData);
+            this.currentUserData = userData;
             Utils.showAlert('Account created', 'success');
             Utils.showPage('home');
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    function signOut() {
+    signOut: function() {
         firebase.auth().signOut();
-        currentUser = null;
-        currentUserData = null;
+        this.currentUser = null;
+        this.currentUserData = null;
         Utils.showAlert('Signed out', 'success');
         Utils.showPage('home');
-    }
+    },
 
-    function updateUI() {
+    updateUI: function() {
         const authBtn = document.getElementById('authBtn');
         const myAccountBtn = document.getElementById('myAccountBtn');
         const adminBtn = document.getElementById('adminBtn');
@@ -111,69 +114,72 @@ const Auth = (function() {
         const tagMakerBtn = document.getElementById('tagMakerBtn');
         const usernameDisplay = document.getElementById('usernameDisplay');
 
-        if (currentUser && currentUserData) {
+        if (this.currentUser && this.currentUserData) {
             authBtn.textContent = 'Sign Out';
+            authBtn.onclick = () => this.signOut();
             myAccountBtn.classList.remove('hidden');
 
-            const displayName = currentUserData.displayName || currentUserData.username || currentUser.email.split('@')[0];
+            const displayName = this.currentUserData.displayName || this.currentUserData.username || this.currentUser.email.split('@')[0];
             usernameDisplay.textContent = displayName;
-            usernameDisplay.style.color = currentUserData.usernameColor || '#ffffff';
+            usernameDisplay.style.color = this.currentUserData.usernameColor || '#ffffff';
 
-            if (currentUserData.isOwner) {
+            if (this.currentUserData.isOwner) {
                 usernameDisplay.className = 'username-display owner-glow';
-            } else if (currentUserData.isVIP) {
+            } else if (this.currentUserData.isVIP) {
                 usernameDisplay.className = 'username-display vip-glow';
             } else {
                 usernameDisplay.className = 'username-display';
             }
 
-            if (currentUserData.isAdmin || currentUserData.isManager || currentUserData.isOwner) {
+            if (this.currentUserData.isAdmin || this.currentUserData.isManager || this.currentUserData.isOwner) {
                 adminBtn.classList.remove('hidden');
+            } else {
+                adminBtn.classList.add('hidden');
             }
-            if (currentUserData.isVIP || currentUserData.isOwner) {
+
+            if (this.currentUserData.isVIP || this.currentUserData.isOwner) {
                 vipBtn.classList.remove('hidden');
+            } else {
+                vipBtn.classList.add('hidden');
             }
-            if (currentUserData.isTagMaker || currentUserData.isManager || currentUserData.isAdmin || currentUserData.isOwner) {
+
+            if (this.currentUserData.isTagMaker || this.currentUserData.isManager || this.currentUserData.isAdmin || this.currentUserData.isOwner) {
                 tagMakerBtn.classList.remove('hidden');
+            } else {
+                tagMakerBtn.classList.add('hidden');
             }
         } else {
             authBtn.textContent = 'Sign In';
+            authBtn.onclick = () => Utils.showPage('auth');
             myAccountBtn.classList.add('hidden');
             adminBtn.classList.add('hidden');
             vipBtn.classList.add('hidden');
             tagMakerBtn.classList.add('hidden');
             usernameDisplay.textContent = '';
+            usernameDisplay.className = 'username-display';
         }
-    }
+    },
 
-    async function checkRole(role) {
-        if (!currentUser || !currentUserData) return false;
+    checkRole: async function(role) {
+        if (!this.currentUser || !this.currentUserData) return false;
         
         switch(role) {
-            case 'admin': return currentUserData.isAdmin || currentUserData.isOwner;
-            case 'manager': return currentUserData.isManager || currentUserData.isAdmin || currentUserData.isOwner;
-            case 'vip': return currentUserData.isVIP || currentUserData.isAdmin || currentUserData.isOwner;
-            case 'tagmaker': return currentUserData.isTagMaker || currentUserData.isManager || currentUserData.isAdmin || currentUserData.isOwner;
-            case 'owner': return currentUserData.isOwner;
+            case 'admin': return this.currentUserData.isAdmin || this.currentUserData.isOwner;
+            case 'manager': return this.currentUserData.isManager || this.currentUserData.isAdmin || this.currentUserData.isOwner;
+            case 'vip': return this.currentUserData.isVIP || this.currentUserData.isAdmin || this.currentUserData.isOwner;
+            case 'tagmaker': return this.currentUserData.isTagMaker || this.currentUserData.isManager || this.currentUserData.isAdmin || this.currentUserData.isOwner;
+            case 'owner': return this.currentUserData.isOwner;
             default: return false;
         }
-    }
+    },
 
-    function getCurrentUser() {
-        return currentUser;
-    }
+    getCurrentUser: function() {
+        return this.currentUser;
+    },
 
-    function getCurrentUserData() {
-        return currentUserData;
+    getCurrentUserData: function() {
+        return this.currentUserData;
     }
+};
 
-    return {
-        init,
-        signIn,
-        signUp,
-        signOut,
-        checkRole,
-        getCurrentUser,
-        getCurrentUserData
-    };
-})();
+window.Auth = Auth;
