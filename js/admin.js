@@ -1,6 +1,5 @@
-// Admin Module
-const Admin = (function() {
-    async function pinPaste(pasteId, state) {
+const Admin = {
+    pinPaste: async function(pasteId, state) {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -18,9 +17,9 @@ const Admin = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function removePaste(pasteId) {
+    removePaste: async function(pasteId) {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -41,9 +40,9 @@ const Admin = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function banUser(userId) {
+    banUser: async function(userId) {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -63,9 +62,9 @@ const Admin = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function timeoutUser() {
+    timeoutUser: async function() {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -110,18 +109,18 @@ const Admin = (function() {
             });
 
             Utils.showAlert(`User timed out for ${days}d ${hours}h ${minutes}m ${seconds}s`, 'success');
-            hideTimeoutForm();
+            this.hideTimeoutForm();
 
             const currentUser = Auth.getCurrentUser();
             if (userId === currentUser?.uid) {
-                showTimeoutNotification(timeoutUntil);
+                this.showTimeoutNotification(timeoutUntil);
             }
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function loadAdminStats() {
+    loadAdminStats: async function() {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -142,9 +141,9 @@ const Admin = (function() {
         } catch (error) {
             console.error('Error loading admin stats:', error);
         }
-    }
+    },
 
-    async function viewAllUsers() {
+    viewAllUsers: async function() {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -194,9 +193,9 @@ const Admin = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function untimeoutUser(userId) {
+    untimeoutUser: async function(userId) {
         const isAdmin = await Auth.checkRole('admin');
         const isManager = await Auth.checkRole('manager');
         const isOwner = await Auth.checkRole('owner');
@@ -211,26 +210,26 @@ const Admin = (function() {
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    function showTimeoutForm(userId) {
+    showTimeoutForm: function(userId) {
         Utils.showPage('admin');
         document.getElementById('timeout-form').classList.remove('hidden');
         if (userId) {
             document.getElementById('timeout-email').value = userId;
         }
-    }
+    },
 
-    function hideTimeoutForm() {
+    hideTimeoutForm: function() {
         document.getElementById('timeout-form').classList.add('hidden');
         document.getElementById('timeout-email').value = '';
         document.getElementById('timeout-days').value = '';
         document.getElementById('timeout-hours').value = '';
         document.getElementById('timeout-minutes').value = '';
         document.getElementById('timeout-seconds').value = '';
-    }
+    },
 
-    function showTimeoutNotification(timeoutUntil) {
+    showTimeoutNotification: function(timeoutUntil) {
         const overlay = document.getElementById('timeout-overlay');
         const details = document.getElementById('timeout-details');
 
@@ -263,18 +262,24 @@ const Admin = (function() {
         updateCountdown();
         if (window.timeoutInterval) clearInterval(window.timeoutInterval);
         window.timeoutInterval = setInterval(updateCountdown, 1000);
-    }
+    },
 
-    return {
-        pinPaste,
-        removePaste,
-        banUser,
-        timeoutUser,
-        untimeoutUser,
-        loadAdminStats,
-        viewAllUsers,
-        showTimeoutForm,
-        hideTimeoutForm,
-        showTimeoutNotification
-    };
-})();
+    viewAllPastes: async function() {
+        Utils.showAlert('Feature coming soon', 'info');
+    },
+
+    clearChat: async function() {
+        if (!confirm('Clear all messages?')) return;
+        Utils.showAlert('Feature coming soon', 'info');
+    },
+
+    backupData: function() {
+        Utils.showAlert('Backup feature', 'info');
+    },
+
+    manageRoles: function() {
+        this.viewAllUsers();
+    }
+};
+
+window.Admin = Admin;
