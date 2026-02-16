@@ -49,6 +49,7 @@ const Pastes = {
             this.updatePaginationUI();
         } catch (error) {
             console.error('Error loading pagination data:', error);
+            document.getElementById('all-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pastes</td></tr>';
         }
     },
 
@@ -352,6 +353,16 @@ const Pastes = {
             return;
         }
 
+        if (title.length > 100) {
+            Utils.showAlert('Title too long', 'error');
+            return;
+        }
+
+        if (content.length > 50000) {
+            Utils.showAlert('Content too long', 'error');
+            return;
+        }
+
         try {
             await db.collection('pastes').add({
                 title: Utils.sanitizeHTML(title),
@@ -492,6 +503,11 @@ const Pastes = {
             document.getElementById('paste-detail-container').classList.add('active');
             document.body.style.overflow = 'hidden';
             this.currentPasteId = pasteId;
+            
+            // Update URL without reloading
+            const url = new URL(window.location);
+            url.searchParams.set('paste', pasteId);
+            window.history.pushState({}, '', url);
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
@@ -501,6 +517,11 @@ const Pastes = {
         document.getElementById('paste-detail-container').classList.remove('active');
         document.body.style.overflow = 'auto';
         this.currentPasteId = null;
+        
+        // Remove from URL
+        const url = new URL(window.location);
+        url.searchParams.delete('paste');
+        window.history.pushState({}, '', url);
     },
 
     showRawPaste: function(pasteId) {
