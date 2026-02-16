@@ -8,9 +8,10 @@ const Pastes = {
 
     loadPaginationData: async function() {
         try {
+            console.log('Loading pagination data...');
+            // Simple query without complex ordering to avoid index issues
             const snapshot = await db.collection('pastes')
                 .where('isRemoved', '==', false)
-                .orderBy('timestamp', 'desc')
                 .get();
 
             this.allPastesCache = [];
@@ -23,6 +24,7 @@ const Pastes = {
                 
                 const paste = doc.data();
 
+                // Get comment count
                 let commentCount = 0;
                 try {
                     const commentsSnapshot = await db.collection('comments')
@@ -41,12 +43,21 @@ const Pastes = {
                 });
             }
 
+            // Sort in memory by timestamp (newest first)
+            this.allPastesCache.sort((a, b) => {
+                const timeA = a.timestamp?.toDate?.() || new Date(0);
+                const timeB = b.timestamp?.toDate?.() || new Date(0);
+                return timeB - timeA;
+            });
+
             this.totalPastes = this.allPastesCache.length;
             this.totalPages = Math.ceil(this.totalPastes / this.itemsPerPage);
             this.currentPage = 1;
 
             await this.displayPaginationPastes();
             this.updatePaginationUI();
+            
+            console.log(`Loaded ${this.totalPastes} pastes`);
         } catch (error) {
             console.error('Error loading pagination data:', error);
             document.getElementById('all-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pastes</td></tr>';
@@ -55,12 +66,13 @@ const Pastes = {
 
     loadPinnedPastes: async function() {
         try {
-            // First get all non-removed pastes
+            console.log('Loading pinned pastes...');
+            // Get all non-removed pastes
             const allPastes = await db.collection('pastes')
                 .where('isRemoved', '==', false)
                 .get();
             
-            // Then filter pinned ones in memory
+            // Filter pinned ones in memory
             const pinnedPastes = [];
             
             for (const doc of allPastes.docs) {
@@ -107,6 +119,7 @@ const Pastes = {
             });
 
             this.displayPinnedPastes(pinnedPastes);
+            console.log(`Loaded ${pinnedPastes.length} pinned pastes`);
         } catch (error) {
             console.error('Error loading pinned pastes:', error);
             document.getElementById('pinned-pastes-body').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">Error loading pinned pastes</td></tr>';
@@ -130,7 +143,7 @@ const Pastes = {
             const titleLink = document.createElement('a');
             titleLink.href = '#';
             titleLink.className = 'paste-title-link';
-            titleLink.textContent = Utils.sanitizeHTML(paste.title);
+            titleLink.textContent = Utils.sanitizeHTML(paste.title || 'Untitled');
             titleLink.onclick = function(e) { 
                 e.preventDefault(); 
                 Pastes.showPasteDetail(paste.id); 
@@ -228,15 +241,19 @@ const Pastes = {
         }
 
         for (const paste of pagePastes) {
-            const userDoc = await db.collection('users').doc(paste.userId).get();
+            // Get user role
             let userRole = 'user';
-            
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                if (userData.isOwner) userRole = 'owner';
-                else if (userData.isAdmin) userRole = 'admin';
-                else if (userData.isManager) userRole = 'manager';
-                else if (userData.isVIP) userRole = 'vip';
+            try {
+                const userDoc = await db.collection('users').doc(paste.userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData.isOwner) userRole = 'owner';
+                    else if (userData.isAdmin) userRole = 'admin';
+                    else if (userData.isManager) userRole = 'manager';
+                    else if (userData.isVIP) userRole = 'vip';
+                }
+            } catch (error) {
+                console.error('Error getting user role:', error);
             }
 
             const row = document.createElement('tr');
@@ -246,7 +263,7 @@ const Pastes = {
             const titleLink = document.createElement('a');
             titleLink.href = '#';
             titleLink.className = 'paste-title-link';
-            titleLink.textContent = Utils.sanitizeHTML(paste.title);
+            titleLink.textContent = Utils.sanitizeHTML(paste.title || 'Untitled');
             titleLink.onclick = function(e) { 
                 e.preventDefault(); 
                 Pastes.showPasteDetail(paste.id); 
@@ -439,7 +456,7 @@ const Pastes = {
             await db.collection('pastes').add({
                 title: Utils.sanitizeHTML(title),
                 content: Utils.sanitizeHTML(content),
-                username: userData.displayName || userData.username || user.email.split('@')[0],
+                username: userData?.displayName || userData?.username || user.email.split('@')[0],
                 userId: user.uid,
                 views: 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -463,6 +480,9 @@ const Pastes = {
 
     showPasteDetail: async function(pasteId) {
         try {
+            console.log('Showing paste detail:', pasteId);
+            
+            // Increment view count
             await db.collection('pastes').doc(pasteId).update({
                 views: firebase.firestore.FieldValue.increment(1)
             });
@@ -477,8 +497,7 @@ const Pastes = {
             const container = document.getElementById('paste-detail-content');
             const actionsContainer = document.getElementById('paste-detail-actions');
 
-            // Check if current user is admin - ONLY for showing admin controls
-            // This does NOT block viewing the paste
+            // Check admin status for controls (doesn't block viewing)
             const isAdmin = Auth.getCurrentUser() ? await Auth.checkRole('admin') : false;
             const isManager = Auth.getCurrentUser() ? await Auth.checkRole('manager') : false;
             const isOwner = Auth.getCurrentUser() ? await Auth.checkRole('owner') : false;
@@ -490,8 +509,8 @@ const Pastes = {
                         <button class="btn btn-success" onclick="Admin.pinPaste('${pasteId}', true)">Pin</button>
                         ${paste.isPinned ? `<button class="btn btn-warning" onclick="Admin.pinPaste('${pasteId}', false)">Unpin</button>` : ''}
                         <button class="btn btn-danger" onclick="Admin.removePaste('${pasteId}')">Remove</button>
-                        ${(isAdmin || isManager || isOwner) ? `<button class="btn btn-danger" onclick="Admin.banUser('${paste.userId}')">Ban User</button>` : ''}
-                        ${(isAdmin || isOwner) ? `<button class="btn btn-danger" onclick="Admin.showTimeoutForm('${paste.userId}')">Timeout</button>` : ''}
+                        <button class="btn btn-danger" onclick="Admin.banUser('${paste.userId}')">Ban User</button>
+                        <button class="btn btn-danger" onclick="Admin.showTimeoutForm('${paste.userId}')">Timeout</button>
                     </div>
                 `;
             }
@@ -501,6 +520,7 @@ const Pastes = {
             const baseUrl = window.location.origin + window.location.pathname;
             const shareLink = `${baseUrl}?paste=${pasteId}`;
 
+            // Get user role for badge
             const userDoc = await db.collection('users').doc(paste.userId).get();
             let userRole = 'user';
             let userRoleBadge = '';
@@ -518,6 +538,7 @@ const Pastes = {
             else if (userRole === 'manager') userRoleBadge = '<span class="badge badge-manager">Manager</span>';
             else if (userRole === 'vip') userRoleBadge = '<span class="badge badge-vip">VIP</span>';
 
+            // Get comment count
             let commentCount = 0;
             try {
                 const commentsSnapshot = await db.collection('comments')
@@ -529,6 +550,7 @@ const Pastes = {
                 commentCount = 0;
             }
 
+            // Show the paste - THIS IS VISIBLE TO EVERYONE
             container.innerHTML = `
                 <div style="margin-bottom: 1.5rem;">
                     <a href="#" class="paste-link" onclick="Profile.showUserProfile('${paste.userId}'); return false;">
@@ -538,7 +560,7 @@ const Pastes = {
                     ${paste.isPinned ? '<span class="badge badge-pinned">PINNED</span>' : ''}
                 </div>
                 <h1 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 1.8rem;">
-                    ${Utils.sanitizeHTML(paste.title)}
+                    ${Utils.sanitizeHTML(paste.title || 'Untitled')}
                 </h1>
                 <div style="color: #888; margin-bottom: 1.5rem; font-size: 0.9rem;">
                     <span style="margin-right: 1rem;" class="views-count" onclick="Pastes.showPasteDetail('${pasteId}'); return false;">${paste.views || 0} views</span>
@@ -556,7 +578,7 @@ const Pastes = {
                         <button class="copy-btn" onclick="Pastes.copyShareLink('${pasteId}'); return false;">Copy Link</button>
                     </div>
                 </div>
-                <div class="paste-content" data-paste-id="${pasteId}">${Utils.sanitizeHTML(paste.content)}</div>
+                <div class="paste-content" data-paste-id="${pasteId}">${Utils.sanitizeHTML(paste.content || 'No content')}</div>
                 <div id="comments-section" class="comments-section">
                     <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-color);">Comments (${commentCount})</h3>
                     ${Auth.getCurrentUser() ? `
@@ -581,12 +603,15 @@ const Pastes = {
             document.body.style.overflow = 'hidden';
             this.currentPasteId = pasteId;
             
-            // Update URL without reloading
+            // Update URL
             const url = new URL(window.location);
             url.searchParams.set('paste', pasteId);
             window.history.pushState({}, '', url);
+            
+            console.log('Paste displayed successfully');
         } catch (error) {
-            Utils.showAlert(error.message, 'error');
+            console.error('Error showing paste:', error);
+            Utils.showAlert('Error loading paste: ' + error.message, 'error');
         }
     },
 
@@ -617,7 +642,7 @@ const Pastes = {
             const doc = await db.collection('pastes').doc(pasteId).get();
             if (doc.exists) {
                 const paste = doc.data();
-                document.getElementById('raw-paste-content').innerHTML = `<div class="raw-paste-view">${Utils.sanitizeHTML(paste.content)}</div>`;
+                document.getElementById('raw-paste-content').innerHTML = `<div class="raw-paste-view">${Utils.sanitizeHTML(paste.content || 'No content')}</div>`;
             }
         } catch (error) {
             console.error('Error loading raw paste:', error);
@@ -657,4 +682,4 @@ const Pastes = {
 };
 
 window.Pastes = Pastes;
-console.log('Pastes.js loaded - ALL users can see pastes and pins');
+console.log('Pastes.js loaded - ALL users can see pastes');
