@@ -272,6 +272,13 @@ const Pastes = {
 
     showPasteDetail: async function(pasteId) {
         try {
+            console.log('Showing paste detail:', pasteId);
+            
+            // Increment view count
+            await db.collection('pastes').doc(pasteId).update({
+                views: firebase.firestore.FieldValue.increment(1)
+            });
+
             const doc = await db.collection('pastes').doc(pasteId).get();
             if (!doc.exists) {
                 Utils.showAlert('Paste not found', 'error');
@@ -280,22 +287,83 @@ const Pastes = {
 
             const paste = doc.data();
             const container = document.getElementById('paste-detail-content');
-            
+            const actionsContainer = document.getElementById('paste-detail-actions');
+
+            // Check if user is admin for special controls
+            const isAdmin = Auth.getCurrentUser() ? await Auth.checkRole('admin') : false;
+            const isManager = Auth.getCurrentUser() ? await Auth.checkRole('manager') : false;
+            const isOwner = Auth.getCurrentUser() ? await Auth.checkRole('owner') : false;
+
+            let adminControls = '';
+            if (isAdmin || isManager || isOwner) {
+                adminControls = `
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="Admin.pinPaste('${pasteId}', true)">Pin</button>
+                        ${paste.isPinned ? `<button class="btn btn-warning" onclick="Admin.pinPaste('${pasteId}', false)">Unpin</button>` : ''}
+                        <button class="btn btn-danger" onclick="Admin.removePaste('${pasteId}')">Remove</button>
+                        <button class="btn btn-danger" onclick="Admin.banUser('${paste.userId}')">Ban User</button>
+                        <button class="btn btn-danger" onclick="Admin.showTimeoutForm('${paste.userId}')">Timeout</button>
+                    </div>
+                `;
+            }
+
+            actionsContainer.innerHTML = adminControls;
+
             const baseUrl = window.location.origin + window.location.pathname;
             const shareLink = `${baseUrl}?paste=${pasteId}`;
 
+            // Get user role
+            let userRoleBadge = '';
+            try {
+                const userDoc = await db.collection('users').doc(paste.userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData.isOwner) userRoleBadge = '<span class="badge badge-owner">Owner</span>';
+                    else if (userData.isAdmin) userRoleBadge = '<span class="badge badge-admin">Admin</span>';
+                    else if (userData.isManager) userRoleBadge = '<span class="badge badge-manager">Manager</span>';
+                    else if (userData.isVIP) userRoleBadge = '<span class="badge badge-vip">VIP</span>';
+                }
+            } catch (error) {
+                console.error('Error getting user role:', error);
+            }
+
+            // Get comment count
+            let commentCount = 0;
+            try {
+                const commentsSnapshot = await db.collection('comments')
+                    .where('pasteId', '==', pasteId)
+                    .where('isRemoved', '==', false)
+                    .get();
+                commentCount = commentsSnapshot.size;
+            } catch (error) {
+                commentCount = 0;
+            }
+
+            // Main content with ALL buttons
             container.innerHTML = `
                 <div style="margin-bottom: 1.5rem;">
-                    <span class="paste-link">${Utils.sanitizeHTML(paste.username || 'Anonymous')}</span>
+                    <a href="#" class="paste-link" onclick="Profile.showUserProfile('${paste.userId}'); return false;">
+                        ${Utils.sanitizeHTML(paste.username || 'Anonymous')}
+                    </a>
+                    ${userRoleBadge}
                     ${paste.isPinned ? '<span class="badge badge-pinned">PINNED</span>' : ''}
                 </div>
                 <h1 style="color: var(--accent-color); margin-bottom: 1rem; font-size: 1.8rem;">
                     ${Utils.sanitizeHTML(paste.title || 'Untitled')}
                 </h1>
                 <div style="color: #888; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    <span style="margin-right: 1rem;">${paste.views || 0} views</span>
+                    <span style="margin-right: 1rem;" class="views-count" onclick="Pastes.showPasteDetail('${pasteId}'); return false;">${paste.views || 0} views</span>
+                    <span style="margin-right: 1rem;" class="comments-count" onclick="Comments.scrollToComments(); return false;">${commentCount} comments</span>
                     <span style="margin-right: 1rem;">${Utils.formatTime(paste.timestamp?.toDate())}</span>
                 </div>
+                
+                <!-- ACTION BUTTONS -->
+                <div class="btn-group mb-3">
+                    <button class="btn btn-primary" onclick="Pastes.showRawPaste('${pasteId}')">View Full Paste Raw</button>
+                    <button class="btn btn-secondary" onclick="Comments.scrollToComments()">View Comments</button>
+                </div>
+
+                <!-- SHARE SECTION -->
                 <div class="share-section">
                     <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent-color);">Share this paste:</h3>
                     <div class="share-link-container">
@@ -303,21 +371,45 @@ const Pastes = {
                         <button class="copy-btn" onclick="Pastes.copyShareLink('${pasteId}')">Copy Link</button>
                     </div>
                 </div>
-                <div class="paste-content">${Utils.sanitizeHTML(paste.content || 'No content')}</div>
+
+                <!-- PASTE CONTENT -->
+                <div class="paste-content" data-paste-id="${pasteId}">${Utils.sanitizeHTML(paste.content || 'No content')}</div>
+
+                <!-- COMMENTS SECTION -->
+                <div id="comments-section" class="comments-section">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-color);">Comments (${commentCount})</h3>
+                    ${Auth.getCurrentUser() ? `
+                        <div class="comment-form">
+                            <textarea id="comment-input" placeholder="Add a comment..." maxlength="1000"></textarea>
+                            <button class="btn btn-primary" onclick="Comments.postComment('${pasteId}')">Post Comment</button>
+                        </div>
+                    ` : `
+                        <div style="text-align: center; padding: 1rem; background: var(--table-row-alt); border-radius: 2px;">
+                            <a href="#" onclick="Utils.showPage('auth'); return false;" style="color: var(--link-color); text-decoration: none;">Sign in to comment</a>
+                        </div>
+                    `}
+                    <div id="comments-list" class="comments-list"></div>
+                </div>
             `;
 
+            // Load comments if they exist
+            if (window.Comments) {
+                Comments.loadComments(pasteId);
+            }
+            
             document.getElementById('paste-detail-container').classList.add('active');
             document.body.style.overflow = 'hidden';
             this.currentPasteId = pasteId;
             
-            // Update view count
-            await db.collection('pastes').doc(pasteId).update({
-                views: firebase.firestore.FieldValue.increment(1)
-            });
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('paste', pasteId);
+            window.history.pushState({}, '', url);
             
+            console.log('Paste displayed successfully');
         } catch (error) {
             console.error('Error showing paste:', error);
-            Utils.showAlert('Error loading paste', 'error');
+            Utils.showAlert('Error loading paste: ' + error.message, 'error');
         }
     },
 
@@ -325,12 +417,54 @@ const Pastes = {
         document.getElementById('paste-detail-container').classList.remove('active');
         document.body.style.overflow = 'auto';
         this.currentPasteId = null;
+        
+        // Remove from URL
+        const url = new URL(window.location);
+        url.searchParams.delete('paste');
+        window.history.pushState({}, '', url);
+    },
+
+    showRawPaste: function(pasteId) {
+        document.getElementById('raw-paste-container').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        this.loadRawContent(pasteId);
+    },
+
+    closeRawPaste: function() {
+        document.getElementById('raw-paste-container').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    },
+
+    loadRawContent: async function(pasteId) {
+        try {
+            const doc = await db.collection('pastes').doc(pasteId).get();
+            if (doc.exists) {
+                const paste = doc.data();
+                document.getElementById('raw-paste-content').innerHTML = `<div class="raw-paste-view">${Utils.sanitizeHTML(paste.content || 'No content')}</div>`;
+            }
+        } catch (error) {
+            console.error('Error loading raw paste:', error);
+            Utils.showAlert('Error loading raw paste', 'error');
+        }
+    },
+
+    copyRawPaste: function() {
+        const rawContent = document.querySelector('.raw-paste-view');
+        if (rawContent) {
+            const textArea = document.createElement('textarea');
+            textArea.value = rawContent.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            Utils.showAlert('Raw paste copied!', 'success');
+        }
     },
 
     copyShareLink: function(linkId) {
-        const input = document.getElementById(`share-link-${linkId}`);
-        if (input) {
-            input.select();
+        const shareLinkInput = document.getElementById(`share-link-${linkId}`);
+        if (shareLinkInput) {
+            shareLinkInput.select();
             document.execCommand('copy');
             Utils.showAlert('Link copied!', 'success');
         }
@@ -338,9 +472,17 @@ const Pastes = {
 
     publishPaste: async function() {
         const user = Auth.getCurrentUser();
+        const userData = Auth.getCurrentUserData();
+
         if (!user) {
             Utils.showAlert('Please sign in', 'error');
             Utils.showPage('auth');
+            return;
+        }
+
+        const verifyCheckbox = document.getElementById('verify-human');
+        if (!verifyCheckbox || !verifyCheckbox.checked) {
+            Utils.showAlert('Please verify you are human', 'error');
             return;
         }
 
@@ -354,9 +496,9 @@ const Pastes = {
 
         try {
             await db.collection('pastes').add({
-                title: title,
-                content: content,
-                username: user.email.split('@')[0],
+                title: Utils.sanitizeHTML(title),
+                content: Utils.sanitizeHTML(content),
+                username: userData?.displayName || userData?.username || user.email.split('@')[0],
                 userId: user.uid,
                 views: 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -364,15 +506,30 @@ const Pastes = {
                 isRemoved: false
             });
 
+            await db.collection('users').doc(user.uid).update({
+                pasteCount: firebase.firestore.FieldValue.increment(1)
+            });
+
             Utils.showAlert('Paste created', 'success');
             document.getElementById('paste-title').value = '';
             document.getElementById('paste-content').value = '';
+            document.getElementById('verify-human').checked = false;
             Utils.showPage('home');
             this.init();
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
+    },
+
+    performSearch: function() {
+        const searchTerm = document.getElementById('searchBar').value.trim();
+        if (searchTerm) {
+            Utils.showAlert('Search feature coming soon', 'info');
+        } else {
+            this.init();
+        }
     }
 };
 
 window.Pastes = Pastes;
+console.log('Pastes.js loaded with all buttons working');
