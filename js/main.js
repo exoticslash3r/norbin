@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Firebase
     const app = firebase.initializeApp(window.FIREBASE_CONFIG);
     const chatApp = firebase.initializeApp(window.CHAT_CONFIG, "chat");
 
     window.db = app.firestore();
     window.chatDb = chatApp.firestore();
 
+    // Initialize Auth
     Auth.init();
 
+    // Event Listeners
     document.getElementById('hamburgerBtn').addEventListener('click', Utils.toggleMenu);
     document.getElementById('backFromPasteBtn').addEventListener('click', () => Pastes.closePasteDetail());
     document.getElementById('backFromRawBtn').addEventListener('click', () => Pastes.closeRawPaste());
@@ -21,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('homeBtn').addEventListener('click', () => Utils.showPage('home'));
     document.getElementById('createPasteBtn').addEventListener('click', () => Utils.showPage('paste'));
     document.getElementById('chatBtn').addEventListener('click', () => Utils.showPage('chat'));
-    document.getElementById('mostMentionedBtn').addEventListener('click', () => Utils.showPage('most-mentioned'));
     document.getElementById('hallBtn').addEventListener('click', () => Utils.showPage('hall'));
     document.getElementById('myAccountBtn').addEventListener('click', () => Utils.showPage('myaccount'));
     document.getElementById('adminBtn').addEventListener('click', () => Utils.showPage('admin'));
@@ -40,32 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('verify-human').checked = false;
     });
 
-    document.getElementById('sendChatBtn').addEventListener('click', () => {
-        Utils.showAlert('Chat coming soon', 'info');
+    document.getElementById('sendChatBtn').addEventListener('click', () => Chat.sendMessage());
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') Chat.sendMessage();
     });
 
     document.getElementById('signInBtn').addEventListener('click', () => Auth.signIn());
     document.getElementById('signUpBtn').addEventListener('click', () => Auth.signUp());
 
-    document.getElementById('updateDisplayNameBtn').addEventListener('click', () => {
-        Utils.showAlert('Profile features coming soon', 'info');
-    });
+    document.getElementById('updateDisplayNameBtn').addEventListener('click', () => Profile.updateDisplayName());
+    document.getElementById('updateBannerBtn').addEventListener('click', () => Profile.updateBanner());
+    document.getElementById('updateProfileBtn').addEventListener('click', () => Profile.updateProfilePicture());
+    document.getElementById('updateColorBtn').addEventListener('click', () => VIP.updateUsernameColor());
 
-    document.getElementById('updateBannerBtn').addEventListener('click', () => {
-        Utils.showAlert('Profile features coming soon', 'info');
-    });
-
-    document.getElementById('updateProfileBtn').addEventListener('click', () => {
-        Utils.showAlert('Profile features coming soon', 'info');
-    });
-
-    document.getElementById('updateColorBtn').addEventListener('click', () => {
-        Utils.showAlert('VIP features coming soon', 'info');
-    });
-
-    document.getElementById('createTagBtn').addEventListener('click', () => {
-        Utils.showAlert('Tag features coming soon', 'info');
-    });
+    document.getElementById('createTagBtn').addEventListener('click', () => Tags.createTag());
 
     document.getElementById('viewAllUsersBtn').addEventListener('click', () => Admin.viewAllUsers());
     document.getElementById('viewAllPastesBtn').addEventListener('click', () => Admin.viewAllPastes());
@@ -87,15 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Check for paste ID in URL
     const urlParams = new URLSearchParams(window.location.search);
     const pasteId = urlParams.get('paste');
     if (pasteId && /^[a-zA-Z0-9]{20,}$/.test(pasteId)) {
-        Pastes.showPasteDetail(pasteId);
+        setTimeout(() => {
+            Pastes.showPasteDetail(pasteId);
+        }, 1000);
     }
 
     Utils.showPage('home');
 });
 
+// Global functions for onclick events
 window.toggleMenu = () => Utils.toggleMenu();
 window.showPage = (pageId) => Utils.showPage(pageId);
 window.publishPaste = () => Pastes.publishPaste();
@@ -112,11 +106,12 @@ window.copyRawPaste = () => Pastes.copyRawPaste();
 window.showPasteDetail = (pasteId) => Pastes.showPasteDetail(pasteId);
 window.performSearch = () => Pastes.performSearch();
 window.changePage = (page) => Pastes.changePage(page);
-window.updateDisplayName = () => Utils.showAlert('Profile features coming soon', 'info');
-window.updateBanner = () => Utils.showAlert('Profile features coming soon', 'info');
-window.updateProfilePicture = () => Utils.showAlert('Profile features coming soon', 'info');
-window.updateUsernameColor = () => Utils.showAlert('VIP features coming soon', 'info');
-window.createTag = () => Utils.showAlert('Tag features coming soon', 'info');
+window.sendChatMessage = () => Chat.sendMessage();
+window.updateDisplayName = () => Profile.updateDisplayName();
+window.updateBanner = () => Profile.updateBanner();
+window.updateProfilePicture = () => Profile.updateProfilePicture();
+window.updateUsernameColor = () => VIP.updateUsernameColor();
+window.createTag = () => Tags.createTag();
 window.viewAllUsers = () => Admin.viewAllUsers();
 window.viewAllPastes = () => Admin.viewAllPastes();
 window.clearChat = () => Admin.clearChat();
@@ -125,14 +120,3 @@ window.showTimeoutForm = () => Admin.showTimeoutForm();
 window.manageRoles = () => Admin.manageRoles();
 window.timeoutUser = () => Admin.timeoutUser();
 window.hideTimeoutForm = () => Admin.hideTimeoutForm();
-// Add these with your other event listeners
-document.getElementById('updateColorBtn').addEventListener('click', () => VIP.updateUsernameColor());
-
-// Update the showPage function to handle VIP page
-const originalShowPage = Utils.showPage;
-Utils.showPage = function(pageId) {
-    originalShowPage(pageId);
-    if (pageId === 'vip') {
-        VIP.loadFeatures();
-    }
-};
