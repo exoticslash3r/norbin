@@ -46,9 +46,67 @@ const Utils = {
         }
     },
 
-    showPage: function(pageId) {
+    checkAdminAccess: async function() {
+        const user = Auth.getCurrentUser();
+        if (!user) return false;
+        
+        const isAdmin = await Auth.checkRole('admin');
+        const isManager = await Auth.checkRole('manager');
+        const isOwner = await Auth.checkRole('owner');
+        
+        return isAdmin || isManager || isOwner;
+    },
+
+    checkVIPAccess: async function() {
+        const user = Auth.getCurrentUser();
+        if (!user) return false;
+        
+        const isVip = await Auth.checkRole('vip');
+        const isOwner = await Auth.checkRole('owner');
+        
+        return isVip || isOwner;
+    },
+
+    checkTagMakerAccess: async function() {
+        const user = Auth.getCurrentUser();
+        if (!user) return false;
+        
+        const isTagMaker = await Auth.checkRole('tagmaker');
+        const isManager = await Auth.checkRole('manager');
+        const isAdmin = await Auth.checkRole('admin');
+        const isOwner = await Auth.checkRole('owner');
+        
+        return isTagMaker || isManager || isAdmin || isOwner;
+    },
+
+    showPage: async function(pageId) {
         console.log('Showing page:', pageId);
         this.hideMenu();
+        
+        // Special permission checks for protected pages
+        if (pageId === 'admin') {
+            const hasAccess = await this.checkAdminAccess();
+            if (!hasAccess) {
+                this.showAlert('Access denied: Admin privileges required', 'error');
+                pageId = 'home';
+            }
+        }
+        
+        if (pageId === 'vip') {
+            const hasAccess = await this.checkVIPAccess();
+            if (!hasAccess) {
+                this.showAlert('Access denied: VIP privileges required', 'error');
+                pageId = 'home';
+            }
+        }
+        
+        if (pageId === 'tagMaker') {
+            const hasAccess = await this.checkTagMakerAccess();
+            if (!hasAccess) {
+                this.showAlert('Access denied: Tag Maker privileges required', 'error');
+                pageId = 'home';
+            }
+        }
         
         // Hide all pages
         document.querySelectorAll('[id$="-page"]').forEach(page => {
@@ -87,7 +145,7 @@ const Utils = {
                 }
             }
             else if (pageId === 'admin') {
-                if (window.Admin && Auth.getCurrentUser()) {
+                if (window.Admin) {
                     console.log('Loading admin panel');
                     Admin.loadAdminStats();
                 }
@@ -125,4 +183,4 @@ const Utils = {
 
 // Make Utils globally available
 window.Utils = Utils;
-console.log('Utils loaded');
+console.log('Utils loaded with security checks');
