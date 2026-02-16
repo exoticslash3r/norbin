@@ -1,20 +1,19 @@
-// Pastes Module
-const Pastes = (function() {
-    let currentPage = 1;
-    const itemsPerPage = 15;
-    let totalPastes = 0;
-    let totalPages = 0;
-    let allPastesCache = [];
-    let currentPasteId = null;
+const Pastes = {
+    currentPage: 1,
+    itemsPerPage: 15,
+    totalPastes: 0,
+    totalPages: 0,
+    allPastesCache: [],
+    currentPasteId: null,
 
-    async function loadPaginationData() {
+    loadPaginationData: async function() {
         try {
             const snapshot = await db.collection('pastes')
                 .where('isRemoved', '==', false)
                 .orderBy('timestamp', 'desc')
                 .get();
 
-            allPastesCache = [];
+            this.allPastesCache = [];
             const processedIds = new Set();
 
             for (const doc of snapshot.docs) {
@@ -23,8 +22,8 @@ const Pastes = (function() {
                 processedIds.add(pasteId);
                 
                 const paste = doc.data();
-                let commentCount = 0;
 
+                let commentCount = 0;
                 try {
                     const commentsSnapshot = await db.collection('comments')
                         .where('pasteId', '==', pasteId)
@@ -35,25 +34,25 @@ const Pastes = (function() {
                     commentCount = 0;
                 }
 
-                allPastesCache.push({
+                this.allPastesCache.push({
                     id: pasteId,
                     ...paste,
                     commentCount: commentCount
                 });
             }
 
-            totalPastes = allPastesCache.length;
-            totalPages = Math.ceil(totalPastes / itemsPerPage);
-            currentPage = 1;
+            this.totalPastes = this.allPastesCache.length;
+            this.totalPages = Math.ceil(this.totalPastes / this.itemsPerPage);
+            this.currentPage = 1;
 
-            await displayPaginationPastes();
-            updatePaginationUI();
+            await this.displayPaginationPastes();
+            this.updatePaginationUI();
         } catch (error) {
             console.error('Error loading pagination data:', error);
         }
-    }
+    },
 
-    async function loadPinnedPastes() {
+    loadPinnedPastes: async function() {
         try {
             const snapshot = await db.collection('pastes')
                 .where('isPinned', '==', true)
@@ -95,7 +94,7 @@ const Pastes = (function() {
                 titleLink.href = '#';
                 titleLink.className = 'paste-title-link';
                 titleLink.textContent = Utils.sanitizeHTML(paste.title);
-                titleLink.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
+                titleLink.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(pasteId); };
                 titleCell.appendChild(titleLink);
                 
                 const pinnedBadge = document.createElement('span');
@@ -107,14 +106,14 @@ const Pastes = (function() {
                 const commentsSpan = document.createElement('span');
                 commentsSpan.className = 'comments-count';
                 commentsSpan.textContent = paste.commentCount || 0;
-                commentsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
+                commentsSpan.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(pasteId); };
                 commentsCell.appendChild(commentsSpan);
 
                 const viewsCell = document.createElement('td');
                 const viewsSpan = document.createElement('span');
                 viewsSpan.className = 'views-count';
                 viewsSpan.textContent = paste.views || 0;
-                viewsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(pasteId); };
+                viewsSpan.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(pasteId); };
                 viewsCell.appendChild(viewsSpan);
 
                 const userCell = document.createElement('td');
@@ -160,12 +159,12 @@ const Pastes = (function() {
         } catch (error) {
             console.error('Error loading pinned pastes:', error);
         }
-    }
+    },
 
-    async function displayPaginationPastes() {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pagePastes = allPastesCache.slice(startIndex, endIndex);
+    displayPaginationPastes: async function() {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        const pagePastes = this.allPastesCache.slice(startIndex, endIndex);
 
         const container = document.getElementById('all-pastes-body');
         container.innerHTML = '';
@@ -199,7 +198,7 @@ const Pastes = (function() {
             titleLink.href = '#';
             titleLink.className = 'paste-title-link';
             titleLink.textContent = Utils.sanitizeHTML(paste.title);
-            titleLink.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+            titleLink.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(paste.id); };
             titleCell.appendChild(titleLink);
             
             if (paste.isPinned) {
@@ -213,14 +212,14 @@ const Pastes = (function() {
             const commentsSpan = document.createElement('span');
             commentsSpan.className = 'comments-count';
             commentsSpan.textContent = paste.commentCount || 0;
-            commentsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+            commentsSpan.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(paste.id); };
             commentsCell.appendChild(commentsSpan);
 
             const viewsCell = document.createElement('td');
             const viewsSpan = document.createElement('span');
             viewsSpan.className = 'views-count';
             viewsSpan.textContent = paste.views || 0;
-            viewsSpan.onclick = function(e) { e.preventDefault(); showPasteDetail(paste.id); };
+            viewsSpan.onclick = function(e) { e.preventDefault(); Pastes.showPasteDetail(paste.id); };
             viewsCell.appendChild(viewsSpan);
 
             const userCell = document.createElement('td');
@@ -263,32 +262,32 @@ const Pastes = (function() {
             row.appendChild(dateCell);
             container.appendChild(row);
         }
-    }
+    },
 
-    function updatePaginationUI() {
+    updatePaginationUI: function() {
         const paginationContainer = document.getElementById('pagination-container');
         const pageNumbersContainer = document.getElementById('page-numbers');
         const prevBtn = document.getElementById('prev-page-btn');
         const nextBtn = document.getElementById('next-page-btn');
         const paginationInfo = document.getElementById('pagination-info');
 
-        prevBtn.disabled = currentPage <= 1;
-        nextBtn.disabled = currentPage >= totalPages;
+        prevBtn.disabled = this.currentPage <= 1;
+        nextBtn.disabled = this.currentPage >= this.totalPages;
         pageNumbersContainer.innerHTML = '';
 
-        if (totalPages > 0) {
+        if (this.totalPages > 0) {
             const createPageNumber = (pageNum) => {
                 const btn = document.createElement('button');
-                btn.className = `page-number ${pageNum === currentPage ? 'active' : ''}`;
+                btn.className = `page-number ${pageNum === this.currentPage ? 'active' : ''}`;
                 btn.textContent = pageNum;
-                btn.onclick = function() { changePage(pageNum); };
+                btn.onclick = () => this.changePage(pageNum);
                 pageNumbersContainer.appendChild(btn);
             };
 
             createPageNumber(1);
 
-            let startPage = Math.max(2, currentPage - 1);
-            let endPage = Math.min(totalPages - 1, currentPage + 1);
+            let startPage = Math.max(2, this.currentPage - 1);
+            let endPage = Math.min(this.totalPages - 1, this.currentPage + 1);
 
             if (startPage > 2) {
                 const ellipsis = document.createElement('span');
@@ -301,41 +300,47 @@ const Pastes = (function() {
                 createPageNumber(i);
             }
 
-            if (endPage < totalPages - 1) {
+            if (endPage < this.totalPages - 1) {
                 const ellipsis = document.createElement('span');
                 ellipsis.className = 'page-ellipsis';
                 ellipsis.textContent = '...';
                 pageNumbersContainer.appendChild(ellipsis);
             }
 
-            if (totalPages > 1) {
-                createPageNumber(totalPages);
+            if (this.totalPages > 1) {
+                createPageNumber(this.totalPages);
             }
 
-            const startItem = ((currentPage - 1) * itemsPerPage) + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalPastes);
-            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${totalPastes} pastes`;
+            const startItem = ((this.currentPage - 1) * this.itemsPerPage) + 1;
+            const endItem = Math.min(this.currentPage * this.itemsPerPage, this.totalPastes);
+            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${this.totalPastes} pastes`;
             paginationContainer.classList.remove('hidden');
         } else {
             paginationContainer.classList.add('hidden');
         }
-    }
+    },
 
-    function changePage(pageNum) {
-        if (pageNum < 1 || pageNum > totalPages || pageNum === currentPage) return;
-        currentPage = pageNum;
-        displayPaginationPastes();
-        updatePaginationUI();
+    changePage: function(pageNum) {
+        if (pageNum < 1 || pageNum > this.totalPages || pageNum === this.currentPage) return;
+        this.currentPage = pageNum;
+        this.displayPaginationPastes();
+        this.updatePaginationUI();
         document.getElementById('pastes-container').scrollIntoView({ behavior: 'smooth' });
-    }
+    },
 
-    async function publishPaste() {
+    publishPaste: async function() {
         const user = Auth.getCurrentUser();
         const userData = Auth.getCurrentUserData();
 
         if (!user) {
             Utils.showAlert('Please sign in', 'error');
             Utils.showPage('auth');
+            return;
+        }
+
+        const verifyCheckbox = document.getElementById('verify-human');
+        if (!verifyCheckbox || !verifyCheckbox.checked) {
+            Utils.showAlert('Please verify you are human', 'error');
             return;
         }
 
@@ -366,13 +371,14 @@ const Pastes = (function() {
             Utils.showAlert('Paste created', 'success');
             document.getElementById('paste-title').value = '';
             document.getElementById('paste-content').value = '';
+            document.getElementById('verify-human').checked = false;
             Utils.showPage('home');
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    async function showPasteDetail(pasteId) {
+    showPasteDetail: async function(pasteId) {
         try {
             await db.collection('pastes').doc(pasteId).update({
                 views: firebase.firestore.FieldValue.increment(1)
@@ -485,30 +491,30 @@ const Pastes = (function() {
             Comments.loadComments(pasteId);
             document.getElementById('paste-detail-container').classList.add('active');
             document.body.style.overflow = 'hidden';
-            currentPasteId = pasteId;
+            this.currentPasteId = pasteId;
         } catch (error) {
             Utils.showAlert(error.message, 'error');
         }
-    }
+    },
 
-    function closePasteDetail() {
+    closePasteDetail: function() {
         document.getElementById('paste-detail-container').classList.remove('active');
         document.body.style.overflow = 'auto';
-        currentPasteId = null;
-    }
+        this.currentPasteId = null;
+    },
 
-    function showRawPaste(pasteId) {
+    showRawPaste: function(pasteId) {
         document.getElementById('raw-paste-container').classList.add('active');
         document.body.style.overflow = 'hidden';
-        loadRawContent(pasteId);
-    }
+        this.loadRawContent(pasteId);
+    },
 
-    function closeRawPaste() {
+    closeRawPaste: function() {
         document.getElementById('raw-paste-container').classList.remove('active');
         document.body.style.overflow = 'auto';
-    }
+    },
 
-    async function loadRawContent(pasteId) {
+    loadRawContent: async function(pasteId) {
         try {
             const doc = await db.collection('pastes').doc(pasteId).get();
             if (doc.exists) {
@@ -518,9 +524,9 @@ const Pastes = (function() {
         } catch (error) {
             console.error('Error loading raw paste:', error);
         }
-    }
+    },
 
-    function copyRawPaste() {
+    copyRawPaste: function() {
         const rawContent = document.querySelector('.raw-paste-view');
         if (rawContent) {
             const textArea = document.createElement('textarea');
@@ -531,37 +537,25 @@ const Pastes = (function() {
             document.body.removeChild(textArea);
             Utils.showAlert('Raw paste copied!', 'success');
         }
-    }
+    },
 
-    function copyShareLink(linkId) {
+    copyShareLink: function(linkId) {
         const shareLinkInput = document.getElementById(`share-link-${linkId}`);
         if (shareLinkInput) {
             shareLinkInput.select();
             document.execCommand('copy');
             Utils.showAlert('Link copied!', 'success');
         }
-    }
+    },
 
-    function performSearch() {
+    performSearch: function() {
         const searchTerm = document.getElementById('searchBar').value.trim();
         if (searchTerm) {
-            // Implement search
-            console.log('Searching for:', searchTerm);
+            Utils.showAlert('Search feature coming soon', 'info');
         } else {
-            loadPaginationData();
+            this.loadPaginationData();
         }
     }
+};
 
-    return {
-        loadPaginationData,
-        loadPinnedPastes,
-        publishPaste,
-        showPasteDetail,
-        closePasteDetail,
-        showRawPaste,
-        closeRawPaste,
-        copyRawPaste,
-        copyShareLink,
-        performSearch
-    };
-})();
+window.Pastes = Pastes;
